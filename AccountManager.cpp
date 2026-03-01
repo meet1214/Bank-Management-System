@@ -5,15 +5,15 @@
 #include <fstream>
 #include <sstream>
 #include <functional>
+#include <algorithm>
 
 using namespace std;
 
 // ================= FIND USER =================
 int AccountManager::findUserIndex(const string& accNo) const {
     for (size_t i = 0; i < users.size(); ++i) {
-        if (users[i].getAccountNumber() == accNo) {
+        if (users[i].getAccountNumber() == accNo)
             return i;
-        }
     }
     return -1;
 }
@@ -25,11 +25,10 @@ string AccountManager::generateAccountNumber() {
 
     string sequence = to_string(lastSequenceNumber);
 
-    while (sequence.length() < 8) {
+    while (sequence.length() < 8)
         sequence = "0" + sequence;
-    }
 
-    return branchCode + sequence;   // 12-digit final number
+    return branchCode + sequence;
 }
 
 // ================= CREATE ACCOUNT =================
@@ -37,7 +36,8 @@ bool AccountManager::createAccount(const string& name, int pin) {
 
     string accNo = generateAccountNumber();
 
-    size_t hashValue = std::hash<std::string>{}(std::to_string(pin));
+    size_t hashValue =
+        std::hash<std::string>{}(std::to_string(pin));
 
     users.push_back(
         BankAccount(accNo, name, hashValue, 0.0, "user", false)
@@ -51,7 +51,8 @@ bool AccountManager::createAccount(const string& name, int pin) {
 }
 
 // ================= LOGIN =================
-BankAccount* AccountManager::loginAccount(const string& accNo, int pin) {
+BankAccount* AccountManager::loginAccount(
+        const string& accNo, int pin) {
 
     for (auto& user : users) {
 
@@ -65,10 +66,12 @@ BankAccount* AccountManager::loginAccount(const string& accNo, int pin) {
             if (user.authenticatePin(pin))
                 return &user;
 
+            cout << "Invalid PIN.\n";
             return nullptr;
         }
     }
 
+    cout << "Account not found.\n";
     return nullptr;
 }
 
@@ -76,6 +79,7 @@ BankAccount* AccountManager::loginAccount(const string& accNo, int pin) {
 void AccountManager::saveToFile() const {
 
     std::filesystem::create_directories("data");
+
     ofstream file("data/accounts.txt");
 
     if (!file) {
@@ -101,7 +105,6 @@ void AccountManager::loadFromFile() {
     users.clear();
     lastSequenceNumber = 0;
 
-    // Ensure data directory exists
     std::filesystem::create_directories("data");
 
     ifstream file("data/accounts.txt");
@@ -112,44 +115,73 @@ void AccountManager::loadFromFile() {
 
         while (getline(file, line)) {
 
+            if (line.empty())
+                continue;
+
             stringstream ss(line);
 
-            string accNo, name, pinHashStr, balanceStr, role, lockStr;
+            string accNo, name,
+                   pinHashStr, balanceStr,
+                   lockStr, role;
 
+            // Correct order (must match saveToFile)
             getline(ss, accNo, '|');
             getline(ss, name, '|');
             getline(ss, pinHashStr, '|');
             getline(ss, balanceStr, '|');
-            getline(ss, role, '|');
             getline(ss, lockStr, '|');
+            getline(ss, role, '|');
 
             if (accNo.empty())
                 continue;
 
-            size_t pinHash = stoull(pinHashStr);
-            double balance = stod(balanceStr);
-            bool isLocked = (lockStr == "1");
+            try {
 
-            // Create account using full constructor
-            BankAccount account(accNo, name, pinHash, balance, role, isLocked);
+                size_t pinHash = stoull(pinHashStr);
+                double balance = stod(balanceStr);
+                bool isLocked = (lockStr == "1");
 
-            users.push_back(account);
+                BankAccount account(
+                    accNo,
+                    name,
+                    pinHash,
+                    balance,
+                    role,
+                    isLocked
+                );
 
-            // Extract numeric sequence from account number
-            if (accNo.length() >= 12) {
-                string sequencePart = accNo.substr(4);
-                long long seq = stoll(sequencePart);
+                users.push_back(account);
 
-                if (seq > lastSequenceNumber)
-                    lastSequenceNumber = seq;
+                // Extract numeric sequence safely
+                if (accNo.length() > branchCode.length()) {
+
+                    string sequencePart =
+                        accNo.substr(branchCode.length());
+
+                    bool isNumeric =
+                        !sequencePart.empty() &&
+                        all_of(sequencePart.begin(),
+                               sequencePart.end(),
+                               ::isdigit);
+
+                    if (isNumeric) {
+                        long long seq = stoll(sequencePart);
+
+                        if (seq > lastSequenceNumber)
+                            lastSequenceNumber = seq;
+                    }
+                }
+            }
+            catch (...) {
+                cout << "Warning: Skipping corrupted account entry.\n";
+                continue;
             }
         }
 
         file.close();
     }
 
-    // ================= Ensure at least one admin exists =================
-
+    // ================= ENSURE ADMIN EXISTS =================
     bool adminExists = false;
 
     for (const auto& user : users) {
@@ -161,8 +193,8 @@ void AccountManager::loadFromFile() {
 
     if (!adminExists) {
 
-        // Default admin PIN: 1234 (hashed as string)
-        size_t defaultAdminHash = std::hash<std::string>{}(std::to_string(1234));
+        size_t defaultAdminHash =
+            std::hash<std::string>{}(std::to_string(1234));
 
         users.push_back(
             BankAccount("ADMIN00000001",
@@ -173,20 +205,21 @@ void AccountManager::loadFromFile() {
                         false)
         );
 
-        // This will create data/accounts.txt on first run
         saveToFile();
     }
 }
 
 // ================= GET ACCOUNT BY INDEX =================
 BankAccount* AccountManager::getAccountByIndex(int index) {
-    if (index < 0 || index >= static_cast<int>(users.size())) {
+
+    if (index < 0 ||
+        index >= static_cast<int>(users.size()))
         return nullptr;
-    }
+
     return &users[index];
 }
 
-//================SHOW ADMIN MENU============
+// ================= ADMIN MENU =================
 void AccountManager::showAdminMenu() {
 
     int choice;
@@ -211,19 +244,19 @@ void AccountManager::showAdminMenu() {
                 break;
 
             case 2:
-                cout << "Enter Account Number to Freeze: ";
+                cout << "Enter Account Number: ";
                 cin >> accNo;
                 freezeAccount(accNo);
                 break;
 
             case 3:
-                cout << "Enter Account Number to Unfreeze: ";
+                cout << "Enter Account Number: ";
                 cin >> accNo;
                 unfreezeAccount(accNo);
                 break;
 
             case 4:
-                cout << "Enter Account Number to Delete: ";
+                cout << "Enter Account Number: ";
                 cin >> accNo;
                 deleteAccount(accNo);
                 break;
@@ -243,7 +276,7 @@ void AccountManager::showAdminMenu() {
     } while (choice != 6);
 }
 
-//=========VIEW ALL ACCOUNTS================
+// ================= VIEW ALL ACCOUNTS =================
 void AccountManager::viewAllAccounts() const {
 
     cout << "\n----- All User Accounts -----\n";
@@ -253,17 +286,23 @@ void AccountManager::viewAllAccounts() const {
         if (user.getRole() == "admin")
             continue;
 
-        cout << "Account No: " << user.getAccountNumber() << "\n";
-        cout << "Name: " << user.getName() << "\n";
-        cout << "Balance: ₹" << user.getBalance() << "\n";
+        cout << "Account No: "
+             << user.getAccountNumber() << "\n";
+        cout << "Name: "
+             << user.getName() << "\n";
+        cout << "Balance: ₹"
+             << user.getBalance() << "\n";
         cout << "Status: "
-             << (user.getLockStatus() ? "Locked" : "Active")
+             << (user.getLockStatus()
+                 ? "Locked"
+                 : "Active")
              << "\n-----------------------------\n";
     }
 }
 
-//=========FREEZE ACCOUNTS================
-void AccountManager::freezeAccount(const string& accNo) {
+// ================= FREEZE ACCOUNT =================
+void AccountManager::freezeAccount(
+        const string& accNo) {
 
     int index = findUserIndex(accNo);
 
@@ -283,8 +322,9 @@ void AccountManager::freezeAccount(const string& accNo) {
     cout << "Account frozen successfully.\n";
 }
 
-//============UNFREEZE ACCOUNTS===============
-void AccountManager::unfreezeAccount(const string& accNo) {
+// ================= UNFREEZE ACCOUNT =================
+void AccountManager::unfreezeAccount(
+        const string& accNo) {
 
     int index = findUserIndex(accNo);
 
@@ -299,8 +339,9 @@ void AccountManager::unfreezeAccount(const string& accNo) {
     cout << "Account unfrozen successfully.\n";
 }
 
-//==========DELETE ACCOUNT=================
-void AccountManager::deleteAccount(const string& accNo) {
+// ================= DELETE ACCOUNT =================
+void AccountManager::deleteAccount(
+        const string& accNo) {
 
     int index = findUserIndex(accNo);
 
@@ -314,17 +355,19 @@ void AccountManager::deleteAccount(const string& accNo) {
         return;
     }
 
-    // Delete per-account transaction file
-    string filePath = "data/transactions/" + accNo + ".txt";
+    string filePath =
+        "data/transactions/" + accNo + ".txt";
+
     std::filesystem::remove(filePath);
 
     users.erase(users.begin() + index);
+
     saveToFile();
 
     cout << "Account deleted successfully.\n";
 }
 
-//========SHOW TOTAL BANK BALANCE===============
+// ================= TOTAL BANK BALANCE =================
 void AccountManager::showTotalBankBalance() const {
 
     double total = 0;
@@ -334,6 +377,6 @@ void AccountManager::showTotalBankBalance() const {
             total += user.getBalance();
     }
 
-    cout << "Total Bank Balance (All Users): ₹" << total << "\n";
+    cout << "Total Bank Balance: ₹"
+         << total << "\n";
 }
-
