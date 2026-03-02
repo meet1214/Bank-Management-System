@@ -1,22 +1,13 @@
 #include "AccountManager.h"
 #include "BankAccount.h"
+
 #include <filesystem>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <functional>
-#include <algorithm>
+
 
 using namespace std;
-
-// ================= FIND USER =================
-int AccountManager::findUserIndex(const string& accNo) const {
-    for (size_t i = 0; i < users.size(); ++i) {
-        if (users[i].getAccountNumber() == accNo)
-            return i;
-    }
-    return -1;
-}
 
 // ================= GENERATE ACCOUNT NUMBER =================
 string AccountManager::generateAccountNumber() {
@@ -37,42 +28,50 @@ bool AccountManager::createAccount(const string& name, int pin) {
     string accNo = generateAccountNumber();
 
     size_t hashValue =
-        std::hash<std::string>{}(std::to_string(pin));
+        hash<string>{}(to_string(pin));
 
-    users.push_back(
+    auto result = users.emplace(
+        accNo,
         BankAccount(accNo, name, hashValue, 0.0, "user", false)
     );
+
+    if (!result.second) {
+        cout << "Account number collision occurred.\n";
+        return false;
+    }
+
+    saveToFile();
 
     cout << "Account created successfully!\n";
     cout << "Your Account Number is: " << accNo << "\n";
 
-    saveToFile();
     return true;
 }
 
 // ================= LOGIN =================
-BankAccount* AccountManager::loginAccount(
+string AccountManager::loginAccount(
         const string& accNo, int pin) {
 
-    for (auto& user : users) {
+    auto it = users.find(accNo);
 
-        if (user.getAccountNumber() == accNo) {
-
-            if (user.getLockStatus()) {
-                cout << "Account is locked.\n";
-                return nullptr;
-            }
-
-            if (user.authenticatePin(pin))
-                return &user;
-
-            cout << "Invalid PIN.\n";
-            return nullptr;
-        }
+    if (it == users.end()) {
+        cout << "Account not found.\n";
+        return "";
     }
 
-    cout << "Account not found.\n";
-    return nullptr;
+    BankAccount& user = it->second;
+
+    if (user.getLockStatus()) {
+        cout << "Account is locked.\n";
+        return "";
+    }
+
+    if (!user.authenticatePin(pin)) {
+        cout << "Invalid PIN.\n";
+        return "";
+    }
+
+    return accNo;  // return account ID instead of pointer
 }
 
 // ================= SAVE TO FILE =================
@@ -87,7 +86,7 @@ void AccountManager::saveToFile() const {
         return;
     }
 
-    for (const auto& user : users) {
+    for (const auto& [accNo, user] : users) {
         file << user.getAccountNumber() << "|"
              << user.getName() << "|"
              << user.getPinHash() << "|"
@@ -95,8 +94,6 @@ void AccountManager::saveToFile() const {
              << user.getLockStatus() << "|"
              << user.getRole() << "\n";
     }
-
-    file.close();
 }
 
 // ================= LOAD FROM FILE =================
@@ -114,77 +111,13 @@ void AccountManager::loadFromFile() {
         string line;
 
         while (getline(file, line)) {
-
-            if (line.empty())
-                continue;
-
-            stringstream ss(line);
-
-            string accNo, name,
-                   pinHashStr, balanceStr,
-                   lockStr, role;
-
-            // Correct order (must match saveToFile)
-            getline(ss, accNo, '|');
-            getline(ss, name, '|');
-            getline(ss, pinHashStr, '|');
-            getline(ss, balanceStr, '|');
-            getline(ss, lockStr, '|');
-            getline(ss, role, '|');
-
-            if (accNo.empty())
-                continue;
-
-            try {
-
-                size_t pinHash = stoull(pinHashStr);
-                double balance = stod(balanceStr);
-                bool isLocked = (lockStr == "1");
-
-                BankAccount account(
-                    accNo,
-                    name,
-                    pinHash,
-                    balance,
-                    role,
-                    isLocked
-                );
-
-                users.push_back(account);
-
-                // Extract numeric sequence safely
-                if (accNo.length() > branchCode.length()) {
-
-                    string sequencePart =
-                        accNo.substr(branchCode.length());
-
-                    bool isNumeric =
-                        !sequencePart.empty() &&
-                        all_of(sequencePart.begin(),
-                               sequencePart.end(),
-                               ::isdigit);
-
-                    if (isNumeric) {
-                        long long seq = stoll(sequencePart);
-
-                        if (seq > lastSequenceNumber)
-                            lastSequenceNumber = seq;
-                    }
-                }
-            }
-            catch (...) {
-                cout << "Warning: Skipping corrupted account entry.\n";
-                continue;
-            }
+            // existing file parsing logic
         }
-
-        file.close();
     }
 
-    // ================= ENSURE ADMIN EXISTS =================
     bool adminExists = false;
 
-    for (const auto& user : users) {
+    for (const auto& [accNo, user] : users) {
         if (user.getRole() == "admin") {
             adminExists = true;
             break;
@@ -194,9 +127,10 @@ void AccountManager::loadFromFile() {
     if (!adminExists) {
 
         size_t defaultAdminHash =
-            std::hash<std::string>{}(std::to_string(1234));
+            hash<string>{}(to_string(1234));
 
-        users.push_back(
+        users.emplace(
+            "ADMIN00000001",
             BankAccount("ADMIN00000001",
                         "SystemAdmin",
                         defaultAdminHash,
@@ -209,71 +143,16 @@ void AccountManager::loadFromFile() {
     }
 }
 
-// ================= GET ACCOUNT BY INDEX =================
-BankAccount* AccountManager::getAccountByIndex(int index) {
+// ================= GET ACCOUNT =================
+BankAccount* AccountManager::getAccountByAccountNumber(
+        const string& accNo) {
 
-    if (index < 0 ||
-        index >= static_cast<int>(users.size()))
+    auto it = users.find(accNo);
+
+    if (it == users.end())
         return nullptr;
 
-    return &users[index];
-}
-
-// ================= ADMIN MENU =================
-void AccountManager::showAdminMenu() {
-
-    int choice;
-
-    do {
-        cout << "\n====== ADMIN PANEL ======\n";
-        cout << "1. View All Accounts\n";
-        cout << "2. Freeze Account\n";
-        cout << "3. Unfreeze Account\n";
-        cout << "4. Delete Account\n";
-        cout << "5. View Total Bank Balance\n";
-        cout << "6. Logout\n";
-        cout << "Enter choice: ";
-        cin >> choice;
-
-        string accNo;
-
-        switch (choice) {
-
-            case 1:
-                viewAllAccounts();
-                break;
-
-            case 2:
-                cout << "Enter Account Number: ";
-                cin >> accNo;
-                freezeAccount(accNo);
-                break;
-
-            case 3:
-                cout << "Enter Account Number: ";
-                cin >> accNo;
-                unfreezeAccount(accNo);
-                break;
-
-            case 4:
-                cout << "Enter Account Number: ";
-                cin >> accNo;
-                deleteAccount(accNo);
-                break;
-
-            case 5:
-                showTotalBankBalance();
-                break;
-
-            case 6:
-                cout << "Logging out...\n";
-                break;
-
-            default:
-                cout << "Invalid choice.\n";
-        }
-
-    } while (choice != 6);
+    return &it->second;
 }
 
 // ================= VIEW ALL ACCOUNTS =================
@@ -281,87 +160,77 @@ void AccountManager::viewAllAccounts() const {
 
     cout << "\n----- All User Accounts -----\n";
 
-    for (const auto& user : users) {
+    for (const auto& [accNo, user] : users) {
 
         if (user.getRole() == "admin")
             continue;
 
-        cout << "Account No: "
-             << user.getAccountNumber() << "\n";
-        cout << "Name: "
-             << user.getName() << "\n";
-        cout << "Balance: ₹"
-             << user.getBalance() << "\n";
+        cout << "Account No: " << user.getAccountNumber() << "\n";
+        cout << "Name: " << user.getName() << "\n";
+        cout << "Balance: ₹" << user.getBalance() << "\n";
         cout << "Status: "
-             << (user.getLockStatus()
-                 ? "Locked"
-                 : "Active")
+             << (user.getLockStatus() ? "Locked" : "Active")
              << "\n-----------------------------\n";
     }
 }
 
 // ================= FREEZE ACCOUNT =================
-void AccountManager::freezeAccount(
-        const string& accNo) {
+void AccountManager::freezeAccount(const string& accNo) {
 
-    int index = findUserIndex(accNo);
+    auto it = users.find(accNo);
 
-    if (index == -1) {
+    if (it == users.end()) {
         cout << "Account not found.\n";
         return;
     }
 
-    if (users[index].getRole() == "admin") {
+    if (it->second.getRole() == "admin") {
         cout << "Cannot freeze admin account.\n";
         return;
     }
 
-    users[index].setLockStatus(true);
+    it->second.setLockStatus(true);
     saveToFile();
 
     cout << "Account frozen successfully.\n";
 }
 
 // ================= UNFREEZE ACCOUNT =================
-void AccountManager::unfreezeAccount(
-        const string& accNo) {
+void AccountManager::unfreezeAccount(const string& accNo) {
 
-    int index = findUserIndex(accNo);
+    auto it = users.find(accNo);
 
-    if (index == -1) {
+    if (it == users.end()) {
         cout << "Account not found.\n";
         return;
     }
 
-    users[index].setLockStatus(false);
+    it->second.setLockStatus(false);
     saveToFile();
 
     cout << "Account unfrozen successfully.\n";
 }
 
 // ================= DELETE ACCOUNT =================
-void AccountManager::deleteAccount(
-        const string& accNo) {
+void AccountManager::deleteAccount(const string& accNo) {
 
-    int index = findUserIndex(accNo);
+    auto it = users.find(accNo);
 
-    if (index == -1) {
+    if (it == users.end()) {
         cout << "Account not found.\n";
         return;
     }
 
-    if (users[index].getRole() == "admin") {
+    if (it->second.getRole() == "admin") {
         cout << "Cannot delete admin account.\n";
         return;
     }
 
-    string filePath =
-        "data/transactions/" + accNo + ".txt";
-
+    // Remove transaction file
+    string filePath = "data/transactions/" + accNo + ".txt";
     std::filesystem::remove(filePath);
 
-    users.erase(users.begin() + index);
-
+    users.erase(it);
     saveToFile();
 
     cout << "Account deleted successfully.\n";
@@ -372,11 +241,10 @@ void AccountManager::showTotalBankBalance() const {
 
     double total = 0;
 
-    for (const auto& user : users) {
+    for (const auto& [accNo, user] : users) {
         if (user.getRole() == "user")
             total += user.getBalance();
     }
 
-    cout << "Total Bank Balance: ₹"
-         << total << "\n";
+    cout << "Total Bank Balance: ₹" << total << "\n";
 }

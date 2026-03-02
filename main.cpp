@@ -1,5 +1,6 @@
 #include "AccountManager.h"
 #include "Utils.h"
+
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -7,10 +8,12 @@
 using namespace std;
 
 int main() {
+
     AccountManager manager;
     manager.loadFromFile();
 
     while (true) {
+
         cout << "\n===== MAIN MENU =====\n";
         cout << "1. Create Account\n";
         cout << "2. Login\n";
@@ -31,6 +34,7 @@ int main() {
 
         // ================= CREATE ACCOUNT =================
         case 1: {
+
             string name;
             int pin;
 
@@ -47,10 +51,7 @@ int main() {
                 break;
             }
 
-            if (manager.createAccount(name, pin)) {
-                manager.saveToFile();
-            }
-
+            manager.createAccount(name, pin);
             break;
         }
 
@@ -61,14 +62,7 @@ int main() {
             cout << "Enter Your Account Number: ";
             getline(cin >> ws, accNo);
 
-            int index = manager.findUserIndex(accNo);
-
-            if (index == -1) {
-                cout << "User not found.\n";
-                break;
-            }
-
-            BankAccount* currentUser = nullptr;
+            string currentUserId = "";
 
             const int MAX_ATTEMPTS = 3;
             const int COOLDOWN_SECONDS = 10;
@@ -90,14 +84,15 @@ int main() {
 
                 try {
                     pin = stoi(pinStr);
-                } catch (...) {
+                }
+                catch (...) {
                     cout << "Invalid PIN format.\n";
                     continue;
                 }
 
-                currentUser = manager.loginAccount(accNo, pin);
+                currentUserId = manager.loginAccount(accNo, pin);
 
-                if (currentUser) {
+                if (!currentUserId.empty()) {
                     cout << "Login successful!\n";
                     break;
                 }
@@ -108,13 +103,16 @@ int main() {
             }
 
             // ===== COOLDOWN =====
-            if (!currentUser) {
+            if (currentUserId.empty()) {
 
                 cout << "\nToo many failed attempts.\n";
-                cout << "Account locked for " << COOLDOWN_SECONDS << " seconds.\n";
+                cout << "Retrying allowed in "
+                     << COOLDOWN_SECONDS
+                     << " seconds.\n";
 
                 for (int i = COOLDOWN_SECONDS; i > 0; --i) {
-                    cout << "Retry in " << i << " seconds...\r" << flush;
+                    cout << "Retry in " << i
+                         << " seconds...\r" << flush;
                     this_thread::sleep_for(chrono::seconds(1));
                 }
 
@@ -122,7 +120,16 @@ int main() {
                 break;
             }
 
-            // ===== ROLE CHECK =====
+            // Fetch logged-in account safely
+            BankAccount* currentUser =
+                manager.getAccountByAccountNumber(currentUserId);
+
+            if (!currentUser) {
+                cout << "Unexpected error. Please login again.\n";
+                break;
+            }
+
+            // ================= ROLE CHECK =================
             if (currentUser->getRole() == "admin") {
 
                 cout << "Welcome Admin.\n";
@@ -161,7 +168,6 @@ int main() {
                         cout << "Enter account number: ";
                         getline(cin >> ws, acc);
                         manager.freezeAccount(acc);
-                        manager.saveToFile();
                         break;
                     }
 
@@ -170,7 +176,6 @@ int main() {
                         cout << "Enter account number: ";
                         getline(cin >> ws, acc);
                         manager.unfreezeAccount(acc);
-                        manager.saveToFile();
                         break;
                     }
 
@@ -179,7 +184,6 @@ int main() {
                         cout << "Enter account number: ";
                         getline(cin >> ws, acc);
                         manager.deleteAccount(acc);
-                        manager.saveToFile();
                         break;
                     }
 
@@ -198,7 +202,7 @@ int main() {
                 }
             }
 
-            // ===== USER MENU =====
+            // ================= USER MENU =================
             else {
 
                 currentUser->loadTransactionsFromFile();
@@ -273,15 +277,17 @@ int main() {
                         cout << "Enter receiver account number: ";
                         getline(cin >> ws, receiverAcc);
 
-                        int receiverIndex = manager.findUserIndex(receiverAcc);
-
-                        if (receiverIndex == -1) {
-                            cout << "Receiver not found.\n";
+                        if (receiverAcc ==
+                            currentUser->getAccountNumber()) {
+                            cout << "Cannot transfer to same account.\n";
                             break;
                         }
 
-                        if (receiverAcc == currentUser->getAccountNumber()) {
-                            cout << "Cannot transfer to same account.\n";
+                        BankAccount* receiver =
+                            manager.getAccountByAccountNumber(receiverAcc);
+
+                        if (!receiver) {
+                            cout << "Receiver not found.\n";
                             break;
                         }
 
@@ -295,14 +301,9 @@ int main() {
                             break;
                         }
 
-                        BankAccount* receiver = manager.getAccountByIndex(receiverIndex);
+                        if (currentUser->transferMoney(
+                                *receiver, amount)) {
 
-                        if (!receiver) {
-                            cout << "Receiver account not available.\n";
-                            break;
-                        }
-
-                        if (currentUser->transferMoney(*receiver, amount)) {
                             manager.saveToFile();
                             cout << "Transfer successful.\n";
                         }

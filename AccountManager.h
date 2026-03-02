@@ -4,10 +4,11 @@
 #include "BankAccount.h"
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 class AccountManager{
 private:
-    std::vector<BankAccount> users;
+    std::unordered_map<std::string, BankAccount> users;;
 
     const std::string branchCode = "BNGL";
     long long lastSequenceNumber = 0;
@@ -22,9 +23,9 @@ public:
 
     //==========USER PANEL=============
     bool createAccount(const std::string& name, int pin);
-    BankAccount* loginAccount(const std::string& name, int pin);
+    std::string loginAccount(const std::string& accNo, int pin);
     int findUserIndex(const std::string& name) const;
-    BankAccount* getAccountByIndex(int index);
+    BankAccount* getAccountByAccountNumber(const std::string& accNo);
 
     //=========ADMIN PANEL==============
     void showAdminMenu();
