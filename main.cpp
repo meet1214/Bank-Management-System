@@ -10,7 +10,7 @@ using namespace std;
 int main() {
 
     AccountManager manager;
-    manager.loadFromFile();
+    manager.load();
 
     while (true) {
 
@@ -245,7 +245,7 @@ int main() {
                         }
 
                         currentUser->depositMoney(amount);
-                        manager.saveToFile();
+                        manager.save();
                         cout << "Deposit successful.\n";
                         break;
                     }
@@ -263,7 +263,7 @@ int main() {
                         }
 
                         if (currentUser->withdrawMoney(amount)) {
-                            manager.saveToFile();
+                            manager.save();
                             cout << "Withdrawal successful.\n";
                         }
 
@@ -304,7 +304,7 @@ int main() {
                         if (currentUser->transferMoney(
                                 *receiver, amount)) {
 
-                            manager.saveToFile();
+                            manager.save();
                             cout << "Transfer successful.\n";
                         }
 
@@ -335,7 +335,7 @@ int main() {
 
         // ================= EXIT =================
         case 3:
-            manager.saveToFile();
+            manager.save();
             cout << "Thank you for banking with us.\n";
             return 0;
 

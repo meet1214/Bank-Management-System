@@ -1,9 +1,9 @@
 #include "AccountManager.h"
 #include "BankAccount.h"
+#include "FileManager.h"
 
 #include <filesystem>
 #include <iostream>
-#include <fstream>
 #include <functional>
 
 
@@ -40,7 +40,7 @@ bool AccountManager::createAccount(const string& name, int pin) {
         return false;
     }
 
-    saveToFile();
+    save();
 
     cout << "Account created successfully!\n";
     cout << "Your Account Number is: " << accNo << "\n";
@@ -75,72 +75,40 @@ string AccountManager::loginAccount(
 }
 
 // ================= SAVE TO FILE =================
-void AccountManager::saveToFile() const {
-
-    std::filesystem::create_directories("data");
-
-    ofstream file("data/accounts.txt");
-
-    if (!file) {
-        cout << "Error saving file.\n";
-        return;
-    }
-
-    for (const auto& [accNo, user] : users) {
-        file << user.getAccountNumber() << "|"
-             << user.getName() << "|"
-             << user.getPinHash() << "|"
-             << user.getBalance() << "|"
-             << user.getLockStatus() << "|"
-             << user.getRole() << "\n";
-    }
+void AccountManager::save() const {
+    FileManager::saveAccounts(users);
 }
 
 // ================= LOAD FROM FILE =================
-void AccountManager::loadFromFile() {
+void AccountManager::load() {
+    FileManager::loadAccounts(users,
+                              lastSequenceNumber,
+                              branchCode);
 
-    users.clear();
-    lastSequenceNumber = 0;
-
-    std::filesystem::create_directories("data");
-
-    ifstream file("data/accounts.txt");
-
-    if (file) {
-
-        string line;
-
-        while (getline(file, line)) {
-            // existing file parsing logic
-        }
-    }
-
-    bool adminExists = false;
+    ensureAdminExists();
+}
+//======ENSURE ADMIN EXISTENCE=============
+void AccountManager::ensureAdminExists() {
 
     for (const auto& [accNo, user] : users) {
-        if (user.getRole() == "admin") {
-            adminExists = true;
-            break;
-        }
+        if (user.getRole() == "admin")
+            return;
     }
 
-    if (!adminExists) {
+    size_t defaultAdminHash =
+        std::hash<std::string>{}(std::to_string(1234));
 
-        size_t defaultAdminHash =
-            hash<string>{}(to_string(1234));
+    users.emplace(
+        "ADMIN00000001",
+        BankAccount("ADMIN00000001",
+                    "SystemAdmin",
+                    defaultAdminHash,
+                    0.0,
+                    "admin",
+                    false)
+    );
 
-        users.emplace(
-            "ADMIN00000001",
-            BankAccount("ADMIN00000001",
-                        "SystemAdmin",
-                        defaultAdminHash,
-                        0.0,
-                        "admin",
-                        false)
-        );
-
-        saveToFile();
-    }
+    save();
 }
 
 // ================= GET ACCOUNT =================
@@ -190,7 +158,7 @@ void AccountManager::freezeAccount(const string& accNo) {
     }
 
     it->second.setLockStatus(true);
-    saveToFile();
+    save();
 
     cout << "Account frozen successfully.\n";
 }
@@ -206,7 +174,7 @@ void AccountManager::unfreezeAccount(const string& accNo) {
     }
 
     it->second.setLockStatus(false);
-    saveToFile();
+    save();
 
     cout << "Account unfrozen successfully.\n";
 }
@@ -231,7 +199,7 @@ void AccountManager::deleteAccount(const string& accNo) {
     std::filesystem::remove(filePath);
 
     users.erase(it);
-    saveToFile();
+    save();
 
     cout << "Account deleted successfully.\n";
 }

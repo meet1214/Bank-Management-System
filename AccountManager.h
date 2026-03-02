@@ -18,8 +18,9 @@ private:
 
 public:
     //==========FILE STORAGE=============
-    void loadFromFile();
-    void saveToFile() const;
+    void load();
+    void save() const;
+    void ensureAdminExists();
 
     //==========USER PANEL=============
     bool createAccount(const std::string& name, int pin);
