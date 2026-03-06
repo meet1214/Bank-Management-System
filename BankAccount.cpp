@@ -232,7 +232,7 @@ bool BankAccount::transferMoney(BankAccount &receiver, double amount)
     Transaction receiverTxn;
     receiverTxn.transactionId = receiver.lastTransactionId;
     receiverTxn.dateTime = currentTime;
-    receiverTxn.type = "Transfer From " + name +
+    receiverTxn.type = "Received From " + name +
                        " (" + accountNumber + ")";
     receiverTxn.amount = amount;
     receiverTxn.balance = receiver.balance;
