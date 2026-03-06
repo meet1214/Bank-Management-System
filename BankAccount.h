@@ -17,32 +17,35 @@ class BankAccount {
 private:
     std::string accountNumber;
     std::string name;
-    size_t pinHash;
+    std::string pinHash;   // SHA-256 hex digest (64 chars)
+    std::string salt;      // random per-account salt
     double balance;
     std::vector<Transaction> transactionHistory;
     int lastTransactionId;
-    std::string role;   // "user" or "admin"
+    std::string role;      // "user" or "admin"
     bool isLocked;
 
 public:
     BankAccount(const std::string& accNo,
                 const std::string& n,
-                size_t hash,
+                const std::string& pinHash,
+                const std::string& salt,
                 double b,
                 const std::string& r,
                 bool locked);
 
-    // Basic Getters
+    // Getters
     std::string getName() const;
     std::string getAccountNumber() const;
     double getBalance() const;
-    size_t getPinHash() const;
+    std::string getPinHash() const;
+    std::string getSalt() const;
 
     // Authentication
     bool authenticatePin(int enteredPin) const;
 
-    // PIN Setter (if needed)
-    void setPinHash(size_t hashValue);
+    // PIN Setter
+    void setPinHash(const std::string& hash, const std::string& newSalt);
 
     // Role Handling
     std::string getRole() const { return role; }
@@ -55,14 +58,13 @@ public:
     // Account Operations
     void depositMoney(double amount);
     bool withdrawMoney(double amount);
-    bool transferMoney(BankAccount &receiver, double amount);
-
+    bool transferMoney(BankAccount& receiver, double amount);
     void showBalance() const;
 
     // Transaction Handling
     void showTransactionHistory() const;
     void loadTransactionsFromFile();
-    void saveTransactionToFile(const Transaction &t);
+    void saveTransactionToFile(const Transaction& t);
     std::string getCurrentDateTime() const;
 };
 

@@ -5,7 +5,6 @@
 
 class FileManager {
 public:
-
     static void saveAccounts(
         const std::unordered_map<std::string, BankAccount>& users);
 

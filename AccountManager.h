@@ -28,7 +28,6 @@ public:
     BankAccount* getAccountByAccountNumber(const std::string& accNo);
 
     //=========ADMIN PANEL==============
-    void showAdminMenu();
     void viewAllAccounts() const;
     void freezeAccount(const std::string& accNo);
     void unfreezeAccount(const std::string& accNo);
