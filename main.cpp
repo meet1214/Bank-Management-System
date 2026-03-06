@@ -237,7 +237,6 @@ int main() {
                                 *receiver, amount)) {
 
                             manager.save();
-                            cout << "Transfer successful.\n";
                         }
 
                         break;

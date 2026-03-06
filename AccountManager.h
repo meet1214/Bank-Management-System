@@ -8,7 +8,7 @@
 
 class AccountManager{
 private:
-    std::unordered_map<std::string, BankAccount> users;;
+    std::unordered_map<std::string, BankAccount> users;
 
     const std::string branchCode = "BNGL";
     long long lastSequenceNumber = 0;

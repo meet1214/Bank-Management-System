@@ -203,6 +203,10 @@ bool BankAccount::transferMoney(BankAccount &receiver, double amount)
         cout << "Insufficient balance.\n";
         return false;
     }
+    if(receiver.getLockStatus()) {
+        cout << "Cannot transfer Money to frozen account.\n";
+        return false;
+    }
 
     string currentTime = getCurrentDateTime();
 
