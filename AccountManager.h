@@ -25,7 +25,6 @@ public:
     //==========USER PANEL=============
     bool createAccount(const std::string& name, int pin);
     std::string loginAccount(const std::string& accNo, int pin);
-    int findUserIndex(const std::string& name) const;
     BankAccount* getAccountByAccountNumber(const std::string& accNo);
 
     //=========ADMIN PANEL==============

@@ -60,7 +60,6 @@ public:
     void showBalance() const;
 
     // Transaction Handling
-    void logTransaction(const std::string& type, double amount);
     void showTransactionHistory() const;
     void loadTransactionsFromFile();
     void saveTransactionToFile(const Transaction &t);

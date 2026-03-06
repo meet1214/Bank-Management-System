@@ -131,75 +131,7 @@ int main() {
 
             // ================= ROLE CHECK =================
             if (currentUser->getRole() == "admin") {
-
-                cout << "Welcome Admin.\n";
-
-                bool adminLoggedIn = true;
-
-                while (adminLoggedIn) {
-
-                    cout << "\n===== ADMIN MENU =====\n";
-                    cout << "1. View All Accounts\n";
-                    cout << "2. Freeze Account\n";
-                    cout << "3. Unfreeze Account\n";
-                    cout << "4. Delete Account\n";
-                    cout << "5. Show Total Bank Balance\n";
-                    cout << "6. Logout\n";
-                    cout << "Enter choice: ";
-
-                    int adminChoice;
-                    cin >> adminChoice;
-
-                    if (cin.fail()) {
-                        cin.clear();
-                        cin.ignore(1000, '\n');
-                        cout << "Invalid input!\n";
-                        continue;
-                    }
-
-                    switch (adminChoice) {
-
-                    case 1:
-                        manager.viewAllAccounts();
-                        break;
-
-                    case 2: {
-                        string acc;
-                        cout << "Enter account number: ";
-                        getline(cin >> ws, acc);
-                        manager.freezeAccount(acc);
-                        break;
-                    }
-
-                    case 3: {
-                        string acc;
-                        cout << "Enter account number: ";
-                        getline(cin >> ws, acc);
-                        manager.unfreezeAccount(acc);
-                        break;
-                    }
-
-                    case 4: {
-                        string acc;
-                        cout << "Enter account number: ";
-                        getline(cin >> ws, acc);
-                        manager.deleteAccount(acc);
-                        break;
-                    }
-
-                    case 5:
-                        manager.showTotalBankBalance();
-                        break;
-
-                    case 6:
-                        cout << "Admin logging out...\n";
-                        adminLoggedIn = false;
-                        break;
-
-                    default:
-                        cout << "Invalid option.\n";
-                    }
-                }
+                manager.showAdminMenu();
             }
 
             // ================= USER MENU =================
