@@ -1,2 +1,0 @@
-1|Fri Mar  6 18:33:08 2026|Deposit|50000|50000
-1|Fri Mar  6 18:37:14 2026|Received From Anand Kaushik (BNGL00000002)|2000|52000

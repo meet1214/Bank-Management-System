@@ -18,7 +18,11 @@ BankAccount::BankAccount(const std::string& accNo,
                          const std::string& salt,
                          double b,
                          const std::string& r,
-                         bool locked)
+                         bool locked,
+                         double depositLim,
+                         double withdrawLim,
+                         int    dailyTxnLim,
+                         double dailyTransferLim)
     : accountNumber(accNo),
       name(n),
       pinHash(pinHash),
@@ -27,7 +31,14 @@ BankAccount::BankAccount(const std::string& accNo,
       transactionHistory(),
       lastTransactionId(0),
       role(r),
-      isLocked(locked)
+      isLocked(locked),
+      depositLimit(depositLim),
+      withdrawLimit(withdrawLim),
+      dailyTxnLimit(dailyTxnLim),
+      dailyTransferLimit(dailyTransferLim),
+      dailyTxnCount(0),
+      dailyTransferUsed(0.0),
+      lastTxnDate("")
 {
 }
 
@@ -58,10 +69,48 @@ string BankAccount::getCurrentDateTime() const {
     return timeStr;
 }
 
+// ================= HELPER: GET TODAY'S DATE (YYYY-MM-DD) =================
+static string getTodayDate() {
+    auto now = chrono::system_clock::now();
+    time_t t = chrono::system_clock::to_time_t(now);
+    tm* lt   = localtime(&t);
+    ostringstream oss;
+    oss << (1900 + lt->tm_year) << "-"
+        << setw(2) << setfill('0') << (1 + lt->tm_mon) << "-"
+        << setw(2) << setfill('0') << lt->tm_mday;
+    return oss.str();
+}
+
+// ================= HELPER: RESET DAILY COUNTERS IF NEW DAY =================
+void BankAccount::resetDailyCountersIfNeeded() {
+    string today = getTodayDate();
+    if (lastTxnDate != today) {
+        dailyTxnCount    = 0;
+        dailyTransferUsed = 0.0;
+        lastTxnDate      = today;
+    }
+}
+
 // ================= DEPOSIT =================
 void BankAccount::depositMoney(double amount) {
+
+    resetDailyCountersIfNeeded();
+
+    // Limit checks
+    if (amount > depositLimit) {
+        cout << "Deposit denied. Amount exceeds per-transaction limit of Rs."
+             << fixed << setprecision(2) << depositLimit << "\n";
+        return;
+    }
+    if (dailyTxnCount >= dailyTxnLimit) {
+        cout << "Deposit denied. Daily transaction limit of "
+             << dailyTxnLimit << " reached.\n";
+        return;
+    }
+
     balance += amount;
     ++lastTransactionId;
+    ++dailyTxnCount;
 
     Transaction t;
     t.transactionId = lastTransactionId;
@@ -76,6 +125,19 @@ void BankAccount::depositMoney(double amount) {
 
 // ================= WITHDRAW =================
 bool BankAccount::withdrawMoney(double amount) {
+
+    resetDailyCountersIfNeeded();
+
+    if (amount > withdrawLimit) {
+        cout << "Withdrawal denied. Amount exceeds per-transaction limit of Rs."
+             << fixed << setprecision(2) << withdrawLimit << "\n";
+        return false;
+    }
+    if (dailyTxnCount >= dailyTxnLimit) {
+        cout << "Withdrawal denied. Daily transaction limit of "
+             << dailyTxnLimit << " reached.\n";
+        return false;
+    }
     if (amount > balance) {
         cout << "Insufficient balance.\n";
         return false;
@@ -83,6 +145,7 @@ bool BankAccount::withdrawMoney(double amount) {
 
     balance -= amount;
     ++lastTransactionId;
+    ++dailyTxnCount;
 
     Transaction t;
     t.transactionId = lastTransactionId;
@@ -159,6 +222,9 @@ void BankAccount::showBalance() const {
 
 // ================= TRANSFER =================
 bool BankAccount::transferMoney(BankAccount& receiver, double amount) {
+
+    resetDailyCountersIfNeeded();
+
     if (amount <= 0) {
         cout << "Invalid transfer amount.\n";
         return false;
@@ -171,12 +237,27 @@ bool BankAccount::transferMoney(BankAccount& receiver, double amount) {
         cout << "Cannot transfer to a frozen account.\n";
         return false;
     }
+    if (dailyTxnCount >= dailyTxnLimit) {
+        cout << "Transfer denied. Daily transaction limit of "
+             << dailyTxnLimit << " reached.\n";
+        return false;
+    }
+    if (dailyTransferUsed + amount > dailyTransferLimit) {
+        double remaining = dailyTransferLimit - dailyTransferUsed;
+        cout << "Transfer denied. Daily transfer limit of Rs."
+             << fixed << setprecision(2) << dailyTransferLimit
+             << " would be exceeded. Remaining today: Rs."
+             << remaining << "\n";
+        return false;
+    }
 
     string currentTime = getCurrentDateTime();
 
     // Deduct from sender
     balance -= amount;
     ++lastTransactionId;
+    ++dailyTxnCount;
+    dailyTransferUsed += amount;
 
     Transaction senderTxn;
     senderTxn.transactionId = lastTransactionId;
@@ -208,7 +289,21 @@ bool BankAccount::transferMoney(BankAccount& receiver, double amount) {
     return true;
 }
 
-// ================= TRANSACTION HISTORY =================
+// ================= SHOW LIMITS =================
+void BankAccount::showLimits() const {
+    cout << "\n========== ACCOUNT LIMITS ==========\n";
+    cout << fixed << setprecision(2);
+    cout << "Deposit limit (per txn):    Rs." << depositLimit       << "\n";
+    cout << "Withdrawal limit (per txn): Rs." << withdrawLimit      << "\n";
+    cout << "Daily transaction limit:    "    << dailyTxnLimit      << " txns\n";
+    cout << "Daily transfer limit:       Rs." << dailyTransferLimit << "\n";
+    cout << "\n--- Today's Usage ---\n";
+    cout << "Transactions done:    " << dailyTxnCount
+         << " / " << dailyTxnLimit << "\n";
+    cout << "Transfer amount used: Rs." << dailyTransferUsed
+         << " / Rs." << dailyTransferLimit << "\n";
+    cout << "=====================================\n";
+}
 void BankAccount::showTransactionHistory() const {
     cout << "\n================ TRANSACTION HISTORY ================\n\n";
 

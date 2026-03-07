@@ -139,7 +139,8 @@ int main() {
           cout << "3. Unfreeze Account\n";
           cout << "4. Delete Account\n";
           cout << "5. Show Total Bank Balance\n";
-          cout << "6. Logout\n";
+          cout << "6. Set Account Limits\n";
+          cout << "7. Logout\n";
           cout << "Enter choice: ";
 
           int adminChoice;
@@ -186,7 +187,15 @@ int main() {
             manager.showTotalBankBalance();
             break;
 
-          case 6:
+          case 6: {
+            string acc;
+            cout << "Enter account number: ";
+            getline(cin >> ws, acc);
+            manager.setAccountLimits(acc);
+            break;
+          }
+
+          case 7:
             cout << "Admin logging out...\n";
             adminLoggedIn = false;
             break;
@@ -200,7 +209,6 @@ int main() {
       // ================= USER MENU =================
       else {
 
-        cout << "Welcome Back " << currentUser->getName();
         currentUser->loadTransactionsFromFile();
 
         bool loggedIn = true;
@@ -213,7 +221,8 @@ int main() {
           cout << "3. Transfer\n";
           cout << "4. Show Balance\n";
           cout << "5. Show Transaction History\n";
-          cout << "6. Logout\n";
+          cout << "6. View My Limits\n";
+          cout << "7. Logout\n";
           cout << "Enter choice: ";
 
           int userChoice;
@@ -313,6 +322,10 @@ int main() {
             break;
 
           case 6:
+            currentUser->showLimits();
+            break;
+
+          case 7:
             cout << "Logging out...\n";
             loggedIn = false;
             break;

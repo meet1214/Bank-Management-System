@@ -4,6 +4,7 @@
 #include "Sha256.h"
 
 #include <filesystem>
+#include <iomanip>
 #include <iostream>
 
 using namespace std;
@@ -145,6 +146,66 @@ void AccountManager::deleteAccount(const string& accNo) {
     users.erase(it);
     save();
     cout << "Account deleted successfully.\n";
+}
+
+// ================= SET ACCOUNT LIMITS =================
+void AccountManager::setAccountLimits(const string& accNo) {
+
+    auto it = users.find(accNo);
+    if (it == users.end()) {
+        cout << "Account not found.\n";
+        return;
+    }
+    if (it->second.getRole() == "admin") {
+        cout << "Cannot set limits on admin account.\n";
+        return;
+    }
+
+    BankAccount& acc = it->second;
+
+    cout << "\n--- Current Limits for " << acc.getName() << " ---\n";
+    acc.showLimits();
+
+    cout << "\nEnter new limits (press Enter to keep current):\n";
+
+    // Helper lambda to read optional double input
+    auto readDouble = [](const string& prompt, double current) -> double {
+        cout << prompt << " [current: Rs." << fixed
+             << setprecision(2) << current << "]: ";
+        string input;
+        getline(cin >> ws, input);
+        if (input.empty()) return current;
+        try { return stod(input); }
+        catch (...) { cout << "Invalid, keeping current.\n"; return current; }
+    };
+
+    auto readInt = [](const string& prompt, int current) -> int {
+        cout << prompt << " [current: " << current << "]: ";
+        string input;
+        getline(cin >> ws, input);
+        if (input.empty()) return current;
+        try { return stoi(input); }
+        catch (...) { cout << "Invalid, keeping current.\n"; return current; }
+    };
+
+    double newDep      = readDouble("Max deposit per transaction",    acc.getDepositLimit());
+    double newWith     = readDouble("Max withdrawal per transaction",  acc.getWithdrawLimit());
+    int    newTxn      = readInt   ("Max transactions per day",        acc.getDailyTxnLimit());
+    double newTransfer = readDouble("Max total transfer per day",      acc.getDailyTransferLimit());
+
+    // Validate — no negative or zero limits
+    if (newDep <= 0 || newWith <= 0 || newTxn <= 0 || newTransfer <= 0) {
+        cout << "Limits must be greater than zero. No changes saved.\n";
+        return;
+    }
+
+    acc.setDepositLimit(newDep);
+    acc.setWithdrawLimit(newWith);
+    acc.setDailyTxnLimit(newTxn);
+    acc.setDailyTransferLimit(newTransfer);
+
+    save();
+    cout << "Limits updated successfully.\n";
 }
 
 // ================= TOTAL BALANCE =================

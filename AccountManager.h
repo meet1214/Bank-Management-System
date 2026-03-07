@@ -33,6 +33,7 @@ public:
     void unfreezeAccount(const std::string& accNo);
     void deleteAccount(const std::string& accNo);
     void showTotalBankBalance() const;
+    void setAccountLimits(const std::string& accNo);
 };
 
 
