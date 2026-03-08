@@ -415,4 +415,35 @@ void BankAccount::showMiniStatement() const {
 
     cout << string(102, '-') << "\n";
     cout << "Current Balance: Rs." << fixed << setprecision(2) << balance << "\n";
-} 
+}
+
+//===============SHOW ACCOUNT SUMMARY===================
+void BankAccount::showAccountSummary() const {
+    double totalDeposited   = 0;
+    double totalWithdrawn   = 0;
+    double totalTransferred = 0;
+    double totalInterest    = 0;
+
+    for (const auto& t : transactionHistory) {
+        if (t.type == "Deposit")        totalDeposited  += t.amount;
+        else if (t.type == "Withdraw")  totalWithdrawn  += -(t.amount); 
+        else if (t.type == "Interest")  totalInterest   += t.amount;
+        else if (t.type.find("Transfer To") == 0)  totalTransferred += t.amount;
+    }
+
+    cout << "\n========== ACCOUNT SUMMARY ==========\n";
+    cout << "Account Number : " << accountNumber << "\n";
+    cout << "Account Holder : " << name << "\n";
+    cout << "Account Status : " << (isLocked ? "Locked" : "Active") << "\n";
+    cout << "Role           : " << role << "\n";
+    cout << "-------------------------------------\n";
+    cout << fixed << setprecision(2);
+    cout << "Current Balance       : Rs." << balance          << "\n";
+    cout << "Total Deposited       : Rs." << totalDeposited   << "\n";
+    cout << "Total Withdrawn       : Rs." << totalWithdrawn   << "\n";
+    cout << "Total Transferred     : Rs." << totalTransferred << "\n";
+    cout << "Interest Earned       : Rs." << totalInterest    << "\n";
+    cout << "-------------------------------------\n";
+    cout << "Total Transactions    : " << transactionHistory.size() << "\n";
+    cout << "Last Transaction Date : " << lastTxnDate << "\n";
+}

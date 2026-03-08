@@ -100,6 +100,7 @@ public:
     void showLimits() const;
     void showMiniStatement() const;
     void addInterest(double amount);
+    void showAccountSummary() const;
 
     // Transaction Handling
     void showTransactionHistory() const;
