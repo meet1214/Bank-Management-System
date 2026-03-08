@@ -1,5 +1,5 @@
 #include "AccountManager.h"
-#include "Utils.h"
+#include "InputValidator.h"
 
 #include <chrono>
 #include <iostream>
@@ -18,49 +18,24 @@ int main() {
     cout << "1. Create Account\n";
     cout << "2. Login\n";
     cout << "3. Exit\n";
-    cout << "Enter choice: ";
 
-    int choice;
-    cin >> choice;
-
-    if (cin.fail()) {
-      cin.clear();
-      cin.ignore(1000, '\n');
-      cout << "Invalid input!\n";
-      continue;
-    }
+    int choice = InputValidator::getInt("Enter your choice: ");
 
     switch (choice) {
 
     // ================= CREATE ACCOUNT =================
     case 1: {
+      string name = InputValidator::getString("Enter Name: ");
 
-      string name;
-      int pin;
-
-      cout << "Enter Name: ";
-      getline(cin >> ws, name);
-
-      cout << "Create 4-digit PIN: ";
-      cin >> pin;
-
-      if (cin.fail() || pin < 1000 || pin > 9999) {
-        cin.clear();
-        cin.ignore(1000, '\n');
-        cout << "Invalid PIN. Must be 4 digits.\n";
-        break;
-      }
-
+      string pinStr = InputValidator::getPin("Create a pin: ");
+      int pin = stoi(pinStr);
       manager.createAccount(name, pin);
       break;
     }
 
     // ================= LOGIN =================
     case 2: {
-
-      string accNo;
-      cout << "Enter Your Account Number: ";
-      getline(cin >> ws, accNo);
+      string accNo = InputValidator::getString("Enter Your Account Number: ");
 
       string currentUserId = "";
 
@@ -71,34 +46,15 @@ int main() {
 
       // ===== PIN ATTEMPT LOOP =====
       while (attempts < MAX_ATTEMPTS) {
-
-        cout << "Enter PIN: ";
-        string pinStr = getMaskedInput();
-
-        if (pinStr.length() != 4) {
-          cout << "PIN must be exactly 4 digits.\n";
-          continue;
-        }
-
-        int pin;
-
-        try {
-          pin = stoi(pinStr);
-        } catch (...) {
-          cout << "Invalid PIN format.\n";
-          continue;
-        }
-
-        currentUserId = manager.loginAccount(accNo, pin);
-
-        if (!currentUserId.empty()) {
-          cout << "Login successful!\n";
-          break;
-        }
-
-        attempts++;
-        cout << "Incorrect PIN. Attempts left: " << (MAX_ATTEMPTS - attempts)
-             << "\n";
+          string pinStr = InputValidator::getPin("Enter PIN: ");
+          int pin = stoi(pinStr);
+          currentUserId = manager.loginAccount(accNo, pin);
+          if (!currentUserId.empty()) {
+              cout << "Login successful!\n";
+              break;
+          }
+          attempts++;
+          cout << "Incorrect PIN. Attempts left: " << (MAX_ATTEMPTS - attempts) << "\n";
       }
 
       // ===== COOLDOWN =====
@@ -141,17 +97,8 @@ int main() {
           cout << "5. Show Total Bank Balance\n";
           cout << "6. Set Account Limits\n";
           cout << "7. Logout\n";
-          cout << "Enter choice: ";
 
-          int adminChoice;
-          cin >> adminChoice;
-
-          if (cin.fail()) {
-            cin.clear();
-            cin.ignore(1000, '\n');
-            cout << "Invalid input!\n";
-            continue;
-          }
+          int adminChoice = InputValidator::getInt("Enter your choice: ");
 
           switch (adminChoice) {
 
@@ -160,25 +107,19 @@ int main() {
             break;
 
           case 2: {
-            string acc;
-            cout << "Enter account number: ";
-            getline(cin >> ws, acc);
+            string acc = InputValidator::getString("Enter account number to freeze: ");
             manager.freezeAccount(acc);
             break;
           }
 
           case 3: {
-            string acc;
-            cout << "Enter account number: ";
-            getline(cin >> ws, acc);
+            string acc = InputValidator::getString("Enter account number to unfreeze: ");
             manager.unfreezeAccount(acc);
             break;
           }
 
           case 4: {
-            string acc;
-            cout << "Enter account number: ";
-            getline(cin >> ws, acc);
+            string acc = InputValidator::getString("Enter account number to be deleted: ");
             manager.deleteAccount(acc);
             break;
           }
@@ -188,9 +129,7 @@ int main() {
             break;
 
           case 6: {
-            string acc;
-            cout << "Enter account number: ";
-            getline(cin >> ws, acc);
+            string acc = InputValidator::getString("Enter account number to set transaction limits: ");
             manager.setAccountLimits(acc);
             break;
           }
@@ -223,31 +162,13 @@ int main() {
           cout << "5. Show Transaction History\n";
           cout << "6. View My Limits\n";
           cout << "7. Logout\n";
-          cout << "Enter choice: ";
 
-          int userChoice;
-          cin >> userChoice;
-
-          if (cin.fail()) {
-            cin.clear();
-            cin.ignore(1000, '\n');
-            cout << "Invalid input!\n";
-            continue;
-          }
+          int userChoice = InputValidator::getInt("Enter choice: ");
 
           switch (userChoice) {
 
           case 1: {
-            double amount;
-            cout << "Enter amount to deposit: ";
-            cin >> amount;
-
-            if (cin.fail() || amount <= 0) {
-              cin.clear();
-              cin.ignore(1000, '\n');
-              cout << "Invalid amount.\n";
-              break;
-            }
+            double amount = InputValidator::getPositiveDouble("Enter amount to deposit: ");
 
             currentUser->depositMoney(amount);
             manager.save();
@@ -256,16 +177,7 @@ int main() {
           }
 
           case 2: {
-            double amount;
-            cout << "Enter amount to withdraw: ";
-            cin >> amount;
-
-            if (cin.fail() || amount <= 0) {
-              cin.clear();
-              cin.ignore(1000, '\n');
-              cout << "Invalid amount.\n";
-              break;
-            }
+            double amount = InputValidator::getPositiveDouble("Enter amount to withdraw: ");
 
             if (currentUser->withdrawMoney(amount)) {
               manager.save();
@@ -276,11 +188,7 @@ int main() {
           }
 
           case 3: {
-            string receiverAcc;
-            double amount;
-
-            cout << "Enter receiver account number: ";
-            getline(cin >> ws, receiverAcc);
+            string receiverAcc = InputValidator::getString("Enter receiver account number: ");
 
             if (receiverAcc == currentUser->getAccountNumber()) {
               cout << "Cannot transfer to same account.\n";
@@ -295,15 +203,7 @@ int main() {
               break;
             }
 
-            cout << "Enter amount to transfer: ";
-            cin >> amount;
-
-            if (cin.fail() || amount <= 0) {
-              cin.clear();
-              cin.ignore(1000, '\n');
-              cout << "Invalid amount.\n";
-              break;
-            }
+            double amount = InputValidator::getPositiveDouble("Enter amount to transfer: ");
 
             if (currentUser->transferMoney(*receiver, amount)) {
 

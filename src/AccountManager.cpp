@@ -2,6 +2,7 @@
 #include "BankAccount.h"
 #include "FileManager.h"
 #include "Sha256.h"
+#include "Logger.h"
 
 #include <filesystem>
 #include <iomanip>
@@ -32,13 +33,12 @@ bool AccountManager::createAccount(const string& name, int pin) {
     );
 
     if (!result.second) {
-        cout << "Account number collision occurred.\n";
+        Logger::getInstance()->error("Account number Collision:" + accNo);
         return false;
     }
 
     save();
-    cout << "Account created successfully!\n";
-    cout << "Your Account Number is: " << accNo << "\n";
+    Logger::getInstance()->info("Account created: " + accNo + " for " + name);
     return true;
 }
 
@@ -47,22 +47,23 @@ string AccountManager::loginAccount(const string& accNo, int pin) {
     auto it = users.find(accNo);
 
     if (it == users.end()) {
-        cout << "Account not found.\n";
+        Logger::getInstance()->warn("Account " + accNo + " not found");
         return "";
     }
 
     BankAccount& user = it->second;
 
     if (user.getLockStatus()) {
-        cout << "Account is locked.\n";
+        Logger::getInstance()->warn("Account "+ accNo + " is locked.");
         return "";
     }
 
     if (!user.authenticatePin(pin)) {
-        cout << "Invalid PIN.\n";
+        Logger::getInstance()->warn("Invalid pin for " +accNo );
         return "";
     }
-
+        
+    Logger::getInstance()->info("Login successful");
     return accNo;
 }
 
@@ -107,6 +108,9 @@ BankAccount* AccountManager::getAccountByAccountNumber(const string& accNo) {
 
 // ================= VIEW ALL ACCOUNTS =================
 void AccountManager::viewAllAccounts() const {
+    if (users.empty()) {
+        Logger::getInstance()->info("No users found.");
+    }
     cout << "\n----- All User Accounts -----\n";
     for (const auto& [accNo, user] : users) {
         if (user.getRole() == "admin") continue;
@@ -121,31 +125,46 @@ void AccountManager::viewAllAccounts() const {
 // ================= FREEZE =================
 void AccountManager::freezeAccount(const string& accNo) {
     auto it = users.find(accNo);
-    if (it == users.end()) { cout << "Account not found.\n"; return; }
-    if (it->second.getRole() == "admin") { cout << "Cannot freeze admin account.\n"; return; }
+    if (it == users.end()) { 
+        Logger::getInstance()->warn("Account " + accNo + " not found "); 
+        return; 
+    }
+    if (it->second.getRole() == "admin") { 
+        Logger::getInstance()->error("Cannot freeze admin account."); 
+        return; 
+    }
     it->second.setLockStatus(true);
     save();
-    cout << "Account frozen successfully.\n";
+    Logger::getInstance()->admin("Account " + accNo + " frozen successfully.");
 }
 
 // ================= UNFREEZE =================
 void AccountManager::unfreezeAccount(const string& accNo) {
     auto it = users.find(accNo);
-    if (it == users.end()) { cout << "Account not found.\n"; return; }
+    if (it == users.end()) { 
+        Logger::getInstance()->warn("Account " + accNo + " not found ");  
+        return; 
+    }
     it->second.setLockStatus(false);
     save();
-    cout << "Account unfrozen successfully.\n";
+    Logger::getInstance()->admin("Account " + accNo + " unfrozen successfully.");
 }
 
 // ================= DELETE =================
 void AccountManager::deleteAccount(const string& accNo) {
     auto it = users.find(accNo);
-    if (it == users.end()) { cout << "Account not found.\n"; return; }
-    if (it->second.getRole() == "admin") { cout << "Cannot delete admin account.\n"; return; }
+    if (it == users.end()) { 
+        Logger::getInstance()->warn("Account " + accNo + " not found ");
+        return;
+    }
+    if (it->second.getRole() == "admin") { 
+        Logger::getInstance()->error("Cannot delete admin account.");  
+        return; 
+    }
     std::filesystem::remove("data/transactions/" + accNo + ".txt");
     users.erase(it);
     save();
-    cout << "Account deleted successfully.\n";
+    Logger::getInstance()->admin("Account " + accNo + " deleted successfully.");
 }
 
 // ================= SET ACCOUNT LIMITS =================
@@ -153,11 +172,11 @@ void AccountManager::setAccountLimits(const string& accNo) {
 
     auto it = users.find(accNo);
     if (it == users.end()) {
-        cout << "Account not found.\n";
+        Logger::getInstance()->warn("Account " + accNo + " not found ");
         return;
     }
     if (it->second.getRole() == "admin") {
-        cout << "Cannot set limits on admin account.\n";
+        Logger::getInstance()->error("Cannot set limits for the admin account."); 
         return;
     }
 
@@ -174,18 +193,30 @@ void AccountManager::setAccountLimits(const string& accNo) {
              << setprecision(2) << current << "]: ";
         string input;
         getline(cin >> ws, input);
-        if (input.empty()) return current;
-        try { return stod(input); }
-        catch (...) { cout << "Invalid, keeping current.\n"; return current; }
+        if (input.empty()) 
+            return current;
+        try { 
+            return stod(input); 
+        }
+        catch (...) { 
+            Logger::getInstance()->error("Invalid, keeping current."); 
+            return current; 
+        }
     };
 
     auto readInt = [](const string& prompt, int current) -> int {
         cout << prompt << " [current: " << current << "]: ";
         string input;
         getline(cin >> ws, input);
-        if (input.empty()) return current;
-        try { return stoi(input); }
-        catch (...) { cout << "Invalid, keeping current.\n"; return current; }
+        if (input.empty()) 
+            return current;
+        try { 
+            return stoi(input); 
+        }
+        catch (...) { 
+            Logger::getInstance()->error("Invalid, keeping current."); 
+            return current; 
+        }
     };
 
     double newDep      = readDouble("Max deposit per transaction",    acc.getDepositLimit());
@@ -195,7 +226,7 @@ void AccountManager::setAccountLimits(const string& accNo) {
 
     // Validate — no negative or zero limits
     if (newDep <= 0 || newWith <= 0 || newTxn <= 0 || newTransfer <= 0) {
-        cout << "Limits must be greater than zero. No changes saved.\n";
+        Logger::getInstance()->error("Limits must be greater than 0.");
         return;
     }
 
@@ -205,7 +236,7 @@ void AccountManager::setAccountLimits(const string& accNo) {
     acc.setDailyTransferLimit(newTransfer);
 
     save();
-    cout << "Limits updated successfully.\n";
+    Logger::getInstance()->admin("Limits for " + accNo + " is updated successfully.");
 }
 
 // ================= TOTAL BALANCE =================

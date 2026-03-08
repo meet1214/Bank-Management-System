@@ -1,5 +1,6 @@
 #include "BankAccount.h"
 #include "Sha256.h"
+#include "Logger.h"
 
 #include <chrono>
 #include <ctime>
@@ -8,6 +9,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 using namespace std;
 
@@ -98,13 +100,13 @@ void BankAccount::depositMoney(double amount) {
 
     // Limit checks
     if (amount > depositLimit) {
-        cout << "Deposit denied. Amount exceeds per-transaction limit of Rs."
-             << fixed << setprecision(2) << depositLimit << "\n";
+        Logger::getInstance()->warn("Deposit denied for " + 
+            accountNumber + ": exceeds limit of Rs." + to_string(depositLimit)); 
         return;
     }
     if (dailyTxnCount >= dailyTxnLimit) {
-        cout << "Deposit denied. Daily transaction limit of "
-             << dailyTxnLimit << " reached.\n";
+        Logger::getInstance()->warn("Deposit denied for " + 
+            accountNumber + ": daily limit of " + to_string(dailyTxnLimit) + " reached."); 
         return;
     }
 
@@ -121,6 +123,7 @@ void BankAccount::depositMoney(double amount) {
 
     transactionHistory.push_back(t);
     saveTransactionToFile(t);
+    Logger::getInstance()->info("Deposit of Rs." + to_string(amount) + " on account " + accountNumber);
 }
 
 // ================= WITHDRAW =================
@@ -129,17 +132,17 @@ bool BankAccount::withdrawMoney(double amount) {
     resetDailyCountersIfNeeded();
 
     if (amount > withdrawLimit) {
-        cout << "Withdrawal denied. Amount exceeds per-transaction limit of Rs."
-             << fixed << setprecision(2) << withdrawLimit << "\n";
+        Logger::getInstance()->warn("Withdrawal denied for " + accountNumber + 
+            ": exceeds limit of Rs." + to_string(withdrawLimit)); 
         return false;
     }
     if (dailyTxnCount >= dailyTxnLimit) {
-        cout << "Withdrawal denied. Daily transaction limit of "
-             << dailyTxnLimit << " reached.\n";
+        Logger::getInstance()->warn("Withdrawal denied for " + accountNumber + 
+            ": daily limit of " + to_string(dailyTxnLimit) + " reached."); 
         return false;
     }
     if (amount > balance) {
-        cout << "Insufficient balance.\n";
+        Logger::getInstance()->warn("Insufficient balance in " + accountNumber);
         return false;
     }
 
@@ -156,6 +159,7 @@ bool BankAccount::withdrawMoney(double amount) {
 
     transactionHistory.push_back(t);
     saveTransactionToFile(t);
+    Logger::getInstance()->info("Withdrawal of Rs." + to_string(amount) + " on account " + accountNumber);
     return true;
 }
 
@@ -165,7 +169,10 @@ void BankAccount::saveTransactionToFile(const Transaction& t) {
 
     string filePath = "data/transactions/" + accountNumber + ".txt";
     ofstream file(filePath, ios::app);
-    if (!file) return;
+    if (!file) {
+        Logger::getInstance()->error("Failed to open transaction file: " + filePath);
+        return;
+    }
 
     file << t.transactionId << "|"
          << t.dateTime      << "|"
@@ -226,28 +233,28 @@ bool BankAccount::transferMoney(BankAccount& receiver, double amount) {
     resetDailyCountersIfNeeded();
 
     if (amount <= 0) {
-        cout << "Invalid transfer amount.\n";
+        Logger::getInstance()->warn("Invalid transfer amount." + accountNumber);
         return false;
     }
     if (amount > balance) {
-        cout << "Insufficient balance.\n";
+        Logger::getInstance()->warn("Insufficient balance in " + accountNumber);
         return false;
     }
     if (receiver.getLockStatus()) {
-        cout << "Cannot transfer to a frozen account.\n";
+        Logger::getInstance()->warn("Transfer denied from " + 
+            accountNumber + " to frozen account " + receiver.getAccountNumber());
         return false;
     }
     if (dailyTxnCount >= dailyTxnLimit) {
-        cout << "Transfer denied. Daily transaction limit of "
-             << dailyTxnLimit << " reached.\n";
+        Logger::getInstance()->warn("Transfer denied for " + accountNumber + ": daily limit of " + 
+            to_string(dailyTxnLimit) + " reached."); 
         return false;
     }
     if (dailyTransferUsed + amount > dailyTransferLimit) {
         double remaining = dailyTransferLimit - dailyTransferUsed;
-        cout << "Transfer denied. Daily transfer limit of Rs."
-             << fixed << setprecision(2) << dailyTransferLimit
-             << " would be exceeded. Remaining today: Rs."
-             << remaining << "\n";
+        Logger::getInstance()->warn("Transfer denied for " + 
+            accountNumber + ": exceeds limit of Rs." + to_string(dailyTransferLimit) + 
+            " would be exceeded. Remaining today: Rs." + to_string(remaining)); 
         return false;
     }
 
@@ -285,7 +292,7 @@ bool BankAccount::transferMoney(BankAccount& receiver, double amount) {
     receiver.transactionHistory.push_back(receiverTxn);
     receiver.saveTransactionToFile(receiverTxn);
 
-    cout << "Transfer successful.\n";
+    Logger::getInstance()->info("Transfer Successful to " + receiver.accountNumber);
     return true;
 }
 
