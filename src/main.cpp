@@ -162,8 +162,9 @@ int main() {
           cout << "4. Show Balance\n";
           cout << "5. Show Transaction History\n";
           cout << "6. View My Limits\n";
-          cout << "7. Change your current pin\n";
-          cout << "8. Logout\n";
+          cout << "7. Show Mini Statement\n";
+          cout << "8. Change your current pin\n";
+          cout << "9. Logout\n";
 
           int userChoice = InputValidator::getInt("Enter choice: ");
 
@@ -228,6 +229,10 @@ int main() {
             break;
 
           case 7:
+            currentUser->showMiniStatement();
+            break;
+            
+          case 8:
           {
             string pinStr = InputValidator::getPin("Enter your current pin: ");
             int currentPin = stoi(pinStr);
@@ -252,7 +257,7 @@ int main() {
             }
             break;
           }
-          case 8:
+          case 9:
             cout << "Logging out...\n";
             loggedIn = false;
             break;

@@ -97,7 +97,8 @@ public:
     bool withdrawMoney(double amount);
     bool transferMoney(BankAccount& receiver, double amount);
     void showBalance() const;
-    void showLimits() const;   // shows limits + today's usage
+    void showLimits() const;
+    void showMiniStatement() const;
 
     // Transaction Handling
     void showTransactionHistory() const;

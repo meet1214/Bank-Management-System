@@ -2,6 +2,7 @@
 #include "Sha256.h"
 #include "Logger.h"
 
+#include <algorithm>
 #include <chrono>
 #include <ctime>
 #include <filesystem>
@@ -311,6 +312,8 @@ void BankAccount::showLimits() const {
          << " / Rs." << dailyTransferLimit << "\n";
     cout << "=====================================\n";
 }
+
+//=============SHOW TRANSACTION HISTORY================
 void BankAccount::showTransactionHistory() const {
     cout << "\n================ TRANSACTION HISTORY ================\n\n";
 
@@ -345,7 +348,7 @@ void BankAccount::showTransactionHistory() const {
          << fixed << setprecision(2) << balance << "\n";
 }
 
-//=================Change PIN==========================
+//=================CHANGE PIN==========================
 bool BankAccount::changePin(int currentPin, int newPin) {
     if (!authenticatePin(currentPin)) {
         Logger::getInstance()->warn("Invalid pin for " + accountNumber);
@@ -358,3 +361,40 @@ bool BankAccount::changePin(int currentPin, int newPin) {
     Logger::getInstance()->info("Pin changed successfully for " + accountNumber);
     return true;
 }
+
+//===============SHOW MINI STATEMENT=======================
+void BankAccount::showMiniStatement() const {
+    cout << "\n======= MINI STATEMENT (Last 5) =======\n\n";
+
+    if (transactionHistory.empty()) {
+        cout << "No transactions found.\n";
+        return;
+    }
+
+    // print header ONCE here
+    cout << left << setw(6)  << "S.No" 
+                 << setw(8)  << "TxnID"
+                 << setw(25) << "Date & Time"
+                 << setw(35) << "Type"
+                 << setw(14) << "Amount"
+                 << setw(14) << "Balance" << "\n";
+    cout << string(102, '-') << "\n";
+
+    int start = max(0, (int)transactionHistory.size() - 5);
+    int serial = 1;
+
+    for (int i = start; i < (int)transactionHistory.size(); i++) {
+        const Transaction& entry = transactionHistory[i];
+        cout << left << setw(6)  << serial++
+                     << setw(8)  << entry.transactionId
+                     << setw(25) << entry.dateTime
+                     << setw(35) << entry.type;
+
+        cout << fixed << setprecision(2)
+             << "Rs." << setw(11) << entry.amount
+             << "Rs." << setw(11) << entry.balance << "\n";
+    }
+
+    cout << string(102, '-') << "\n";
+    cout << "Current Balance: Rs." << fixed << setprecision(2) << balance << "\n";
+} 
