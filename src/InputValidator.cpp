@@ -16,6 +16,7 @@ int InputValidator::getInt(const std::string &prompt) {
             cin.ignore(1000, '\n');
             cout << "Invalid input! Try again.\n";
         } else {
+            cin.ignore(1000, '\n');
             return value;
         }
     }
@@ -32,6 +33,7 @@ double InputValidator::getDouble(const std::string &prompt) {
             cin.ignore(1000, '\n');
             cout << "Invalid input! Try again.\n";
         } else {
+            cin.ignore(1000, '\n');
             return value;
         }
     }
@@ -55,6 +57,7 @@ double InputValidator::getPositiveDouble(const std::string &prompt) {
         }
         
         else {
+            cin.ignore(1000, '\n');
             return value;
         }
     }
@@ -79,6 +82,7 @@ string InputValidator::getPin(const std::string &prompt) {
     while (true) {
         cout << prompt;
         string input = getMaskedInput();
+
         if(input.length() != 4){
             cout << "Enter a valid 4 digit pin.\n";
         }

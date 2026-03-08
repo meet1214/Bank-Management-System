@@ -344,3 +344,17 @@ void BankAccount::showTransactionHistory() const {
     cout << "Current Balance: Rs."
          << fixed << setprecision(2) << balance << "\n";
 }
+
+//=================Change PIN==========================
+bool BankAccount::changePin(int currentPin, int newPin) {
+    if (!authenticatePin(currentPin)) {
+        Logger::getInstance()->warn("Invalid pin for " + accountNumber);
+        return false;
+    }
+
+    string newSalt = generateSalt();
+    string hash = hashPin(to_string(newPin), newSalt);
+    setPinHash(hash,newSalt);
+    Logger::getInstance()->info("Pin changed successfully for " + accountNumber);
+    return true;
+}

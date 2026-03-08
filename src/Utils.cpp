@@ -14,7 +14,7 @@ std::string getMaskedInput() {
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
     while (true) {
-        ch = getchar();
+        ch = std::cin.get();
 
         if (ch == '\n')
             break;

@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <string>
 #include <thread>
 
 using namespace std;
@@ -161,7 +162,8 @@ int main() {
           cout << "4. Show Balance\n";
           cout << "5. Show Transaction History\n";
           cout << "6. View My Limits\n";
-          cout << "7. Logout\n";
+          cout << "7. Change your current pin\n";
+          cout << "8. Logout\n";
 
           int userChoice = InputValidator::getInt("Enter choice: ");
 
@@ -226,6 +228,31 @@ int main() {
             break;
 
           case 7:
+          {
+            string pinStr = InputValidator::getPin("Enter your current pin: ");
+            int currentPin = stoi(pinStr);
+            
+            string newPinStr = InputValidator::getPin("Enter your new pin: ");
+            int newPin = stoi(newPinStr);
+
+            string confirmationPinStr = InputValidator::getPin("Please confirm your new pin: ");
+            int confirmationPin = stoi(confirmationPinStr);
+
+            if(newPin != confirmationPin) {
+              cout << "PINs do not match. Please try again.\n";
+              break;
+            }
+          
+            if(currentUser->changePin( currentPin,newPin)) {
+              cout << "The pin has been changed for " << currentUser->getAccountNumber() << "\n";
+              manager.save();
+            }
+            else {
+              cout << "Failed to change the pin for " << currentUser->getAccountNumber();
+            }
+            break;
+          }
+          case 8:
             cout << "Logging out...\n";
             loggedIn = false;
             break;

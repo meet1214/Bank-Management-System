@@ -65,6 +65,9 @@ public:
     // PIN Setter
     void setPinHash(const std::string& hash, const std::string& newSalt);
 
+    //Change Pin generation
+    bool changePin(int currentPin, int newPin);
+
     // Role Handling
     std::string getRole() const { return role; }
     void setRole(const std::string& r) { role = r; }
