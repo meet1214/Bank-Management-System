@@ -97,7 +97,8 @@ int main() {
           cout << "4. Delete Account\n";
           cout << "5. Show Total Bank Balance\n";
           cout << "6. Set Account Limits\n";
-          cout << "7. Logout\n";
+          cout << "7. Apply Interest\n";
+          cout << "8. Logout\n";
 
           int adminChoice = InputValidator::getInt("Enter your choice: ");
 
@@ -135,7 +136,13 @@ int main() {
             break;
           }
 
-          case 7:
+          case 7: {
+            double rate = InputValidator::getPositiveDouble("Enter the interest rate in %: ");
+            manager.applyInterestToAll(rate);
+            break;
+          }
+
+          case 8:
             cout << "Admin logging out...\n";
             adminLoggedIn = false;
             break;

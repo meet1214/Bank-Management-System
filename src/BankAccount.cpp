@@ -347,6 +347,24 @@ void BankAccount::showTransactionHistory() const {
     cout << "Current Balance: Rs."
          << fixed << setprecision(2) << balance << "\n";
 }
+//===================ADD INTEREST=====================
+void BankAccount::addInterest(double amount){
+    balance += amount;
+
+    Transaction t;
+    ++lastTransactionId;
+    t.transactionId = lastTransactionId;
+    t.dateTime      = getCurrentDateTime();
+    t.type          = "Interest";
+    t.amount        = amount;
+    t.balance       = balance;
+
+    transactionHistory.push_back(t);
+    saveTransactionToFile(t);
+    Logger::getInstance()->info("Interest of Rs." + 
+        to_string(amount) + " added in the account " + accountNumber);
+
+}
 
 //=================CHANGE PIN==========================
 bool BankAccount::changePin(int currentPin, int newPin) {

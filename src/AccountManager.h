@@ -34,6 +34,7 @@ public:
     void deleteAccount(const std::string& accNo);
     void showTotalBankBalance() const;
     void setAccountLimits(const std::string& accNo);
+    void applyInterestToAll(double rate);
 };
 
 

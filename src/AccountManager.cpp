@@ -246,3 +246,30 @@ void AccountManager::showTotalBankBalance() const {
         if (user.getRole() == "user") total += user.getBalance();
     cout << "Total Bank Balance: Rs." << total << "\n";
 }
+
+//=============SET INTEREST FOR ALL ACCOUNTS====================
+void AccountManager::applyInterestToAll(double rate) {
+    
+    for (auto& [accNo, user] : users) {
+        
+        // skip admin accounts
+        if (user.getRole() == "admin") continue;
+        
+        // skip zero balance
+        if (user.getBalance() <= 0) continue;
+        
+        // calculate simple interest
+        double interest = (user.getBalance() * rate)/100;
+        
+        // apply
+        user.addInterest(interest);
+        
+        // log
+        Logger::getInstance()->admin("Interest of Rs." + to_string(interest) + 
+            " applied to " + accNo);    
+    }
+    
+    // save once after all accounts updated
+    save();
+    Logger::getInstance()->admin("Interest of " + to_string(rate) + "% applied to all accounts.");
+}
