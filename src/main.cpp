@@ -1,4 +1,5 @@
 #include "AccountManager.h"
+#include "BankAccount.h"
 #include "InputValidator.h"
 
 #include <chrono>
@@ -125,7 +126,8 @@ int main() {
           cout << "6. Show Total Bank Balance\n";
           cout << "7. Set Account Limits\n";
           cout << "8. Apply Interest\n";
-          cout << "9. Logout\n";
+          cout << "9. Check for fraud\n";
+          cout << "10. Logout\n";
 
           int adminChoice = InputValidator::getInt("Enter your choice: ");
 
@@ -219,6 +221,19 @@ int main() {
           }
 
           case 9:
+          {
+            string acc = InputValidator::getString("Enter the account number to check for fraud: ");
+            BankAccount* account = manager.getAccountByAccountNumber(acc);
+            if(account){
+              account->checkForSuspiciousActivity();
+            }
+            else{
+              cout << "Account not found.\n";
+            }
+            break;
+          }
+
+          case 10:
             cout << "Admin logging out...\n";
             adminLoggedIn = false;
             break;
@@ -250,7 +265,8 @@ int main() {
           cout << "9. Show Mini Statement\n";
           cout << "10. Show Account Summary\n";
           cout << "11. Change your current pin\n";
-          cout << "12. Logout\n";
+          cout << "12. Check for suspicious activity\n";
+          cout << "13. Logout\n";
 
           int userChoice = InputValidator::getInt("Enter choice: ");
 
@@ -399,7 +415,12 @@ int main() {
             }
             break;
           }
+          
           case 12:
+            currentUser->checkForSuspiciousActivity();
+            break;
+
+          case 13:
             cout << "Logging out...\n";
             loggedIn = false;
             break;

@@ -11,6 +11,8 @@ struct Transaction {
     std::string type;
     double amount;
     double balance;
+    bool flaggedSuspicious = false;
+    std::string suspiciousReason = "";
 };
 
 class BankAccount {
@@ -113,6 +115,7 @@ public:
     //Phase 3 Operations
     void searchTransactionsByDate(const std::string& startDate, const std::string& endDate) const;
     void searchTransactionsByType(const std::string& type) const;
+    void checkForSuspiciousActivity() const;
 
     
     // Transaction Handling

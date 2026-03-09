@@ -140,6 +140,13 @@ void BankAccount::resetDailyCountersIfNeeded() {
     }
 }
 
+// ================= HELPER: PARSE TIME TO TIMESTAMP =================
+static time_t parseDateTime(const string& dateTime) {
+    struct tm timeStruct = {};
+    strptime(dateTime.c_str(), "%a %b %d %H:%M:%S %Y", &timeStruct);
+    return mktime(&timeStruct);
+}
+
 // ================= DEPOSIT =================
 void BankAccount::depositMoney(double amount) {
 
@@ -595,4 +602,127 @@ void BankAccount::searchTransactionsByType(const string& type) const {
         cout << string(102, '-') << "\n";
         cout << "Found " << results.size() << " transaction(s) of type: " << type << "\n";
     }
+}
+
+//================= CHECK FOR SUSPICIOUS ACTIVITY =================
+void BankAccount::checkForSuspiciousActivity() const {
+    
+    cout << "\n========== FRAUD DETECTION REPORT ==========\n\n";
+    
+    if (transactionHistory.empty()) {
+        cout << "No transactions to analyze.\n";
+        return;
+    }
+    
+    vector<Transaction> suspiciousTransactions;
+    
+    // Analyze each transaction
+    for (size_t i = 0; i < transactionHistory.size(); i++) {
+        Transaction currentTxn = transactionHistory[i];
+        bool isSuspicious = false;
+        string reason = "";
+        
+        // RULE 1: Large Transaction (> 70% of balance BEFORE transaction)
+        double balanceBeforeTxn;
+        if (i == 0) {
+            balanceBeforeTxn = currentTxn.balance - currentTxn.amount;
+        } else {
+            balanceBeforeTxn = transactionHistory[i-1].balance;
+        }
+        
+        if (balanceBeforeTxn > 0) {
+            double percentOfBalance = (abs(currentTxn.amount) / balanceBeforeTxn) * 100;
+            
+            if (percentOfBalance > 70 && abs(currentTxn.amount) > 10000) {
+                isSuspicious = true;
+                reason += "Large transaction (" + to_string((int)percentOfBalance) + 
+                          "% of balance); ";
+            }
+        }
+        
+        // RULE 2: Rapid Transaction (< 60 seconds from previous)
+        if (i > 0) {
+            time_t currentTime = parseDateTime(currentTxn.dateTime);
+            time_t previousTime = parseDateTime(transactionHistory[i-1].dateTime);
+            
+            double timeDiff = difftime(currentTime, previousTime);
+            
+            if (timeDiff < 60 && timeDiff >= 0) {
+                isSuspicious = true;
+                reason += "Rapid transaction (" + to_string((int)timeDiff) + 
+                          " seconds after previous); ";
+            }
+        }
+        
+        // RULE 3: Multiple transactions in short time (3+ within 5 minutes)
+        if (i >= 2) {
+            time_t currentTime = parseDateTime(currentTxn.dateTime);
+            time_t twoTxnAgo = parseDateTime(transactionHistory[i-2].dateTime);
+            
+            double timeDiff = difftime(currentTime, twoTxnAgo);
+            
+            if (timeDiff < 300) {  // 300 seconds = 5 minutes
+                isSuspicious = true;
+                reason += "Multiple rapid transactions (3 in " + 
+                          to_string((int)(timeDiff/60)) + " minutes); ";
+            }
+        }
+        
+        // RULE 4: Transaction near limit (within 5% of limit)
+        if (currentTxn.type == "Deposit") {
+            double percentOfLimit = (currentTxn.amount / depositLimit) * 100;
+            if (percentOfLimit > 95) {
+                isSuspicious = true;
+                reason += "Near deposit limit (" + to_string((int)percentOfLimit) + 
+                          "% of limit); ";
+            }
+        }
+        else if (currentTxn.type == "Withdraw") {
+            double percentOfLimit = (abs(currentTxn.amount) / withdrawLimit) * 100;
+            if (percentOfLimit > 95) {
+                isSuspicious = true;
+                reason += "Near withdrawal limit (" + to_string((int)percentOfLimit) + 
+                          "% of limit); ";
+            }
+        }
+        
+        if (isSuspicious) {
+            currentTxn.flaggedSuspicious = true;
+            currentTxn.suspiciousReason = reason;
+            suspiciousTransactions.push_back(currentTxn);
+        }
+    }
+    
+    // Display results
+    if (suspiciousTransactions.empty()) {
+        cout << "✓ No suspicious activity detected.\n";
+        cout << "All " << transactionHistory.size() << " transactions appear normal.\n";
+    }
+    else {
+        cout << "WARNING: " << suspiciousTransactions.size() 
+             << " suspicious transaction(s) detected!\n\n";
+        
+        cout << left << setw(6)  << "TxnID"
+                     << setw(25) << "Date & Time"
+                     << setw(20) << "Type"
+                     << setw(12) << "Amount"
+                     << "Reason" << "\n";
+        cout << string(100, '-') << "\n";
+        
+        for (const auto& txn : suspiciousTransactions) {
+            cout << left << setw(6)  << txn.transactionId
+                         << setw(25) << txn.dateTime
+                         << setw(20) << txn.type.substr(0, 18);
+            
+            cout << fixed << setprecision(2)
+                 << "Rs." << setw(9) << abs(txn.amount)
+                 << txn.suspiciousReason << "\n";
+        }
+        
+        cout << string(100, '-') << "\n";
+        cout << "\n These transactions have been flagged for review.\n";
+        cout << "Please verify these activities with the account holder.\n";
+    }
+    
+    cout << "\n============================================\n";
 }
