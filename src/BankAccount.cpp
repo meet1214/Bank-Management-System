@@ -11,6 +11,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -57,6 +58,22 @@ void BankAccount::setPinHash(const std::string& hash,
     pinHash = hash;
     salt    = newSalt;
 }
+
+//==================HELPER FUNCTIONS=================
+
+// ===========HELPER: EXTRACT DATE FROM DATETIME STRING ===============
+static string extractDateFromDateTime(const string& dateTime) {
+    struct tm timeStruct = {};
+    strptime(dateTime.c_str(), "%a %b %d %H:%M:%S %Y", &timeStruct);
+    
+    ostringstream oss;
+    oss << (1900 + timeStruct.tm_year) << "-"
+        << setw(2) << setfill('0') << (timeStruct.tm_mon + 1) << "-"
+        << setw(2) << setfill('0') << timeStruct.tm_mday;
+    
+    return oss.str();
+}
+
 
 // ================= AUTHENTICATION =================
 bool BankAccount::authenticatePin(int enteredPin) const {
@@ -446,4 +463,45 @@ void BankAccount::showAccountSummary() const {
     cout << "-------------------------------------\n";
     cout << "Total Transactions    : " << transactionHistory.size() << "\n";
     cout << "Last Transaction Date : " << lastTxnDate << "\n";
+}
+
+void BankAccount::searchTransactionsByDate(const string& startDate, const string& endDate) const {
+    
+    cout << "Searching transaction between " << startDate << " to " << endDate << "\n";
+
+    vector<Transaction> results;
+    
+    for (const Transaction& t : transactionHistory) {
+        string transactionDate = extractDateFromDateTime(t.dateTime);
+        if(transactionDate >=startDate && transactionDate <= endDate) {
+            results.push_back(t);
+        }
+    }
+
+    if(results.empty()){
+        cout << "No transactions found in this date range.\n";
+    }
+    else {
+        cout << "Found " << results.size() << " transaction(s) in date range.\n";
+        cout << left << setw(6)  << "S.No"
+                 << setw(8)  << "TxnID"
+                 << setw(25) << "Date & Time"
+                 << setw(35) << "Type"
+                 << setw(14) << "Amount"
+                 << setw(14) << "Balance" << "\n";
+
+        cout << string(102, '-') << "\n";
+
+        int serial = 1;
+        for(const auto& entry : results) {
+            cout << left << setw(6)  << serial++
+                     << setw(8)  << entry.transactionId
+                     << setw(25) << entry.dateTime
+                     << setw(35) << entry.type;
+
+            cout << fixed << setprecision(2)
+             << "Rs." << setw(11) << entry.amount
+             << "Rs." << setw(11) << entry.balance << "\n";    
+        }
+    }
 }

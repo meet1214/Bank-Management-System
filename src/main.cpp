@@ -168,11 +168,12 @@ int main() {
           cout << "3. Transfer\n";
           cout << "4. Show Balance\n";
           cout << "5. Show Transaction History\n";
-          cout << "6. View My Limits\n";
-          cout << "7. Show Mini Statement\n";
-          cout << "8. Show Account Summary\n";
-          cout << "9. Change your current pin\n";
-          cout << "10. Logout\n";
+          cout << "6. Search Transactions by date\n";
+          cout << "7. View My Limits\n";
+          cout << "8. Show Mini Statement\n";
+          cout << "9. Show Account Summary\n";
+          cout << "10. Change your current pin\n";
+          cout << "11. Logout\n";
 
           int userChoice = InputValidator::getInt("Enter choice: ");
 
@@ -233,18 +234,26 @@ int main() {
             break;
 
           case 6:
+          {
+            string startDate = InputValidator::getString("Enter the start date ([YYYY-MM-DD]): ");
+            string endDate = InputValidator::getString("Enter the end date ([YYYY-MM-DD]): ");
+            currentUser->searchTransactionsByDate(startDate, endDate);
+            break;
+          }
+
+          case 7:
             currentUser->showLimits();
             break;
 
-          case 7:
+          case 8:
             currentUser->showMiniStatement();
             break;
 
-          case 8:
+          case 9:
             currentUser->showAccountSummary();
             break;  
             
-          case 9:
+          case 10:
           {
             string pinStr = InputValidator::getPin("Enter your current pin: ");
             int currentPin = stoi(pinStr);
@@ -269,7 +278,7 @@ int main() {
             }
             break;
           }
-          case 10:
+          case 11:
             cout << "Logging out...\n";
             loggedIn = false;
             break;

@@ -93,14 +93,20 @@ public:
     void setLockStatus(bool status) { isLocked = status; }
 
     // Account Operations
+    // Phase 1 Operations
     void depositMoney(double amount);
     bool withdrawMoney(double amount);
     bool transferMoney(BankAccount& receiver, double amount);
     void showBalance() const;
     void showLimits() const;
+
+    // Phase 2 Operations
     void showMiniStatement() const;
     void addInterest(double amount);
     void showAccountSummary() const;
+
+    //Phase 3 Operations
+    void searchTransactionsByDate(const std::string& startDate, const std::string& endDate) const;
 
     // Transaction Handling
     void showTransactionHistory() const;
