@@ -28,9 +28,34 @@ int main() {
     case 1: {
       string name = InputValidator::getString("Enter Name: ");
 
+      // Choose account type
+      cout << "\n===== SELECT ACCOUNT TYPE =====\n";
+      cout << "1. Savings Account (4% interest p.a.)\n";
+      cout << "2. Current Account (0% interest, for business)\n";
+      cout << "3. Fixed Deposit (7% interest p.a.)\n";
+
+      int typeChoice = InputValidator::getInt("Enter choice: ");
+
+      string accType;
+      switch (typeChoice) {
+      case 1:
+        accType = "Savings";
+        break;
+      case 2:
+        accType = "Current";
+        break;
+      case 3:
+        accType = "Fixed Deposit";
+        break;
+      default:
+        cout << "Invalid choice. Defaulting to Savings Account.\n";
+        accType = "Savings";
+      }
+
       string pinStr = InputValidator::getPin("Create a pin: ");
       int pin = stoi(pinStr);
-      manager.createAccount(name, pin);
+
+      manager.createAccount(name, pin, accType);
       break;
     }
 
@@ -47,15 +72,16 @@ int main() {
 
       // ===== PIN ATTEMPT LOOP =====
       while (attempts < MAX_ATTEMPTS) {
-          string pinStr = InputValidator::getPin("Enter PIN: ");
-          int pin = stoi(pinStr);
-          currentUserId = manager.loginAccount(accNo, pin);
-          if (!currentUserId.empty()) {
-              cout << "Login successful!\n";
-              break;
-          }
-          attempts++;
-          cout << "Incorrect PIN. Attempts left: " << (MAX_ATTEMPTS - attempts) << "\n";
+        string pinStr = InputValidator::getPin("Enter PIN: ");
+        int pin = stoi(pinStr);
+        currentUserId = manager.loginAccount(accNo, pin);
+        if (!currentUserId.empty()) {
+          cout << "Login successful!\n";
+          break;
+        }
+        attempts++;
+        cout << "Incorrect PIN. Attempts left: " << (MAX_ATTEMPTS - attempts)
+             << "\n";
       }
 
       // ===== COOLDOWN =====
@@ -92,13 +118,14 @@ int main() {
 
           cout << "\n===== ADMIN MENU =====\n";
           cout << "1. View All Accounts\n";
-          cout << "2. Freeze Account\n";
-          cout << "3. Unfreeze Account\n";
-          cout << "4. Delete Account\n";
-          cout << "5. Show Total Bank Balance\n";
-          cout << "6. Set Account Limits\n";
-          cout << "7. Apply Interest\n";
-          cout << "8. Logout\n";
+          cout << "2. View All Accounts(Sorted)\n";
+          cout << "3. Freeze Account\n";
+          cout << "4. Unfreeze Account\n";
+          cout << "5. Delete Account\n";
+          cout << "6. Show Total Bank Balance\n";
+          cout << "7. Set Account Limits\n";
+          cout << "8. Apply Interest\n";
+          cout << "9. Logout\n";
 
           int adminChoice = InputValidator::getInt("Enter your choice: ");
 
@@ -107,42 +134,91 @@ int main() {
           case 1:
             manager.viewAllAccounts();
             break;
-
           case 2: {
-            string acc = InputValidator::getString("Enter account number to freeze: ");
-            manager.freezeAccount(acc);
+            cout << "\n===== SORT ACCOUNTS BY =====\n";
+            cout << "1. Account Number\n";
+            cout << "2. Name (A-Z)\n";
+            cout << "3. Balance (High to Low)\n";
+            cout << "4. Balance (Low to High)\n";
+
+            int sortChoice = InputValidator::getInt("Enter choice: ");
+
+            string sortBy;
+            switch (sortChoice) {
+            case 1:
+              sortBy = "account";
+              break;
+            case 2:
+              sortBy = "name";
+              break;
+            case 3:
+              sortBy = "balance_high";
+              break;
+            case 4:
+              sortBy = "balance_low";
+              break;
+            default:
+              cout << "Invalid choice.\n";
+              break;
+            }
+
+            if (sortChoice >= 1 && sortChoice <= 4) {
+              manager.viewAllAccountsSorted(sortBy);
+            }
             break;
           }
 
           case 3: {
-            string acc = InputValidator::getString("Enter account number to unfreeze: ");
-            manager.unfreezeAccount(acc);
+            string acc =
+                InputValidator::getString("Enter account number to freeze: ");
+            manager.freezeAccount(acc);
             break;
           }
 
           case 4: {
-            string acc = InputValidator::getString("Enter account number to be deleted: ");
+            string acc =
+                InputValidator::getString("Enter account number to unfreeze: ");
+            manager.unfreezeAccount(acc);
+            break;
+          }
+
+          case 5: {
+            string acc = InputValidator::getString(
+                "Enter account number to be deleted: ");
             manager.deleteAccount(acc);
             break;
           }
 
-          case 5:
+          case 6:
             manager.showTotalBankBalance();
             break;
 
-          case 6: {
-            string acc = InputValidator::getString("Enter account number to set transaction limits: ");
+          case 7: {
+            string acc = InputValidator::getString(
+                "Enter account number to set transaction limits: ");
             manager.setAccountLimits(acc);
             break;
           }
 
-          case 7: {
-            double rate = InputValidator::getPositiveDouble("Enter the interest rate in %: ");
-            manager.applyInterestToAll(rate);
+          case 8: {
+            cout << "\nApplying interest to all accounts based on their "
+                    "account type...\n";
+            cout << "- Savings Account: 4% p.a.\n";
+            cout << "- Current Account: 0% p.a. (no interest)\n";
+            cout << "- Fixed Deposit: 7% p.a.\n\n";
+
+            char confirm = InputValidator::getChar("Proceed with interest application? (y/n): ");
+            
+            if (confirm == 'y' || confirm == 'Y') {
+              manager.applyInterestToAll();
+              cout << "Interest applied successfully!\n";
+            } else {
+              cout << "Interest application cancelled.\n";
+            }
             break;
           }
 
-          case 8:
+          case 9:
             cout << "Admin logging out...\n";
             adminLoggedIn = false;
             break;
@@ -181,7 +257,8 @@ int main() {
           switch (userChoice) {
 
           case 1: {
-            double amount = InputValidator::getPositiveDouble("Enter amount to deposit: ");
+            double amount =
+                InputValidator::getPositiveDouble("Enter amount to deposit: ");
 
             currentUser->depositMoney(amount);
             manager.save();
@@ -190,7 +267,8 @@ int main() {
           }
 
           case 2: {
-            double amount = InputValidator::getPositiveDouble("Enter amount to withdraw: ");
+            double amount =
+                InputValidator::getPositiveDouble("Enter amount to withdraw: ");
 
             if (currentUser->withdrawMoney(amount)) {
               manager.save();
@@ -201,7 +279,8 @@ int main() {
           }
 
           case 3: {
-            string receiverAcc = InputValidator::getString("Enter receiver account number: ");
+            string receiverAcc =
+                InputValidator::getString("Enter receiver account number: ");
 
             if (receiverAcc == currentUser->getAccountNumber()) {
               cout << "Cannot transfer to same account.\n";
@@ -216,7 +295,8 @@ int main() {
               break;
             }
 
-            double amount = InputValidator::getPositiveDouble("Enter amount to transfer: ");
+            double amount =
+                InputValidator::getPositiveDouble("Enter amount to transfer: ");
 
             if (currentUser->transferMoney(*receiver, amount)) {
 
@@ -234,14 +314,15 @@ int main() {
             currentUser->showTransactionHistory();
             break;
 
-          case 6:
-          {
-            string startDate = InputValidator::getString("Enter the start date ([YYYY-MM-DD]): ");
-            string endDate = InputValidator::getString("Enter the end date ([YYYY-MM-DD]): ");
+          case 6: {
+            string startDate = InputValidator::getString(
+                "Enter the start date ([YYYY-MM-DD]): ");
+            string endDate = InputValidator::getString(
+                "Enter the end date ([YYYY-MM-DD]): ");
             currentUser->searchTransactionsByDate(startDate, endDate);
             break;
           }
-          
+
           case 7: {
             cout << "\n===== SELECT TRANSACTION TYPE =====\n";
             cout << "1. Deposit\n";
@@ -249,33 +330,33 @@ int main() {
             cout << "3. Transfer (Sent/Received)\n";
             cout << "4. Interest\n";
             cout << "5. All Transactions\n";
-            
+
             int typeChoice = InputValidator::getInt("Enter your choice: ");
-            
+
             string searchType;
-            switch(typeChoice) {
-                case 1:
-                    searchType = "Deposit";
-                    break;
-                case 2:
-                    searchType = "Withdraw";
-                    break;
-                case 3:
-                    searchType = "Transfer"; 
-                    break;
-                case 4:
-                    searchType = "Interest";
-                    break;
-                case 5:
-                    currentUser->showTransactionHistory();  
-                    break;
-                default:
-                    cout << "Invalid choice.\n";
-                    break;
+            switch (typeChoice) {
+            case 1:
+              searchType = "Deposit";
+              break;
+            case 2:
+              searchType = "Withdraw";
+              break;
+            case 3:
+              searchType = "Transfer";
+              break;
+            case 4:
+              searchType = "Interest";
+              break;
+            case 5:
+              currentUser->showTransactionHistory();
+              break;
+            default:
+              cout << "Invalid choice.\n";
+              break;
             }
-            
+
             if (typeChoice >= 1 && typeChoice <= 4) {
-                currentUser->searchTransactionsByType(searchType);
+              currentUser->searchTransactionsByType(searchType);
             }
             break;
           }
@@ -290,30 +371,31 @@ int main() {
 
           case 10:
             currentUser->showAccountSummary();
-            break;  
-            
-          case 11:
-          {
+            break;
+
+          case 11: {
             string pinStr = InputValidator::getPin("Enter your current pin: ");
             int currentPin = stoi(pinStr);
-            
+
             string newPinStr = InputValidator::getPin("Enter your new pin: ");
             int newPin = stoi(newPinStr);
 
-            string confirmationPinStr = InputValidator::getPin("Please confirm your new pin: ");
+            string confirmationPinStr =
+                InputValidator::getPin("Please confirm your new pin: ");
             int confirmationPin = stoi(confirmationPinStr);
 
-            if(newPin != confirmationPin) {
+            if (newPin != confirmationPin) {
               cout << "PINs do not match. Please try again.\n";
               break;
             }
-          
-            if(currentUser->changePin( currentPin,newPin)) {
-              cout << "The pin has been changed for " << currentUser->getAccountNumber() << "\n";
+
+            if (currentUser->changePin(currentPin, newPin)) {
+              cout << "The pin has been changed for "
+                   << currentUser->getAccountNumber() << "\n";
               manager.save();
-            }
-            else {
-              cout << "Failed to change the pin for " << currentUser->getAccountNumber();
+            } else {
+              cout << "Failed to change the pin for "
+                   << currentUser->getAccountNumber();
             }
             break;
           }

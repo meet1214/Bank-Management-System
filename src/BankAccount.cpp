@@ -23,10 +23,12 @@ BankAccount::BankAccount(const std::string& accNo,
                          double b,
                          const std::string& r,
                          bool locked,
+                         const std::string& accType,
                          double depositLim,
                          double withdrawLim,
                          int    dailyTxnLim,
                          double dailyTransferLim)
+
     : accountNumber(accNo),
       name(n),
       pinHash(pinHash),
@@ -36,6 +38,7 @@ BankAccount::BankAccount(const std::string& accNo,
       lastTransactionId(0),
       role(r),
       isLocked(locked),
+      accountType(accType),
       depositLimit(depositLim),
       withdrawLimit(withdrawLim),
       dailyTxnLimit(dailyTxnLim),
@@ -44,6 +47,19 @@ BankAccount::BankAccount(const std::string& accNo,
       dailyTransferUsed(0.0),
       lastTxnDate("")
 {
+    if (accountType == "Savings") {
+        interestRate = 4.0;
+    }
+    else if (accountType == "Current") {
+        interestRate = 0.0;
+    }
+    else if (accountType == "Fixed Deposit") {
+        interestRate = 7.0;
+    }
+    else {
+        accountType = "Savings";
+        interestRate = 4.0;
+    }
 }
 
 // ================= GETTERS =================
@@ -52,6 +68,8 @@ string BankAccount::getAccountNumber()  const { return accountNumber; }
 double BankAccount::getBalance()        const { return balance; }
 string BankAccount::getPinHash()        const { return pinHash; }
 string BankAccount::getSalt()           const { return salt; }
+string BankAccount::getAccountType()    const { return accountType; }
+double BankAccount::getInterestRate()   const { return interestRate;}
 
 void BankAccount::setPinHash(const std::string& hash,
                               const std::string& newSalt) {
@@ -462,6 +480,8 @@ void BankAccount::showAccountSummary() const {
     cout << "\n========== ACCOUNT SUMMARY ==========\n";
     cout << "Account Number : " << accountNumber << "\n";
     cout << "Account Holder : " << name << "\n";
+    cout << "Account Type   : " << accountType << "\n";
+    cout << "Interest Rate  : " << interestRate <<"\n";
     cout << "Account Status : " << (isLocked ? "Locked" : "Active") << "\n";
     cout << "Role           : " << role << "\n";
     cout << "-------------------------------------\n";

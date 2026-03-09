@@ -17,24 +17,26 @@ class BankAccount {
 private:
     std::string accountNumber;
     std::string name;
-    std::string pinHash;   // SHA-256 hex digest (64 chars)
-    std::string salt;      // random per-account salt
+    std::string pinHash;   
+    std::string salt;      
     double balance;
     std::vector<Transaction> transactionHistory;
     int lastTransactionId;
-    std::string role;      // "user" or "admin"
+    std::string role;      
     bool isLocked;
+    std::string accountType;
+    double interestRate;
 
     // ---- Per-account limits (set by admin) ----
-    double depositLimit;       // max Rs. per deposit transaction
-    double withdrawLimit;      // max Rs. per withdrawal transaction
-    int    dailyTxnLimit;      // max transactions per day
-    double dailyTransferLimit; // max Rs. transferred out per day
+    double depositLimit;       
+    double withdrawLimit;     
+    int    dailyTxnLimit;     
+    double dailyTransferLimit; 
 
     // ---- Daily tracking (resets each new day) ----
-    int    dailyTxnCount;      // transactions done today
-    double dailyTransferUsed;  // transfer amount used today
-    std::string lastTxnDate;   // date of last transaction (YYYY-MM-DD)
+    int    dailyTxnCount;     
+    double dailyTransferUsed;  
+    std::string lastTxnDate;   
 
     // Daily reset helper
     void resetDailyCountersIfNeeded();
@@ -47,6 +49,7 @@ public:
                 double b,
                 const std::string& r,
                 bool locked,
+                const std::string& accType = "Savings",
                 double depositLimit    = 100000.0,
                 double withdrawLimit   = 50000.0,
                 int    dailyTxnLimit   = 10,
@@ -58,6 +61,8 @@ public:
     double getBalance() const;
     std::string getPinHash() const;
     std::string getSalt() const;
+    std::string getAccountType() const;
+    double getInterestRate() const;
 
     // Authentication
     bool authenticatePin(int enteredPin) const;

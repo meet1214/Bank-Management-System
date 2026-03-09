@@ -10,6 +10,7 @@ class InputValidator{
         static double getPositiveDouble(const std::string& prompt);
         static std::string getString(const std::string& prompt);
         static std::string getPin(const std::string& prompt);
+        static char getChar(const std::string& prompt);
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include "Sha256.h"
 #include "Logger.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
@@ -20,7 +21,7 @@ string AccountManager::generateAccountNumber() {
 }
 
 // ================= CREATE ACCOUNT =================
-bool AccountManager::createAccount(const string& name, int pin) {
+bool AccountManager::createAccount(const string& name, int pin, const string& accType) {
     string accNo = generateAccountNumber();
 
     // Generate unique salt and hash the PIN
@@ -29,7 +30,7 @@ bool AccountManager::createAccount(const string& name, int pin) {
 
     auto result = users.emplace(
         accNo,
-        BankAccount(accNo, name, pinHashed, salt, 0.0, "user", false)
+        BankAccount(accNo, name, pinHashed, salt, 0.0, "user", false,accType)
     );
 
     if (!result.second) {
@@ -93,7 +94,7 @@ void AccountManager::ensureAdminExists() {
         "ADMIN00000001",
         BankAccount("ADMIN00000001", "SystemAdmin",
                     adminHash, adminSalt,
-                    0.0, "admin", false)
+                    0.0, "admin", false,"Current")
     );
 
     save();
@@ -247,29 +248,92 @@ void AccountManager::showTotalBankBalance() const {
     cout << "Total Bank Balance: Rs." << total << "\n";
 }
 
-//=============SET INTEREST FOR ALL ACCOUNTS====================
-void AccountManager::applyInterestToAll(double rate) {
+//===================APPLY INEREST TO ALL==========================
+void AccountManager::applyInterestToAll() {  // ← Remove the rate parameter
+    
+    int accountsProcessed = 0;
     
     for (auto& [accNo, user] : users) {
         
-        // skip admin accounts
         if (user.getRole() == "admin") continue;
         
-        // skip zero balance
         if (user.getBalance() <= 0) continue;
         
-        // calculate simple interest
-        double interest = (user.getBalance() * rate)/100;
+        double rate = user.getInterestRate();
         
-        // apply
+
+        if (rate <= 0) {
+            Logger::getInstance()->admin("Skipped " + accNo + " (" + 
+                user.getAccountType() + ") - No interest for this account type");
+            continue;
+        }
+        
+        double interest = (user.getBalance() * rate) / 100;
+        
         user.addInterest(interest);
+        accountsProcessed++;
         
-        // log
         Logger::getInstance()->admin("Interest of Rs." + to_string(interest) + 
-            " applied to " + accNo);    
+            " (" + to_string(rate) + "%) applied to " + accNo + 
+            " (" + user.getAccountType() + ")");    
     }
     
-    // save once after all accounts updated
     save();
-    Logger::getInstance()->admin("Interest of " + to_string(rate) + "% applied to all accounts.");
+    Logger::getInstance()->admin("Interest applied to " + to_string(accountsProcessed) + " accounts.");
+}
+
+//=============VIEW ALL ACCOUNTS SORTED====================
+void AccountManager::viewAllAccountsSorted(const string& sortBy) const {
+    
+    if (users.empty()) {
+        Logger::getInstance()->info("No users found.");
+        return;
+    }
+    
+    vector<const BankAccount*> accountList;
+    for (const auto& [accNo, user] : users) {
+        if (user.getRole() == "user") {
+            accountList.push_back(&user);
+        }
+    }
+    
+    // Sort based on sortBy parameter
+    if (sortBy == "account") {
+        sort(accountList.begin(), accountList.end(),
+             [](const BankAccount* a, const BankAccount* b) {
+                 return a->getAccountNumber() < b->getAccountNumber();
+             });
+    }
+    else if (sortBy == "name") {
+        sort(accountList.begin(), accountList.end(),
+             [](const BankAccount* a, const BankAccount* b) {
+                 return a->getName() < b->getName();
+             });
+    }
+    else if (sortBy == "balance_high") {
+        sort(accountList.begin(), accountList.end(),
+             [](const BankAccount* a, const BankAccount* b) {
+                 return a->getBalance() > b->getBalance();
+             });
+    }
+    else if (sortBy == "balance_low") {
+        sort(accountList.begin(), accountList.end(),
+             [](const BankAccount* a, const BankAccount* b) {
+                 return a->getBalance() < b->getBalance();
+             });
+    }
+    else {
+        cout << "Invalid sort option.\n";
+        return;
+    }
+    
+    cout << "\n----- All User Accounts (Sorted) -----\n";
+    for (const BankAccount* user : accountList) {
+        cout << "Account No: " << user->getAccountNumber() << "\n"
+             << "Name: "       << user->getName()           << "\n"
+             << "Balance: Rs." << fixed << setprecision(2) 
+             << user->getBalance() << "\n"
+             << "Status: "     << (user->getLockStatus() ? "Locked" : "Active")
+             << "\n-----------------------------\n";
+    }
 }

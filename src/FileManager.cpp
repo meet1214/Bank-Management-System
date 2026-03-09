@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <string>
 
 using namespace std;
 
@@ -27,6 +28,7 @@ void FileManager::saveAccounts(
              << user.getBalance()          << "|"
              << user.getLockStatus()       << "|"
              << user.getRole()             << "|"
+             << user.getAccountType()      << "|"
              << user.getDepositLimit()     << "|"
              << user.getWithdrawLimit()    << "|"
              << user.getDailyTxnLimit()    << "|"
@@ -52,7 +54,7 @@ void FileManager::loadAccounts(
 
         stringstream ss(line);
         string accNo, name, pinHash, salt,
-               balanceStr, lockStr, role,
+               balanceStr, lockStr, role, accType,
                depLimStr, withLimStr, txnLimStr, transferLimStr;
 
         getline(ss, accNo,          '|');
@@ -62,6 +64,7 @@ void FileManager::loadAccounts(
         getline(ss, balanceStr,     '|');
         getline(ss, lockStr,        '|');
         getline(ss, role,           '|');
+        getline(ss, accType,        '|');
         // Limit fields — optional for backward compatibility
         getline(ss, depLimStr,      '|');
         getline(ss, withLimStr,     '|');
@@ -78,9 +81,11 @@ void FileManager::loadAccounts(
             int    txnLim      = txnLimStr.empty()      ? 10       : stoi(txnLimStr);
             double transferLim = transferLimStr.empty() ? 200000.0 : stod(transferLimStr);
 
+            if (accType.empty()) accType = "Savings";
+
             users.emplace(accNo,
                 BankAccount(accNo, name, pinHash, salt,
-                            balance, role, isLocked,
+                            balance, role, isLocked, accType,
                             depLim, withLim, txnLim, transferLim));
 
             // Track highest sequence number for account numbering

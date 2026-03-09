@@ -1,38 +1,13 @@
-[2026-03-08 13:18:59] [WARN] Account BNGL00000001 not found
-[2026-03-08 13:19:09] [WARN] Account BNGL00000001 not found
-[2026-03-08 13:19:10] [WARN] Account BNGL00000001 not found
-[2026-03-08 19:55:52] [INFO] Account created: BNGL00000001 for Meet Patel
-[2026-03-08 19:56:12] [INFO] Login successful
-[2026-03-08 19:56:44] [INFO] Pin changed successfully for BNGL00000001
-[2026-03-08 19:57:58] [INFO] Login successful
-[2026-03-08 19:58:40] [INFO] Login successful
-[2026-03-08 20:00:57] [INFO] Login successful
-[2026-03-08 20:02:41] [INFO] Login successful
-[2026-03-08 20:03:45] [INFO] Login successful
-[2026-03-08 20:05:25] [INFO] Login successful
-[2026-03-08 20:08:13] [INFO] Login successful
-[2026-03-08 20:09:53] [WARN] Account BNGL0000001 not found
-[2026-03-08 20:10:28] [WARN] Account BNGL0000001 not found
-[2026-03-08 20:10:53] [INFO] Login successful
-[2026-03-08 20:14:24] [INFO] Login successful
-[2026-03-08 20:14:40] [INFO] Pin changed successfully for BNGL00000001
-[2026-03-08 20:15:12] [INFO] Pin changed successfully for BNGL00000001
-[2026-03-08 20:34:00] [INFO] Login successful
-[2026-03-08 20:34:13] [INFO] Deposit of Rs.30000.000000 on account BNGL00000001
-[2026-03-08 20:34:16] [INFO] Deposit of Rs.60000.000000 on account BNGL00000001
-[2026-03-08 20:34:20] [INFO] Deposit of Rs.10000.000000 on account BNGL00000001
-[2026-03-08 20:34:26] [INFO] Withdrawal of Rs.50000.000000 on account BNGL00000001
-[2026-03-08 21:13:27] [INFO] Login successful
-[2026-03-08 21:13:35] [INFO] Interest of Rs.2250.000000 added in the account BNGL00000001
-[2026-03-08 21:13:35] [ADMIN] Interest of Rs.2250.000000 applied to BNGL00000001
-[2026-03-08 21:13:35] [ADMIN] Interest of 4.500000% applied to all accounts.
-[2026-03-08 21:14:03] [INFO] Login successful
-[2026-03-08 21:14:07] [INFO] Deposit of Rs.60000.000000 on account BNGL00000001
-[2026-03-08 21:22:50] [INFO] Login successful
-[2026-03-09 16:39:34] [INFO] Login successful
-[2026-03-09 16:52:25] [INFO] Login successful
-[2026-03-09 16:54:54] [INFO] Login successful
-[2026-03-09 16:55:14] [INFO] Login successful
-[2026-03-09 16:57:29] [INFO] Login successful
-[2026-03-09 17:00:50] [INFO] Login successful
-[2026-03-09 17:06:18] [INFO] Login successful
+[2026-03-09 20:04:39] [INFO] Account created: BNGL00000001 for Meet Patel
+[2026-03-09 20:04:58] [INFO] Login successful
+[2026-03-09 20:05:07] [INFO] Deposit of Rs.20000.000000 on account BNGL00000001
+[2026-03-09 20:05:13] [INFO] Deposit of Rs.30000.000000 on account BNGL00000001
+[2026-03-09 20:05:20] [INFO] Withdrawal of Rs.20000.000000 on account BNGL00000001
+[2026-03-09 20:05:25] [INFO] Deposit of Rs.50000.000000 on account BNGL00000001
+[2026-03-09 20:05:55] [INFO] Deposit of Rs.90000.000000 on account BNGL00000001
+[2026-03-09 20:06:06] [WARN] Deposit denied for BNGL00000001: exceeds limit of Rs.100000.000000
+[2026-03-09 20:06:35] [INFO] Login successful
+[2026-03-09 20:06:49] [INFO] Interest of Rs.6800.000000 added in the account BNGL00000001
+[2026-03-09 20:06:49] [ADMIN] Interest of Rs.6800.000000 (4.000000%) applied to BNGL00000001 (Savings)
+[2026-03-09 20:06:49] [ADMIN] Interest applied to 1 accounts.
+[2026-03-09 20:07:09] [INFO] Login successful

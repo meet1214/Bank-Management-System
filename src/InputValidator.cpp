@@ -94,3 +94,26 @@ string InputValidator::getPin(const std::string &prompt) {
         }
     }
 }
+
+//===============CHAR FAILURE=====================
+char InputValidator::getChar(const std::string &prompt) {
+    string input;
+    while(true){
+        cout << prompt;
+        getline(cin, input);
+        
+        // Remove leading/trailing whitespace
+        input.erase(0, input.find_first_not_of(" \t\n\r"));
+        input.erase(input.find_last_not_of(" \t\n\r") + 1);
+        
+        if(input.empty()){
+            cout << "Input cannot be empty! Try Again.\n";
+        }
+        else if(input.length() > 1){
+            cout << "Please enter only a single character! Try Again.\n";
+        }
+        else {
+            return input[0];
+        }
+    }
+}

@@ -23,7 +23,7 @@ public:
     void ensureAdminExists();
 
     //==========USER PANEL=============
-    bool createAccount(const std::string& name, int pin);
+    bool createAccount(const std::string& name, int pin, const std::string& accountType);
     std::string loginAccount(const std::string& accNo, int pin);
     BankAccount* getAccountByAccountNumber(const std::string& accNo);
 
@@ -34,7 +34,8 @@ public:
     void deleteAccount(const std::string& accNo);
     void showTotalBankBalance() const;
     void setAccountLimits(const std::string& accNo);
-    void applyInterestToAll(double rate);
+    void applyInterestToAll();
+    void viewAllAccountsSorted(const std::string& sortBy) const;
 };
 
 
