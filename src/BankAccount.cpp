@@ -73,7 +73,18 @@ static string extractDateFromDateTime(const string& dateTime) {
     
     return oss.str();
 }
-
+// ================= HELPER: CASE-INSENSITIVE PARTIAL MATCH =================
+static bool containsIgnoreCase(const string& text, const string& search) {
+    string textLower = text;
+    string searchLower = search;
+    
+    // Convert both to lowercase
+    transform(textLower.begin(), textLower.end(), textLower.begin(), ::tolower);
+    transform(searchLower.begin(), searchLower.end(), searchLower.begin(), ::tolower);
+    
+    // Check if search is found in text
+    return textLower.find(searchLower) != string::npos;
+}
 
 // ================= AUTHENTICATION =================
 bool BankAccount::authenticatePin(int enteredPin) const {
@@ -87,19 +98,6 @@ string BankAccount::getCurrentDateTime() const {
     string timeStr = ctime(&nowTime);
     timeStr.pop_back(); // remove trailing newline
     return timeStr;
-}
-
-// ================= HELPER: CASE-INSENSITIVE PARTIAL MATCH =================
-static bool containsIgnoreCase(const string& text, const string& search) {
-    string textLower = text;
-    string searchLower = search;
-    
-    // Convert both to lowercase
-    transform(textLower.begin(), textLower.end(), textLower.begin(), ::tolower);
-    transform(searchLower.begin(), searchLower.end(), searchLower.begin(), ::tolower);
-    
-    // Check if search is found in text
-    return textLower.find(searchLower) != string::npos;
 }
 
 // ================= HELPER: GET TODAY'S DATE (YYYY-MM-DD) =================
@@ -477,84 +475,104 @@ void BankAccount::showAccountSummary() const {
     cout << "Total Transactions    : " << transactionHistory.size() << "\n";
     cout << "Last Transaction Date : " << lastTxnDate << "\n";
 }
-
 void BankAccount::searchTransactionsByDate(const string& startDate, const string& endDate) const {
     
     cout << "Searching transaction between " << startDate << " to " << endDate << "\n";
-
+    
     vector<Transaction> results;
     
     for (const Transaction& t : transactionHistory) {
         string transactionDate = extractDateFromDateTime(t.dateTime);
-        if(transactionDate >=startDate && transactionDate <= endDate) {
+        if (transactionDate >= startDate && transactionDate <= endDate) {
             results.push_back(t);
         }
     }
-
-    if(results.empty()){
-        cout << "No transactions found in this date range.\n";
+    
+    if (results.empty()) {
+        cout << "No transactions found between " << startDate << " and " << endDate << "\n";
     }
     else {
-        cout << "Found " << results.size() << " transaction(s) in date range.\n";
         cout << left << setw(6)  << "S.No"
-                 << setw(8)  << "TxnID"
-                 << setw(25) << "Date & Time"
-                 << setw(35) << "Type"
-                 << setw(14) << "Amount"
-                 << setw(14) << "Balance" << "\n";
-
+                     << setw(8)  << "TxnID"
+                     << setw(25) << "Date & Time"
+                     << setw(35) << "Type"
+                     << setw(14) << "Amount"
+                     << setw(14) << "Balance" << "\n";
+        
         cout << string(102, '-') << "\n";
-
+        
         int serial = 1;
         for(const auto& entry : results) {
             cout << left << setw(6)  << serial++
-                     << setw(8)  << entry.transactionId
-                     << setw(25) << entry.dateTime
-                     << setw(35) << entry.type;
-
+                         << setw(8)  << entry.transactionId
+                         << setw(25) << entry.dateTime
+                         << setw(35) << entry.type;
+            
             cout << fixed << setprecision(2)
-             << "Rs." << setw(11) << entry.amount
-             << "Rs." << setw(11) << entry.balance << "\n";    
+                 << "Rs." << setw(11) << entry.amount
+                 << "Rs." << setw(11) << entry.balance << "\n";
         }
+        
+        cout << string(102, '-') << "\n";
+        cout << "Found " << results.size() << " transaction(s) between " << startDate << " and " << endDate << "\n";
     }
 }
+
 void BankAccount::searchTransactionsByType(const string& type) const {
     
     cout << "\nSearching transactions of type: " << type << "\n\n";
     
     vector<Transaction> results;
     
-
     for (const Transaction& t : transactionHistory) {
-        if (containsIgnoreCase(t.type, type)) {
+        bool match = false;
+        
+        
+        if (type == "Transfer") {
+            if (containsIgnoreCase(t.type, "Transfer To") || 
+                containsIgnoreCase(t.type, "Received From")) {
+                match = true;
+            }
+        }
+        
+        else {
+            if (containsIgnoreCase(t.type, type)) {
+                match = true;
+            }
+        }
+        
+        if (match) {
             results.push_back(t);
         }
     }
+    
     
     if (results.empty()) {
         cout << "No transactions found for type: " << type << "\n";
     }
     else {
-        cout << "Found " << results.size() << " transaction(s) in this type.\n";
         cout << left << setw(6)  << "S.No"
-                 << setw(8)  << "TxnID"
-                 << setw(25) << "Date & Time"
-                 << setw(35) << "Type"
-                 << setw(14) << "Amount"
-                 << setw(14) << "Balance" << "\n";
-
+                     << setw(8)  << "TxnID"
+                     << setw(25) << "Date & Time"
+                     << setw(35) << "Type"
+                     << setw(14) << "Amount"
+                     << setw(14) << "Balance" << "\n";
+        
         cout << string(102, '-') << "\n";
-
+        
         int serial = 1;
         for(const auto& entry : results) {
             cout << left << setw(6)  << serial++
-                     << setw(8)  << entry.transactionId
-                     << setw(25) << entry.dateTime
-                     << setw(35) << entry.type;
-
+                         << setw(8)  << entry.transactionId
+                         << setw(25) << entry.dateTime
+                         << setw(35) << entry.type;
+            
             cout << fixed << setprecision(2)
-             << "Rs." << setw(11) << entry.amount
-             << "Rs." << setw(11) << entry.balance << "\n";    
+                 << "Rs." << setw(11) << entry.amount
+                 << "Rs." << setw(11) << entry.balance << "\n";
         }
+        
+        cout << string(102, '-') << "\n";
+        cout << "Found " << results.size() << " transaction(s) of type: " << type << "\n";
     }
 }

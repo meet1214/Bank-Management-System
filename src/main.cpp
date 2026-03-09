@@ -241,10 +241,42 @@ int main() {
             currentUser->searchTransactionsByDate(startDate, endDate);
             break;
           }
-          case 7:
-          {
-            string type = InputValidator::getString("Enter the type of transaction: ");
-            currentUser->searchTransactionsByType(type);
+          
+          case 7: {
+            cout << "\n===== SELECT TRANSACTION TYPE =====\n";
+            cout << "1. Deposit\n";
+            cout << "2. Withdraw\n";
+            cout << "3. Transfer (Sent/Received)\n";
+            cout << "4. Interest\n";
+            cout << "5. All Transactions\n";
+            
+            int typeChoice = InputValidator::getInt("Enter your choice: ");
+            
+            string searchType;
+            switch(typeChoice) {
+                case 1:
+                    searchType = "Deposit";
+                    break;
+                case 2:
+                    searchType = "Withdraw";
+                    break;
+                case 3:
+                    searchType = "Transfer"; 
+                    break;
+                case 4:
+                    searchType = "Interest";
+                    break;
+                case 5:
+                    currentUser->showTransactionHistory();  
+                    break;
+                default:
+                    cout << "Invalid choice.\n";
+                    break;
+            }
+            
+            if (typeChoice >= 1 && typeChoice <= 4) {
+                currentUser->searchTransactionsByType(searchType);
+            }
             break;
           }
 
