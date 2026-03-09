@@ -107,7 +107,9 @@ public:
 
     //Phase 3 Operations
     void searchTransactionsByDate(const std::string& startDate, const std::string& endDate) const;
+    void searchTransactionsByType(const std::string& type) const;
 
+    
     // Transaction Handling
     void showTransactionHistory() const;
     void loadTransactionsFromFile();
