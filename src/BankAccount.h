@@ -116,6 +116,9 @@ public:
     void searchTransactionsByDate(const std::string& startDate, const std::string& endDate) const;
     void searchTransactionsByType(const std::string& type) const;
     void checkForSuspiciousActivity() const;
+    void showSortedTransactionsByAmount() const;
+    std::vector<Transaction> binarySearchTransactionsByAmount(double targetAmount) const;
+    void searchTransactionByAmountInteractive() const;
 
     
     // Transaction Handling

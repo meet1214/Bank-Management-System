@@ -726,3 +726,160 @@ void BankAccount::checkForSuspiciousActivity() const {
     
     cout << "\n============================================\n";
 }
+
+//================= SHOW SORTED TRANSACTIONS BY AMOUNT =================
+void BankAccount::showSortedTransactionsByAmount() const{
+    cout <<"\n============ TRANSACTION SORTED BY AMOUNT==============\n";
+
+    if(transactionHistory.empty()){
+        cout << "No transaction found.\n";
+        return;
+    }
+
+    vector<Transaction> sortedTxns = transactionHistory;
+
+    sort(sortedTxns.begin(),sortedTxns.end(),
+    [](const Transaction& a, Transaction& b){
+        return a.amount < b.amount;
+    });
+
+    cout << left << setw(6)  << "S.No"
+                 << setw(8)  << "TxnID"
+                 << setw(25) << "Date & Time"
+                 << setw(35) << "Type"
+                 << setw(14) << "Amount"
+                 << setw(14) << "Balance" << "\n";
+    
+    cout << string(102, '-') << "\n";
+    
+    int serial = 1;
+    for(const auto& entry : sortedTxns) {
+        cout << left << setw(6)  << serial++
+                     << setw(8)  << entry.transactionId
+                     << setw(25) << entry.dateTime
+                     << setw(35) << entry.type;
+        
+        cout << fixed << setprecision(2)
+             << "Rs." << setw(11) << entry.amount
+             << "Rs." << setw(11) << entry.balance << "\n";
+    }
+    
+    cout << string(102, '-') << "\n";
+    cout << "Total transactions: " << sortedTxns.size() << "\n";
+    cout << "\nNote: Negative amounts are withdrawals/transfers out.\n";
+}
+
+//================= BINARY SEARCH TRANSACTIONS BY AMOUNT =================
+vector<Transaction> BankAccount::binarySearchTransactionsByAmount(double targetAmount) const {
+    
+    vector<Transaction> results;
+    
+    if (transactionHistory.empty()) {
+        return results;
+    }
+    
+    // Create sorted copy
+    vector<Transaction> sortedTxns = transactionHistory;
+    sort(sortedTxns.begin(), sortedTxns.end(),
+         [](const Transaction& a, const Transaction& b) {
+             return a.amount < b.amount;
+         });
+    
+    
+    int left = 0;
+    int right = sortedTxns.size() - 1;
+    int foundIndex = -1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        
+        double diff = abs(sortedTxns[mid].amount - targetAmount);
+        
+        if (diff < 0.01) {  
+            foundIndex = mid;
+            break;
+        }
+        else if (sortedTxns[mid].amount < targetAmount) {
+            left = mid + 1;  
+        }
+        else {
+            right = mid - 1;  
+        }
+    }
+    
+    
+    if (foundIndex != -1) {
+        
+        
+        results.push_back(sortedTxns[foundIndex]);
+        
+        
+        int leftIdx = foundIndex - 1;
+        while (leftIdx >= 0 && abs(sortedTxns[leftIdx].amount - targetAmount) < 0.01) {
+            results.insert(results.begin(), sortedTxns[leftIdx]);
+            leftIdx--;
+        }
+        
+        
+        int rightIdx = foundIndex + 1;
+        while (rightIdx < (int)sortedTxns.size() && 
+               abs(sortedTxns[rightIdx].amount - targetAmount) < 0.01) {
+            results.push_back(sortedTxns[rightIdx]);
+            rightIdx++;
+        }
+    }
+    
+    return results;
+}
+
+//================= INTERACTIVE AMOUNT SEARCH =================
+void BankAccount::searchTransactionByAmountInteractive() const {
+    
+    cout << "\n===== SEARCH TRANSACTION BY AMOUNT =====\n\n";
+    
+    
+    cout << "Here are your transactions sorted by amount:\n";
+    showSortedTransactionsByAmount();
+    
+    cout << "\nEnter the amount to search for: Rs.";
+    double targetAmount;
+    cin >> targetAmount;
+    cin.ignore(1000, '\n');
+    
+    cout << "\nSearching for transactions with amount Rs." 
+         << fixed << setprecision(2) << targetAmount << "...\n";
+    
+    
+    vector<Transaction> results = binarySearchTransactionsByAmount(targetAmount);
+    
+    if (results.empty()) {
+        cout << "\n No transactions found with amount Rs." << targetAmount << "\n";
+        cout << "Binary search completed - amount not found in transaction history.\n";
+    }
+    else {
+        cout << "\n Found " << results.size() << " transaction(s) with amount Rs." 
+             << targetAmount << "\n\n";
+        
+        cout << left << setw(8)  << "TxnID"
+                     << setw(25) << "Date & Time"
+                     << setw(35) << "Type"
+                     << setw(14) << "Amount"
+                     << setw(14) << "Balance" << "\n";
+        
+        cout << string(96, '-') << "\n";
+        
+        for(const auto& txn : results) {
+            cout << left << setw(8)  << txn.transactionId
+                         << setw(25) << txn.dateTime
+                         << setw(35) << txn.type;
+            
+            cout << fixed << setprecision(2)
+                 << "Rs." << setw(11) << txn.amount
+                 << "Rs." << setw(11) << txn.balance << "\n";
+        }
+        
+        cout << string(96, '-') << "\n";
+        cout << "Binary search successful!\n";
+    }
+}
