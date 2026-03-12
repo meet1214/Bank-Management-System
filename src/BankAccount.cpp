@@ -180,6 +180,47 @@ void BankAccount::depositMoney(double amount) {
     Logger::getInstance()->info("Deposit of Rs." + to_string(amount) + " on account " + accountNumber);
 }
 
+//=================CREDIT LOAN AMOUNT============
+bool BankAccount::creditAmount(double amount, const std::string& type){
+    resetDailyCountersIfNeeded();
+
+    balance += amount;
+    ++lastTransactionId;
+    ++dailyTxnCount;
+
+    Transaction t;
+    t.transactionId = lastTransactionId;
+    t.dateTime      = getCurrentDateTime();
+    t.type          = type;
+    t.amount        = amount;
+    t.balance       = balance;
+
+    transactionHistory.push_back(t);
+    saveTransactionToFile(t);
+    Logger::getInstance()->info("Loan amount of Rs." + to_string(amount) + " is credited on account " + accountNumber);
+    return true;
+}
+
+bool BankAccount::debitAmount(double amount, const std::string& type){
+    resetDailyCountersIfNeeded();
+
+    balance -=amount;
+    ++lastTransactionId;
+    ++dailyTxnCount;
+
+    Transaction t;
+    t.transactionId = lastTransactionId;
+    t.dateTime      = getCurrentDateTime();
+    t.type          = type;
+    t.amount        = amount;
+    t.balance       = balance;
+
+    transactionHistory.push_back(t);
+    saveTransactionToFile(t);
+    Logger::getInstance()->info("An EMI of Rs." + to_string(amount) + " is debited from account " + accountNumber);
+    return true;    
+}
+
 // ================= WITHDRAW =================
 bool BankAccount::withdrawMoney(double amount) {
 

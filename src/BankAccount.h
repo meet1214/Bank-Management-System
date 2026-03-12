@@ -66,6 +66,10 @@ public:
     std::string getAccountType() const;
     double getInterestRate() const;
 
+    const std::vector<Transaction>& getTransactionHistory() const { 
+        return transactionHistory; 
+    }
+
     // Authentication
     bool authenticatePin(int enteredPin) const;
 
@@ -106,6 +110,7 @@ public:
     bool transferMoney(BankAccount& receiver, double amount);
     void showBalance() const;
     void showLimits() const;
+    
 
     // Phase 2 Operations
     void showMiniStatement() const;
@@ -120,6 +125,9 @@ public:
     std::vector<Transaction> binarySearchTransactionsByAmount(double targetAmount) const;
     void searchTransactionByAmountInteractive() const;
 
+    //Phase 4 Operations
+    bool creditAmount(double amount, const std::string& type);
+    bool debitAmount(double amount, const std::string& type);
     
     // Transaction Handling
     void showTransactionHistory() const;
