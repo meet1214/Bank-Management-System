@@ -1,8 +1,10 @@
 #include "AccountManager.h"
 #include "BankAccount.h"
 #include "InputValidator.h"
+#include "LoanManager.h"
 
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <thread>
@@ -13,6 +15,7 @@ int main() {
 
   AccountManager manager;
   manager.load();
+  LoanManager loanManager;
 
   while (true) {
 
@@ -126,8 +129,9 @@ int main() {
           cout << "6. Show Total Bank Balance\n";
           cout << "7. Set Account Limits\n";
           cout << "8. Apply Interest\n";
-          cout << "9. Check for fraud\n";
-          cout << "10. Logout\n";
+          cout << "9. Loan Section\n";
+          cout << "10. Check for fraud\n";
+          cout << "11. Logout\n";
 
           int adminChoice = InputValidator::getInt("Enter your choice: ");
 
@@ -147,21 +151,21 @@ int main() {
 
             string sortBy;
             switch (sortChoice) {
-            case 1:
-              sortBy = "account";
-              break;
-            case 2:
-              sortBy = "name";
-              break;
-            case 3:
-              sortBy = "balance_high";
-              break;
-            case 4:
-              sortBy = "balance_low";
-              break;
-            default:
-              cout << "Invalid choice.\n";
-              break;
+              case 1:
+                sortBy = "account";
+                break;
+              case 2:
+                sortBy = "name";
+                break;
+              case 3:
+                sortBy = "balance_high";
+                break;
+              case 4:
+                sortBy = "balance_low";
+                break;
+              default:
+                cout << "Invalid choice.\n";
+                break;
             }
 
             if (sortChoice >= 1 && sortChoice <= 4) {
@@ -219,8 +223,62 @@ int main() {
             }
             break;
           }
-
           case 9:
+          {
+            bool loadMenu = true;
+            while(loadMenu){
+              cout << "\n===== LOAN SECTION =====\n";
+              cout << "1. View all loans\n";
+              cout << "2. View Pending Loans\n";
+              cout << "3. Approve Loan\n";
+              cout << "4. Reject Loan\n";
+              cout << "5. Disburse Loan\n";
+              cout << "6. Back\n";
+              int subChoice = InputValidator::getInt("Enter your choice: ");
+
+              switch (subChoice) {
+                case 1:
+                  loanManager.viewAllLoans();
+                  break;
+                
+                case 2:
+                  loanManager.viewPendingLoans();
+                  break;
+                
+                case 3:
+                {
+                  string loanId = InputValidator::getString("Enter loan ID: ");
+                  loanManager.approveLoan(loanId);
+                  break;
+                }
+                case 4:
+                {
+                  string loanId = InputValidator::getString("Enter loan ID: ");
+                  string reason = InputValidator::getString("Enter rejection reason: ");
+                  loanManager.rejectLoan(loanId, reason);
+                  break;
+                }
+
+                case 5:
+                {
+                  string loanId = InputValidator::getString("Enter loan ID: ");
+                  Loan* loan = loanManager.getLoanById(loanId);
+                  if (!loan) { cout << "Loan not found.\n"; break; }
+                  BankAccount* acc = manager.getAccountByAccountNumber(loan->accountNumber);
+                  if (!acc) { cout << "Account not found.\n"; break; }
+                  loanManager.disburseLoan(loanId, *acc);
+                  break;
+                }
+
+                case 6:
+                  loadMenu = false;
+                  break;
+              }
+              break;
+            }
+          }
+
+          case 10:
           {
             string acc = InputValidator::getString("Enter the account number to check for fraud: ");
             BankAccount* account = manager.getAccountByAccountNumber(acc);
@@ -233,7 +291,7 @@ int main() {
             break;
           }
 
-          case 10:
+          case 11:
             cout << "Admin logging out...\n";
             adminLoggedIn = false;
             break;
@@ -266,8 +324,9 @@ int main() {
           cout << "10. Show Mini Statement\n";
           cout << "11. Show Account Summary\n";
           cout << "12. Change your current pin\n";
-          cout << "13. Check for suspicious activity\n";
-          cout << "14. Logout\n";
+          cout << "13. Loan Services\n";
+          cout << "14. Check for suspicious activity\n";
+          cout << "15. Logout\n";
 
           int userChoice = InputValidator::getInt("Enter choice: ");
 
@@ -420,12 +479,86 @@ int main() {
             }
             break;
           }
-          
           case 13:
+          {
+            bool loadMenu = true;
+            while(loadMenu){
+              cout << "\n===== LOAN SERVICES =====\n";
+              cout << "1. Apply for Loan\n";
+              cout << "2. View My Loans\n";
+              cout << "3. Make EMI Payment\n";
+              cout << "4. View Payment History\n";
+              cout << "5. Early Closure\n";
+              cout << "6. Back\n";
+              int subChoice = InputValidator::getInt("Enter your choice: ");
+
+              switch (subChoice) {
+                case 1:
+                {
+                  string loanType;
+                  int choice = InputValidator::getInt("Enter the type of loan required(1-4): ");
+                  switch(choice) {
+                      case 1: loanType = "Personal"; break;
+                      case 2: loanType = "Home";     break;
+                      case 3: loanType = "Auto";     break;
+                      case 4: loanType = "Education";break;
+                      default: cout << "Invalid choice.\n"; break;
+                  }
+                  
+                  double loanAmount = InputValidator::getPositiveDouble("Enter the loan amount required: ");
+
+                  if(loanManager.checkEligibility(*currentUser, loanType, loanAmount)) {
+                    int tenure = InputValidator::getInt("Enter tenure in months: ");
+                    string loanId = loanManager.applyForLoan(*currentUser, loanType, loanAmount, tenure);
+                    if (!loanId.empty())
+                        cout << "Loan applied successfully! Loan ID: " << loanId << "\n";
+                  }
+                  break; 
+                }
+                case 2:
+                  loanManager.viewUserLoans(currentUserId);
+                  break;
+                
+                case 3: 
+                {
+                  loanManager.viewUserLoans(currentUserId); 
+                  string loanId = InputValidator::getString("Enter Loan ID: ");
+                  loanManager.makeEMIPayment(loanId, *currentUser);
+                  break;
+                }
+                case 4:
+                {
+                  loanManager.viewUserLoans(currentUserId);
+                  string loanId = InputValidator::getString("Enter Loan ID: ");
+                  loanManager.viewPaymentHistory(loanId);
+                  break;
+                }
+
+                case 5:
+                {
+                  loanManager.viewUserLoans(currentUserId);
+                  string loanId = InputValidator::getString("Enter Loan ID: ");
+                  double amount = loanManager.calculateEarlyClosureAmount(loanId);
+                  cout << "Early closure amount: Rs." << fixed << setprecision(2) << amount << "\n";
+                  string confirm = InputValidator::getString("Confirm early closure? (yes/no): ");
+                  if (confirm == "yes") {
+                      loanManager.closeLoanEarly(loanId, *currentUser);
+                  }
+                  break;
+                }
+                case 6:
+                  loadMenu = false;
+                  break;
+              }
+              break;
+            }
+          }
+          
+          case 14:
             currentUser->checkForSuspiciousActivity();
             break;
 
-          case 14:
+          case 15:
             cout << "Logging out...\n";
             loggedIn = false;
             break;

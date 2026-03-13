@@ -125,7 +125,7 @@ void LoanFileManager::loadLoans(unordered_map<string, Loan>& loans, int& lastSeq
                     getline(pss, payNumStr,     '|');
                     getline(pss, payDate,       '|');
                     getline(pss, emiAmtStr,     '|');
-                    getline(pss, principalStr,  '|');
+                    getline(pss, pPrincipalStr,  '|');
                     getline(pss, interestStr,   '|');
                     getline(pss, balanceStr,    '|');
                     getline(pss, remarksStr,    '|');
