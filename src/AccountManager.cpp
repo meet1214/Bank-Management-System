@@ -1,11 +1,10 @@
 #include "AccountManager.h"
 #include "BankAccount.h"
-#include "FileManager.h"
 #include "Sha256.h"
 #include "Logger.h"
+#include "DatabaseManager.h"
 
 #include <algorithm>
-#include <filesystem>
 #include <iomanip>
 #include <iostream>
 
@@ -70,13 +69,13 @@ string AccountManager::loginAccount(const string& accNo, int pin) {
 
 // ================= SAVE =================
 void AccountManager::save() const {
-    FileManager::saveAccounts(users);
+    DatabaseManager::saveAccounts(users);
 }
 
 // ================= LOAD =================
 void AccountManager::load() {
-    FileManager::loadAccounts(users, lastSequenceNumber, branchCode);
-    ensureAdminExists();
+    DatabaseManager::open();
+    DatabaseManager::loadAccounts(users, lastSequenceNumber, branchCode);
 }
 
 // ================= ENSURE ADMIN EXISTS =================
@@ -162,7 +161,7 @@ void AccountManager::deleteAccount(const string& accNo) {
         Logger::getInstance()->error("Cannot delete admin account.");  
         return; 
     }
-    std::filesystem::remove("data/transactions/" + accNo + ".txt");
+    DatabaseManager::deleteTransactions(accNo);
     users.erase(it);
     save();
     Logger::getInstance()->admin("Account " + accNo + " deleted successfully.");

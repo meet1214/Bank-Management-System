@@ -5,8 +5,7 @@
 #include <algorithm>
 #include <chrono>
 #include <ctime>
-#include <filesystem>
-#include <fstream>
+#include "DatabaseManager.h"
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -260,60 +259,14 @@ bool BankAccount::withdrawMoney(double amount) {
 
 // ================= SAVE TRANSACTION TO FILE =================
 void BankAccount::saveTransactionToFile(const Transaction& t) {
-    filesystem::create_directories("data/transactions");
-
-    string filePath = "data/transactions/" + accountNumber + ".txt";
-    ofstream file(filePath, ios::app);
-    if (!file) {
-        Logger::getInstance()->error("Failed to open transaction file: " + filePath);
-        return;
-    }
-
-    file << t.transactionId << "|"
-         << t.dateTime      << "|"
-         << t.type          << "|"
-         << t.amount        << "|"
-         << t.balance       << "\n";
+    DatabaseManager::saveTransaction(accountNumber, t);
 }
 
 // ================= LOAD TRANSACTIONS =================
 void BankAccount::loadTransactionsFromFile() {
-    transactionHistory.clear();
-    lastTransactionId = 0;
-
-    string filePath = "data/transactions/" + accountNumber + ".txt";
-    ifstream file(filePath);
-    if (!file) return;
-
-    string line;
-    while (getline(file, line)) {
-        if (line.empty()) continue;
-
-        stringstream ss(line);
-        string idStr, dateTime, type, amountStr, balanceStr;
-
-        if (!getline(ss, idStr,     '|')) continue;
-        if (!getline(ss, dateTime,  '|')) continue;
-        if (!getline(ss, type,      '|')) continue;
-        if (!getline(ss, amountStr, '|')) continue;
-        if (!getline(ss, balanceStr,'|')) continue;
-
-        Transaction t;
-        try {
-            t.transactionId = stoi(idStr);
-            t.amount        = stod(amountStr);
-            t.balance       = stod(balanceStr);
-        } catch (...) {
-            continue; // skip malformed lines
-        }
-
-        t.dateTime = dateTime;
-        t.type     = type;
-        transactionHistory.push_back(t);
-
-        if (t.transactionId > lastTransactionId)
-            lastTransactionId = t.transactionId;
-    }
+    DatabaseManager::loadTransactions(accountNumber,
+                                      transactionHistory,
+                                      lastTransactionId);
 }
 
 // ================= SHOW BALANCE =================
