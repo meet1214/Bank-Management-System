@@ -76,6 +76,7 @@ void AccountManager::save() const {
 void AccountManager::load() {
     DatabaseManager::open();
     DatabaseManager::loadAccounts(users, lastSequenceNumber, branchCode);
+    ensureAdminExists();
 }
 
 // ================= ENSURE ADMIN EXISTS =================
@@ -96,6 +97,7 @@ void AccountManager::ensureAdminExists() {
                     0.0, "admin", false,"Current")
     );
 
+    cout << "DEBUG: Creating admin account\n";
     save();
 }
 

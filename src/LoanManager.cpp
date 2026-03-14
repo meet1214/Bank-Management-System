@@ -1,6 +1,8 @@
 #include "LoanManager.h"
 #include "BankAccount.h"
 #include "Loan.h"
+#include "DatabaseManager.h"
+
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -302,6 +304,7 @@ bool LoanManager::makeEMIPayment(const std::string& loanId, BankAccount& account
         failed.outstandingBalance = it->second.outstandingAmount;
         failed.remarks           = "FAILED - Insufficient balance. 5% penalty applied.";
         it->second.paymentHistory.push_back(failed);
+        DatabaseManager::saveLoanPayment(loanId, failed);
         saveLoans();
         return false;
     }
@@ -326,6 +329,7 @@ bool LoanManager::makeEMIPayment(const std::string& loanId, BankAccount& account
         it->second.status = "PAID";
         it->second.nextEmiDate = "";
     }
+    DatabaseManager::saveLoanPayment(loanId, payment);
     saveLoans();
     return true;
 }
@@ -375,7 +379,8 @@ bool LoanManager::closeLoanEarly(const std::string& loanId, BankAccount& account
     it->second.status          = "CLOSED";
     it->second.outstandingAmount = 0.0;
     it->second.nextEmiDate     = "";
-    
+
+    DatabaseManager::saveLoanPayment(loanId, payment);
     saveLoans();
     return true;
     
@@ -541,9 +546,9 @@ void LoanManager::viewPendingLoans() const {
 
 //================SAVE AND LOAD FILES=================================
 void LoanManager::saveLoans() const {
-    LoanFileManager::saveLoans(loans);
+    DatabaseManager::saveLoans(loans);
 }
 
 void LoanManager::loadLoans() {
-    LoanFileManager::loadLoans(loans, lastLoanSequenceNumber);
+    DatabaseManager::loadLoans(loans, lastLoanSequenceNumber);
 }
