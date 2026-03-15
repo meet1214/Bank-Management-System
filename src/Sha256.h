@@ -98,11 +98,7 @@ inline std::string compute(const std::string& input) {
     return oss.str();
 }
 
-} // namespace Sha256Impl
-
-// ---------------------------------------------------------
-//  Public API
-// ---------------------------------------------------------
+} 
 
 inline std::string generateSalt() {
     std::random_device rd;

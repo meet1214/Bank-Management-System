@@ -1,6 +1,11 @@
 #include "DatabaseManager.h"
 #include "BankAccount.h"
 #include "Logger.h"
+
+#include <sstream>
+#include <iomanip>
+#include <random>
+#include <ctime>
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
@@ -119,6 +124,41 @@ void DatabaseManager::initSchema() {
         );
     )";
     sqlite3_exec(db_, sql, nullptr, nullptr, nullptr);
+
+    sql = R"(
+        CREATE TABLE IF NOT EXISTS sessions (
+            token           TEXT    PRIMARY KEY,
+            account_number  TEXT    NOT NULL,
+            created_at      INTEGER NOT NULL,
+            expires_at      INTEGER NOT NULL,
+            FOREIGN KEY (account_number)
+                REFERENCES accounts(account_number)
+                ON DELETE CASCADE
+        );
+    )";
+    sqlite3_exec(db_, sql, nullptr, nullptr, nullptr);
+
+    sql = R"(
+        CREATE TABLE IF NOT EXISTS audit_log (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp       INTEGER NOT NULL,
+            account_number  TEXT,
+            token           TEXT,
+            action          TEXT    NOT NULL,
+            details         TEXT,
+            status          TEXT    NOT NULL
+        );
+    )";
+    sqlite3_exec(db_, sql, nullptr, nullptr, nullptr);
+
+    sql = R"(
+        CREATE TABLE IF NOT EXISTS login_attempts (
+            account_number  TEXT    NOT NULL,
+            attempt_time    INTEGER NOT NULL
+        );
+    )";
+    sqlite3_exec(db_, sql, nullptr, nullptr, nullptr);
+
 }
 
 //==========CLOSE FUNCTION==========
@@ -467,5 +507,153 @@ void DatabaseManager::deleteLoan(const string& loanId){
 
     sqlite3_step(stmt);
 
+    sqlite3_finalize(stmt);
+}
+
+//===============CREATE SESSION===================
+string DatabaseManager::createSession(const string &accountNumber, int expiryMinutes){
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+    std::uniform_int_distribution<uint64_t> dist;
+
+    std::ostringstream oss;
+    oss << std::hex << std::setw(16) << std::setfill('0') << dist(gen)
+                    << std::setw(16) << std::setfill('0') << dist(gen);
+    string token = oss.str();
+
+    time_t now       = time(0);
+    time_t expiresAt = now + (expiryMinutes * 60);
+
+    const char* sql = R"(
+        INSERT INTO sessions (token, account_number, created_at, expires_at)
+            VALUES (?, ?, ?, ?);
+    )";
+
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+
+    sqlite3_bind_text  (stmt, 1, token.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text  (stmt, 2, accountNumber.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64 (stmt, 3, now);
+    sqlite3_bind_int64 (stmt, 4, expiresAt);
+
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    return token;
+}
+
+//===============VALIDATE SESSION======================
+string DatabaseManager::validateSession(const string& token) {
+
+    const char* sql = R"(
+        SELECT account_number, expires_at
+        FROM sessions
+        WHERE token = ?;
+    )";
+
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+
+    sqlite3_bind_text(stmt, 1, token.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) != SQLITE_ROW) {
+        sqlite3_finalize(stmt);
+        return "";
+    }
+
+    time_t now       = time(0);
+    time_t expiresAt = sqlite3_column_int64(stmt, 1);
+
+    if (now > expiresAt) {
+        sqlite3_finalize(stmt);
+        deleteSession(token);   // clean up expired token
+        return "";
+    }
+
+    string accountNumber = (const char*)sqlite3_column_text(stmt, 0);
+    sqlite3_finalize(stmt);
+    return accountNumber;
+
+}
+
+//================DELETE SESSION=======================
+void DatabaseManager::deleteSession(const string& token) {
+    const char* sql = R"(
+        DELETE FROM sessions WHERE token = ?;
+    )";
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+
+    sqlite3_bind_text(stmt, 1, token.c_str(), -1, SQLITE_TRANSIENT);
+
+    sqlite3_step(stmt);
+
+    sqlite3_finalize(stmt);
+}
+
+//===================LOG AUDIT============================
+void DatabaseManager::logAudit(const string& accountNumber,
+                                const string& token,const string& action,
+                                const string& details,const string& status) {
+
+    const char* sql = R"(
+        INSERT INTO audit_log
+        (timestamp, account_number, token, action, details, status)
+        VALUES (?, ?, ?, ?, ?, ?);
+    )";
+
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+
+    sqlite3_bind_int64 (stmt, 1, time(0));
+    sqlite3_bind_text  (stmt, 2, accountNumber.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text  (stmt, 3, token.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text  (stmt, 4, action.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text  (stmt, 5, details.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text  (stmt, 6, status.c_str(), -1, SQLITE_TRANSIENT);
+    
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+}                               
+
+//======================CHECK RATE LIMIT===========================
+bool DatabaseManager::checkRateLimit(const string& accountNumber, int maxAttempts, int windowSeconds) {
+
+    const char* sql = R"(
+        SELECT COUNT(*) FROM login_attempts
+        WHERE account_number = ?
+        AND attempt_time > ?;
+    )";
+
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+
+    sqlite3_bind_text(stmt, 1, accountNumber.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(stmt,2, time(0)-windowSeconds);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        int count = sqlite3_column_int(stmt, 0);
+        sqlite3_finalize(stmt);
+        return count >= maxAttempts; 
+    }
+    sqlite3_finalize(stmt);
+    return false;
+}
+
+//=====================RECORD FAILED ATTEMPT======================
+void DatabaseManager::recordFailedAttempt(const string& accountNumber){
+
+    const char* sql = R"(
+        INSERT INTO login_attempts (account_number, attempt_time)
+        VALUES (?, ?);
+    )";
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+
+    sqlite3_bind_text  (stmt, 1, accountNumber.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64 (stmt, 2, time(0));
+    
+    sqlite3_step(stmt);
     sqlite3_finalize(stmt);
 }

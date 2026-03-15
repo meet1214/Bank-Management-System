@@ -16,3 +16,34 @@
 [2026-03-15 04:02:12] [INFO] Login successful
 [2026-03-15 04:02:25] [INFO] Deposit of Rs.30000.000000 on account BNGL00000001
 [2026-03-15 04:02:42] [INFO] Deposit of Rs.40000.000000 on account BNGL00000001
+[2026-03-15 14:51:31] [INFO] Database integrity check passed.
+[2026-03-15 14:51:31] [INFO] The file is opened successfully
+[2026-03-15 14:51:50] [INFO] Login successful
+[2026-03-15 14:51:58] [INFO] Withdrawal of Rs.30000.000000 on account BNGL00000001
+[2026-03-15 14:56:15] [INFO] Database integrity check passed.
+[2026-03-15 14:56:15] [INFO] The file is opened successfully
+[2026-03-15 14:56:24] [INFO] Login successful
+[2026-03-15 15:03:34] [INFO] Database integrity check passed.
+[2026-03-15 15:03:34] [INFO] The file is opened successfully
+[2026-03-15 15:03:44] [WARN] Account BNL00000001 not found
+[2026-03-15 15:03:47] [WARN] Account BNL00000001 not found
+[2026-03-15 15:05:56] [INFO] Database integrity check passed.
+[2026-03-15 15:05:56] [INFO] The file is opened successfully
+[2026-03-15 15:06:12] [INFO] Login successful
+[2026-03-15 15:11:08] [INFO] Database integrity check passed.
+[2026-03-15 15:11:08] [INFO] The file is opened successfully
+[2026-03-15 15:11:17] [INFO] Login successful
+[2026-03-15 15:11:30] [INFO] Pin changed successfully for BNGL00000001
+[2026-03-15 15:13:18] [INFO] Database integrity check passed.
+[2026-03-15 15:13:18] [INFO] The file is opened successfully
+[2026-03-15 15:13:27] [INFO] Login successful
+[2026-03-15 15:15:06] [INFO] Database integrity check passed.
+[2026-03-15 15:15:06] [INFO] The file is opened successfully
+[2026-03-15 15:15:18] [INFO] Login successful
+[2026-03-15 15:16:04] [INFO] Login successful
+[2026-03-15 15:16:42] [INFO] Loan amount of Rs.200000.000000 is credited on account BNGL00000001
+[2026-03-15 15:17:12] [INFO] Interest of Rs.9600.000000 added in the account BNGL00000001
+[2026-03-15 15:17:12] [ADMIN] Interest of Rs.9600.000000 (4.000000%) applied to BNGL00000001 (Savings)
+[2026-03-15 15:17:12] [ADMIN] Interest applied to 1 accounts.
+[2026-03-15 15:17:30] [INFO] Login successful
+[2026-03-15 15:17:49] [INFO] An EMI of Rs.17769.757736 is debited from account BNGL00000001

@@ -35,7 +35,16 @@ class DatabaseManager {
         static void loadLoans(unordered_map<string, Loan>& loans, int& lastSeq);
         static void saveLoanPayment(const string& loanId, const LoanPayment& p);
         static void deleteLoan(const string& loanId);
-
+        
+        //SECURITY OPERATIONS
+        static string createSession(const string& accountNumber, int expiryMinutes = 15);
+        static string validateSession(const string& token);
+        static void   deleteSession(const string& token);
+        static void   logAudit(const string& accountNumber, const string& token,
+                            const string& action, const string& details,
+                            const string& status);
+        static bool   checkRateLimit(const string& accountNumber, int maxAttempts = 5, int windowSeconds = 60);
+        static void   recordFailedAttempt(const string& accountNumber);
 
 };
 #endif

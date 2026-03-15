@@ -2,6 +2,7 @@
 #include "BankAccount.h"
 #include "InputValidator.h"
 #include "LoanManager.h"
+#include "DatabaseManager.h"
 
 #include <chrono>
 #include <iomanip>
@@ -68,6 +69,7 @@ int main() {
       string accNo = InputValidator::getString("Enter Your Account Number: ");
 
       string currentUserId = "";
+      string sessionToken = "";
 
       const int MAX_ATTEMPTS = 3;
       const int COOLDOWN_SECONDS = 10;
@@ -75,14 +77,27 @@ int main() {
       int attempts = 0;
 
       // ===== PIN ATTEMPT LOOP =====
+      if (DatabaseManager::checkRateLimit(accNo)) {
+          cout << "Too many failed attempts. Please try again later.\n";
+          break;
+      }
+      if (!manager.getAccountByAccountNumber(accNo)) {
+          cout << "Account not found.\n";
+          break;
+      }
+      
       while (attempts < MAX_ATTEMPTS) {
         string pinStr = InputValidator::getPin("Enter PIN: ");
         int pin = stoi(pinStr);
         currentUserId = manager.loginAccount(accNo, pin);
         if (!currentUserId.empty()) {
-          cout << "Login successful!\n";
-          break;
+            sessionToken = DatabaseManager::createSession(currentUserId);
+            DatabaseManager::logAudit(currentUserId, sessionToken, "LOGIN", "", "SUCCESS");
+            cout << "Login successful!\n";
+            break;
         }
+        DatabaseManager::recordFailedAttempt(accNo);
+        DatabaseManager::logAudit(accNo, "", "LOGIN", "Failed PIN attempt", "FAILED");
         attempts++;
         cout << "Incorrect PIN. Attempts left: " << (MAX_ATTEMPTS - attempts)
              << "\n";
@@ -178,6 +193,7 @@ int main() {
             string acc =
                 InputValidator::getString("Enter account number to freeze: ");
             manager.freezeAccount(acc);
+            DatabaseManager::logAudit(currentUserId, sessionToken, "ADMIN_FREEZE", acc, "SUCCESS");
             break;
           }
 
@@ -185,6 +201,7 @@ int main() {
             string acc =
                 InputValidator::getString("Enter account number to unfreeze: ");
             manager.unfreezeAccount(acc);
+            DatabaseManager::logAudit(currentUserId, sessionToken, "ADMIN_UNFREEZE", acc, "SUCCESS");
             break;
           }
 
@@ -277,7 +294,7 @@ int main() {
               break;
             }
           }
-
+          break;
           case 10:
           {
             string acc = InputValidator::getString("Enter the account number to check for fraud: ");
@@ -339,6 +356,8 @@ int main() {
             currentUser->depositMoney(amount);
             manager.save();
             cout << "Deposit successful.\n";
+            DatabaseManager::logAudit(currentUserId, sessionToken, "DEPOSIT",
+            "Amount: " + to_string(amount), "SUCCESS");
             break;
           }
 
@@ -349,8 +368,9 @@ int main() {
             if (currentUser->withdrawMoney(amount)) {
               manager.save();
               cout << "Withdrawal successful.\n";
+              DatabaseManager::logAudit(currentUserId, sessionToken, "WITHDRAWAL",
+              "Amount: " + to_string(amount), "SUCCESS");
             }
-
             break;
           }
 
@@ -473,6 +493,7 @@ int main() {
               cout << "The pin has been changed for "
                    << currentUser->getAccountNumber() << "\n";
               manager.save();
+              DatabaseManager::logAudit(currentUserId, sessionToken, "PIN_CHANGE", "", "SUCCESS");
             } else {
               cout << "Failed to change the pin for "
                    << currentUser->getAccountNumber();
@@ -496,12 +517,17 @@ int main() {
                 case 1:
                 {
                   string loanType;
+                  cout << "1. Personal\n";
+                  cout << "2. Home\n";
+                  cout << "3. Auto\n";
+                  cout << "4. Education\n";
                   int choice = InputValidator::getInt("Enter the type of loan required(1-4): ");
                   switch(choice) {
                       case 1: loanType = "Personal"; break;
                       case 2: loanType = "Home";     break;
                       case 3: loanType = "Auto";     break;
                       case 4: loanType = "Education";break;
+                      
                       default: cout << "Invalid choice.\n"; break;
                   }
                   
@@ -553,16 +579,21 @@ int main() {
               break;
             }
           }
-          
+          break;
+
           case 14:
             currentUser->checkForSuspiciousActivity();
             break;
 
           case 15:
+          {
+            DatabaseManager::deleteSession(sessionToken);
+            DatabaseManager::logAudit(currentUserId, sessionToken, "LOGOUT", "", "SUCCESS");
             cout << "Logging out...\n";
             loggedIn = false;
             break;
 
+          } 
           default:
             cout << "Invalid option.\n";
           }

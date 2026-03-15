@@ -287,7 +287,10 @@ bool LoanManager::makeEMIPayment(const std::string& loanId, BankAccount& account
 
     if(it == loans.end()) return false;
 
-    if(it->second.status != "ACTIVE") return false;
+    if(it->second.status != "ACTIVE"){ 
+        cout << "Cannot pay EMI as the loan is not active";
+        return false;
+    }
 
     double interestPaid = it->second.outstandingAmount * getMonthlyInterestRate(it->second.interestRate);
     double principalPaid = it->second.emiAmount - interestPaid;
@@ -465,29 +468,29 @@ void LoanManager::viewPaymentHistory(const std::string& loanId) const {
 void LoanManager::viewUserLoans(const std::string& accountNumber) const {
     
     cout << "\n================== YOUR LOANS ================\n\n";
-    cout << left << setw(6)  << "Loan ID"
-                 << setw(10) << "Type"
-                 << setw(12) << "Principal"
-                 << setw(12) << "EMI"
-                 << setw(12) << "Status" << "\n";
-    cout << string(101, '-') << "\n";
+    cout << left << setw(15) << "Loan ID"
+             << setw(12) << "Type"
+             << setw(16) << "Principal"
+             << setw(16) << "EMI"
+             << setw(12) << "Status" << "\n";
+    cout << string(71, '-') << "\n";
 
     bool found = false;
     for (const auto& [loanId, loan] : loans) {
         if (loan.accountNumber == accountNumber) {
             found = true;
-            cout<< left << setw(6)  << loan.loanId
-                << setw(10) << loan.loanType
-                << "Rs." << setw(9) << fixed << setprecision(2) << loan.principalAmount
-                << "Rs." << setw(9) << fixed << setprecision(2) << loan.emiAmount
-                << setw(12) << loan.status <<"\n";
+            cout << left << setw(15) << loan.loanId
+             << setw(12) << loan.loanType
+             << "Rs." << setw(13) << fixed << setprecision(2) << loan.principalAmount
+             << "Rs." << setw(13) << fixed << setprecision(2) << loan.emiAmount
+             << setw(12) << loan.status << "\n";
         }
     }
     if(!found) {
         cout << "No loans found on this account.\n";
     }
 
-    cout << string(101, '-') << "\n";
+    cout << string(71, '-') << "\n";
 }
 
 //=======================VIEW ALL LOANS====================
@@ -498,50 +501,50 @@ void LoanManager::viewAllLoans() const {
     }
 
     cout << "\n=================== ALL LOANS ================\n\n";
-    cout << left << setw(6)  << "Loan ID"
-                 << setw(10) << "Type"
-                 << setw(12) << "Principal"
-                 << setw(12) << "EMI"
-                 << setw(12) << "Status" << "\n";
-    cout << string(101, '-') << "\n";
+    cout << left << setw(15) << "Loan ID"
+             << setw(12) << "Type"
+             << setw(16) << "Principal"
+             << setw(16) << "EMI"
+             << setw(12) << "Status" << "\n";
+    cout << string(71, '-') << "\n";
 
     for (const auto& [loanId, loan] : loans){
-        cout<< left << setw(6)  << loan.loanId
-            << setw(10) << loan.loanType
-            << "Rs." << setw(9) << fixed << setprecision(2) << loan.principalAmount
-            << "Rs." << setw(9) << fixed << setprecision(2) << loan.emiAmount
-            << setw(12) << loan.status <<"\n";
+        cout << left << setw(15) << loan.loanId
+             << setw(12) << loan.loanType
+             << "Rs." << setw(13) << fixed << setprecision(2) << loan.principalAmount
+             << "Rs." << setw(13) << fixed << setprecision(2) << loan.emiAmount
+             << setw(12) << loan.status << "\n";
     }    
-    cout << string(101, '-') << "\n";
+    cout << string(71, '-') << "\n";
 }
 
 //================VIEW PENDING LOANS====================
 void LoanManager::viewPendingLoans() const {
     
     cout << "\n================== PENDING LOANS ================\n\n";
-    cout << left << setw(6)  << "Loan ID"
-                 << setw(10) << "Type"
-                 << setw(12) << "Principal"
-                 << setw(12) << "EMI"
-                 << setw(12) << "Status" << "\n";
-    cout << string(101, '-') << "\n";
+    cout << left << setw(15) << "Loan ID"
+             << setw(12) << "Type"
+             << setw(16) << "Principal"
+             << setw(16) << "EMI"
+             << setw(12) << "Status" << "\n";
+    cout << string(71, '-') << "\n";
 
     bool found = false;
     for (const auto& [loanId, loan] : loans) {
         if (loan.status == "PENDING") {
             found = true;
-            cout<< left << setw(6)  << loan.loanId
-                << setw(10) << loan.loanType
-                << "Rs." << setw(9) << fixed << setprecision(2) << loan.principalAmount
-                << "Rs." << setw(9) << fixed << setprecision(2) << loan.emiAmount
-                << setw(12) << loan.status <<"\n";
+            cout << left << setw(15) << loan.loanId
+             << setw(12) << loan.loanType
+             << "Rs." << setw(13) << fixed << setprecision(2) << loan.principalAmount
+             << "Rs." << setw(13) << fixed << setprecision(2) << loan.emiAmount
+             << setw(12) << loan.status << "\n";
         }
     }
     if(!found) {
         cout << "No pending loans found on this account.\n";
     }
 
-    cout << string(101, '-') << "\n";
+    cout << string(71, '-') << "\n";
 }
 
 //================SAVE AND LOAD FILES=================================
