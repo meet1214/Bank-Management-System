@@ -1,6 +1,7 @@
 #include "DatabaseManager.h"
 #include "BankAccount.h"
 #include "Logger.h"
+#include "RD.h"
 
 #include <sstream>
 #include <iomanip>
@@ -157,6 +158,27 @@ void DatabaseManager::initSchema() {
             attempt_time    INTEGER NOT NULL
         );
     )";
+    sqlite3_exec(db_, sql, nullptr, nullptr, nullptr);
+
+    sql = R"(
+        CREATE TABLE IF NOT EXISTS recurring_deposits (
+            rd_id            TEXT    PRIMARY KEY,
+            account_number   TEXT    NOT NULL,
+            monthly_amount   REAL    NOT NULL,
+            tenure_months    INTEGER NOT NULL,
+            interest_rate    REAL    NOT NULL,
+            start_date       TEXT    NOT NULL,
+            next_debit_date  TEXT    NOT NULL,
+            total_deposited  REAL    NOT NULL DEFAULT 0,
+            months_paid      INTEGER NOT NULL DEFAULT 0,
+            maturity_amount  REAL    NOT NULL,
+            status           TEXT    NOT NULL DEFAULT 'ACTIVE',
+            FOREIGN KEY (account_number)
+                REFERENCES accounts(account_number)
+                ON DELETE CASCADE
+        );
+    )";
+
     sqlite3_exec(db_, sql, nullptr, nullptr, nullptr);
 
 }
@@ -650,12 +672,114 @@ void DatabaseManager::recordFailedAttempt(const string& accountNumber){
         INSERT INTO login_attempts (account_number, attempt_time)
         VALUES (?, ?);
     )";
+
     sqlite3_stmt* stmt = nullptr;
     sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
 
     sqlite3_bind_text  (stmt, 1, accountNumber.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_int64 (stmt, 2, time(0));
     
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+}
+
+//===========================SAVE RD==============================
+void DatabaseManager::saveRD(const RecurringDeposit &rd) {
+
+    const char* sql = R"(
+        INSERT OR REPLACE INTO recurring_deposits
+        (rd_id, account_number, monthly_amount, tenure_months, interest_rate,
+        start_date, next_debit_date, total_deposited, months_paid, maturity_amount, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    )";
+
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+
+    sqlite3_bind_text   (stmt,  1,  rd.rdId.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text   (stmt,  2,  rd.accountNumber.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_double (stmt,  3,  rd.monthlyAmount);
+    sqlite3_bind_int    (stmt,  4,  rd.tenureMonths);
+    sqlite3_bind_double (stmt,  5,  rd.interestRate);
+    sqlite3_bind_text   (stmt,  6,  rd.startDate.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text   (stmt,  7,  rd.nextDebitDate.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_double (stmt,  8,  rd.totalDeposited);
+    sqlite3_bind_int    (stmt,  9,  rd.monthsPaid);
+    sqlite3_bind_double (stmt, 10,  rd.maturityAmount);
+    sqlite3_bind_text   (stmt, 11,  rd.status.c_str(), -1, SQLITE_TRANSIENT);
+
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);   
+
+}
+
+//===================LOAD RD========================
+void DatabaseManager::loadRDs(vector<RecurringDeposit>& rds) {
+    rds.clear();
+
+    const char* sql = R"(
+        SELECT rd_id, account_number, monthly_amount, tenure_months, interest_rate,
+               start_date, next_debit_date, total_deposited, months_paid,
+               maturity_amount, status
+        FROM recurring_deposits;
+    )";
+
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        // read columns
+        RecurringDeposit rd;
+        rd.rdId           = (const char*)sqlite3_column_text  (stmt, 0);
+        rd.accountNumber  = (const char*)sqlite3_column_text  (stmt, 1);
+        rd.monthlyAmount  =              sqlite3_column_double(stmt, 2);
+        rd.tenureMonths   =              sqlite3_column_int   (stmt, 3);
+        rd.interestRate   =              sqlite3_column_double(stmt, 4);
+        rd.startDate      = (const char*)sqlite3_column_text  (stmt, 5);
+        rd.nextDebitDate  = (const char*)sqlite3_column_text  (stmt, 6);
+        rd.totalDeposited =              sqlite3_column_double(stmt, 7);
+        rd.monthsPaid     =              sqlite3_column_int   (stmt, 8);
+        rd.maturityAmount =              sqlite3_column_double(stmt, 9);
+        rd.status         = (const char*)sqlite3_column_text  (stmt, 10);
+        rds.push_back(rd);
+    }
+
+    sqlite3_finalize(stmt);
+}
+
+//====================UPDATE RD======================
+void DatabaseManager::updateRD(const RecurringDeposit& rd) {
+    const char* sql = R"(
+        UPDATE recurring_deposits
+        SET next_debit_date = ?, total_deposited = ?,
+            months_paid = ?, status = ?
+        WHERE rd_id = ?;
+    )";
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    
+    sqlite3_bind_text(stmt, 1, rd.nextDebitDate.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_double(stmt, 2, rd.totalDeposited);
+    sqlite3_bind_int(stmt, 3, rd.monthsPaid);
+    sqlite3_bind_text(stmt, 4, rd.status.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 5, rd.rdId.c_str(), -1, SQLITE_TRANSIENT);
+
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+}
+
+//====================DELETE RD==============================
+void DatabaseManager::deleteRD(const string& rdId) {
+    
+    const char* sql = R"(
+        DELETE FROM recurring_deposits WHERE rd_id = ?;
+    )";
+
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+
+    sqlite3_bind_text(stmt, 1, rdId.c_str(), -1, SQLITE_TRANSIENT);
+
     sqlite3_step(stmt);
     sqlite3_finalize(stmt);
 }

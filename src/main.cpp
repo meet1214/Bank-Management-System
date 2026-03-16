@@ -2,6 +2,7 @@
 #include "BankAccount.h"
 #include "InputValidator.h"
 #include "LoanManager.h"
+#include "RDManager.h"
 #include "DatabaseManager.h"
 
 #include <chrono>
@@ -17,6 +18,7 @@ int main() {
   AccountManager manager;
   manager.load();
   LoanManager loanManager;
+  RDManager rdManager;
 
   while (true) {
 
@@ -323,6 +325,9 @@ int main() {
 
         currentUser->loadTransactionsFromFile();
 
+        rdManager.processAutoDebits(*currentUser);
+        manager.save();
+
         bool loggedIn = true;
 
         while (loggedIn) {
@@ -345,6 +350,7 @@ int main() {
           cout << "15. Show Monthly Statement\n";
           cout << "16. Spending Patterns\n";
           cout << "17. Show Interest Summary\n";
+          cout << "18. RD Services\n";
           cout << "18. Logout\n";
 
           int userChoice = InputValidator::getInt("Enter choice: ");
@@ -611,8 +617,49 @@ int main() {
           case 17:
             currentUser->showInterestSummary();
             break;
-    
-          case 18:
+          case 18: 
+          {
+            bool rdMenu = true;
+            while (rdMenu) {
+                cout << "\n===== RD SERVICES =====\n";
+                cout << "1. Open New RD\n";
+                cout << "2. View My RDs\n";
+                cout << "3. View RD Details\n";
+                cout << "4. Cancel RD\n";
+                cout << "5. Back\n";
+                int subChoice = InputValidator::getInt("Enter choice: ");
+                switch (subChoice) {
+                    case 1: {
+                        double amount = InputValidator::getPositiveDouble("Monthly deposit amount: Rs.");
+                        int tenure    = InputValidator::getInt("Tenure in months: ");
+                        double rate   = InputValidator::getPositiveDouble("Interest rate (%): ");
+                        rdManager.openRD(*currentUser, amount, tenure, rate);
+                        manager.save();
+                        break;
+                    }
+                    case 2:
+                        rdManager.viewUserRDs(currentUserId);
+                        break;
+                    case 3: {
+                        string rdId = InputValidator::getString("Enter RD ID: ");
+                        rdManager.viewRDDetails(rdId);
+                        break;
+                    }
+                    case 4: {
+                        rdManager.viewUserRDs(currentUserId);
+                        string rdId = InputValidator::getString("Enter RD ID to cancel: ");
+                        rdManager.cancelRD(rdId, *currentUser);
+                        manager.save();
+                        break;
+                    }
+                    case 5:
+                        rdMenu = false;
+                        break;
+                }
+            }
+            break;
+        }
+          case 19:
           {
             DatabaseManager::deleteSession(sessionToken);
             DatabaseManager::logAudit(currentUserId, sessionToken, "LOGOUT", "", "SUCCESS");
@@ -633,6 +680,7 @@ int main() {
     // ================= EXIT =================
     case 3:
       manager.save();
+      rdManager.saveRDs();
       loanManager.saveLoans();
       DatabaseManager::close();
       cout << "Thank you for banking with us.\n";

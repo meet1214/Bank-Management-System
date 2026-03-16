@@ -8,6 +8,7 @@
 
 #include "BankAccount.h"
 #include "Loan.h"
+#include "RD.h"
 
 using namespace std;
 
@@ -45,6 +46,12 @@ class DatabaseManager {
                             const string& status);
         static bool   checkRateLimit(const string& accountNumber, int maxAttempts = 5, int windowSeconds = 60);
         static void   recordFailedAttempt(const string& accountNumber);
+
+        // RD OPERATIONS
+        static void saveRD(const RecurringDeposit& rd);
+        static void loadRDs(std::vector<RecurringDeposit>& rds);
+        static void updateRD(const RecurringDeposit& rd);
+        static void deleteRD(const std::string& rdId);
 
 };
 #endif
