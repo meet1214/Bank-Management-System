@@ -941,3 +941,85 @@ void BankAccount::showMonthlyStatement(int month, int year) const {
     cout << "Total Transferred: Rs." << totalTransferred << "\n";
 
 }
+
+//===============SPENDING PATTERN=========================
+void BankAccount::showSpendingPatterns(int year) const {
+
+    if (transactionHistory.empty()) {
+        cout << "No transactions found.\n";
+        return;
+    }
+
+    double totalDeposited   = 0;
+    double totalWithdrawn   = 0;
+    double totalTransferred = 0;
+    double totalEMI         = 0;
+    double totalInterest    = 0;
+
+    for (const auto& t : transactionHistory) {
+
+        if (year != 0) {
+            string date = extractDateFromDateTime(t.dateTime);
+            int txnYear = stoi(date.substr(0, 4));
+            if (txnYear != year) continue;
+        }
+
+        if(t.type == "Deposit"){
+            totalDeposited += t.amount;
+        }
+
+        else if (t.type == "Withdraw") {
+            totalWithdrawn += -(t.amount);
+        }
+
+        else if (t.type.find("Transfer To") == 0) {
+            totalTransferred += -(t.amount);
+        }
+        
+        else if ((t.type == "EMI Payment" || t.type == "Loan Early Closure")) {
+            totalEMI += (t.amount);
+        }
+       
+        else if (t.type == "Interest") {
+            totalInterest += t.amount;
+        }
+    }
+
+    double totalOutflow = totalWithdrawn + totalTransferred + totalEMI;
+    double totalInflow  = totalDeposited + totalInterest;
+
+    string period = (year == 0) ? "All Time" : to_string(year);
+
+    cout << "\n========== SPENDING PATTERNS ==========\n";
+    cout << "Account : " << accountNumber << "\n";
+    cout << "Period  : " << period << "\n\n";
+
+    cout << left << setw(25) << "Category"
+                 << setw(16) << "Total (Rs.)"
+                 << setw(12) << "% of Outflow" << "\n";
+    cout << string(53, '-') << "\n";
+
+   
+    double pctWith  = (totalOutflow > 0) ? (totalWithdrawn  / totalOutflow) * 100 : 0;
+    double pctTrans = (totalOutflow > 0) ? (totalTransferred / totalOutflow) * 100 : 0;
+    double pctEMI   = (totalOutflow > 0) ? (totalEMI        / totalOutflow) * 100 : 0;
+    
+    //outflow
+    cout << fixed << setprecision(2);
+    cout << left << setw(25) << "Withdrawals"    << setw(16) << totalWithdrawn    << pctWith  << "%\n";
+    cout << left << setw(25) << "Transfers Out"  << setw(16) << totalTransferred  << pctTrans << "%\n";
+    cout << left << setw(25) << "EMI Payments"   << setw(16) << totalEMI          << pctEMI   << "%\n";
+
+    //inflow
+    cout << "\n--- Inflow ---\n";
+    cout << left << setw(25) << "Deposits"  << "Rs." << totalDeposited  << "\n";
+    cout << left << setw(25) << "Interest"  << "Rs." << totalInterest   << "\n";
+
+    cout << string(53, '-') << "\n";
+    cout << fixed << setprecision(2);
+    cout << "\nTotal Outflow : Rs." << totalOutflow << "\n";
+    cout << "Total Inflow  : Rs." << totalInflow   << "\n";
+    double net = totalInflow - totalOutflow;
+    cout << "Net           : " << (net >= 0 ? "+" : "") << "Rs." << net << "\n";
+    cout << "========================================\n";
+}

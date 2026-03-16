@@ -129,6 +129,7 @@ public:
     bool creditAmount(double amount, const std::string& type);
     bool debitAmount(double amount, const std::string& type);
     void showMonthlyStatement(int month, int year) const;
+    void showSpendingPatterns(int year = 0) const;
     
     // Transaction Handling
     void showTransactionHistory() const;

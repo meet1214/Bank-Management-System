@@ -343,7 +343,8 @@ int main() {
           cout << "13. Loan Services\n";
           cout << "14. Check for suspicious activity\n";
           cout << "15. Show Monthly Statement\n";
-          cout << "16. Logout\n";
+          cout << "16. Spending Patterns\n";
+          cout << "17. Logout\n";
 
           int userChoice = InputValidator::getInt("Enter choice: ");
 
@@ -593,8 +594,20 @@ int main() {
             currentUser->showMonthlyStatement(month,year);
             break;
           }
-          
-          case 16:
+          case 16: 
+          {
+              cout << "1. All Time\n";
+              cout << "2. Specific Year\n";
+              int choice = InputValidator::getInt("Enter choice: ");
+              if (choice == 1) {
+                  currentUser->showSpendingPatterns();
+              } else {
+                  int year = InputValidator::getInt("Enter year (e.g. 2026): ");
+                  currentUser->showSpendingPatterns(year);
+              }
+              break;
+          }
+          case 17:
           {
             DatabaseManager::deleteSession(sessionToken);
             DatabaseManager::logAudit(currentUserId, sessionToken, "LOGOUT", "", "SUCCESS");
