@@ -128,6 +128,7 @@ public:
     //Phase 4 Operations
     bool creditAmount(double amount, const std::string& type);
     bool debitAmount(double amount, const std::string& type);
+    void showMonthlyStatement(int month, int year) const;
     
     // Transaction Handling
     void showTransactionHistory() const;

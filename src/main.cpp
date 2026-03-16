@@ -291,7 +291,6 @@ int main() {
                   loadMenu = false;
                   break;
               }
-              break;
             }
           }
           break;
@@ -343,7 +342,8 @@ int main() {
           cout << "12. Change your current pin\n";
           cout << "13. Loan Services\n";
           cout << "14. Check for suspicious activity\n";
-          cout << "15. Logout\n";
+          cout << "15. Show Monthly Statement\n";
+          cout << "16. Logout\n";
 
           int userChoice = InputValidator::getInt("Enter choice: ");
 
@@ -397,6 +397,8 @@ int main() {
             if (currentUser->transferMoney(*receiver, amount)) {
 
               manager.save();
+              DatabaseManager::logAudit(currentUserId, sessionToken, "TRANSFER",
+              "To: " + receiverAcc + " Amount: " + to_string(amount), "SUCCESS");
             }
 
             break;
@@ -576,7 +578,6 @@ int main() {
                   loadMenu = false;
                   break;
               }
-              break;
             }
           }
           break;
@@ -584,8 +585,16 @@ int main() {
           case 14:
             currentUser->checkForSuspiciousActivity();
             break;
-
+          
           case 15:
+          {
+            int month = InputValidator::getInt("Enter month (1-12): ");
+            int year  = InputValidator::getInt("Enter year (e.g. 2026): ");
+            currentUser->showMonthlyStatement(month,year);
+            break;
+          }
+          
+          case 16:
           {
             DatabaseManager::deleteSession(sessionToken);
             DatabaseManager::logAudit(currentUserId, sessionToken, "LOGOUT", "", "SUCCESS");
@@ -606,6 +615,8 @@ int main() {
     // ================= EXIT =================
     case 3:
       manager.save();
+      loanManager.saveLoans();
+      DatabaseManager::close();
       cout << "Thank you for banking with us.\n";
       return 0;
 

@@ -96,8 +96,6 @@ void AccountManager::ensureAdminExists() {
                     adminHash, adminSalt,
                     0.0, "admin", false,"Current")
     );
-
-    cout << "DEBUG: Creating admin account\n";
     save();
 }
 

@@ -172,6 +172,7 @@ void DatabaseManager::close() {
 //==========SAVE ACCOUNTS===================
 void DatabaseManager::saveAccounts(const unordered_map<string, BankAccount> &users){
 
+    if (!db_) return;
     sqlite3_exec(db_, "BEGIN;", nullptr, nullptr, nullptr);
     const char* sql = R"(
         INSERT OR REPLACE INTO accounts
@@ -340,6 +341,7 @@ void DatabaseManager::deleteTransactions(const string &accNo) {
 //===================SAVE LOANS=======================
 void DatabaseManager::saveLoans(const unordered_map<string, Loan> &loans) {
 
+    if (!db_) return;
     sqlite3_exec(db_, "BEGIN;", nullptr, nullptr, nullptr);
 
     const char* sql = R"(

@@ -877,3 +877,67 @@ void BankAccount::searchTransactionByAmountInteractive() const {
         cout << "Binary search successful!\n";
     }
 }
+
+//======================MONTHLY STATEMENT========================
+void BankAccount::showMonthlyStatement(int month, int year) const {
+
+    vector<Transaction> monthTxns;
+    for(const auto& t:transactionHistory) {
+        string date  =  extractDateFromDateTime(t.dateTime);
+        int txnYear  =  stoi(date.substr(0,4));
+        int txnMonth =  stoi(date.substr(5,2));
+        if(txnYear == year && txnMonth == month) {
+            monthTxns.push_back(t);
+        }
+
+    }
+
+    if(monthTxns.empty()){
+        cout << "No transaction found.\n";
+        return;
+    }
+
+    double openingBalance = monthTxns.front().balance - monthTxns.front().amount;
+
+    double totalDeposited    = 0;
+    double totalWithdrawn    = 0;
+    double totalTransferred  = 0;
+
+    for(const auto& t: monthTxns){
+        if(t.type == "Deposit"){
+            totalDeposited += t.amount;
+        }
+        else if (t.type == "Withdraw") {
+            totalWithdrawn += -(t.amount);
+        }
+        else if (t.type.find("Transfer To") == 0) {
+            totalTransferred += -(t.amount);
+        }
+    }
+
+    cout << "\n========== MONTHLY STATEMENT ==========\n";
+    cout << "Account : " << accountNumber << "\n";
+    cout << "Name    : " << name << "\n";
+    cout << "Period  : " << month << "/" << year << "\n";
+    cout << "Opening Balance: Rs." << fixed << setprecision(2) << openingBalance << "\n";
+    cout << string(102, '-') << "\n";
+
+    int serial = 1;
+    for (const auto& entry : monthTxns) {
+        cout << left << setw(6)  << serial++
+                     << setw(8)  << entry.transactionId
+                     << setw(25) << entry.dateTime
+                     << setw(35) << entry.type;
+
+        cout << fixed << setprecision(2)
+             << "Rs." << setw(11) << entry.amount
+             << "Rs." << setw(11) << entry.balance << "\n";
+    }
+
+    cout << string(102, '-') << "\n";
+    cout << "Closing Balance : Rs." << monthTxns.back().balance << "\n";
+    cout << "Total Deposited : Rs." << totalDeposited << "\n";
+    cout << "Total Withdrawn : Rs." << totalWithdrawn << "\n";
+    cout << "Total Transferred: Rs." << totalTransferred << "\n";
+
+}
