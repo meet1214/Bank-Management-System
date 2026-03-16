@@ -1023,3 +1023,59 @@ void BankAccount::showSpendingPatterns(int year) const {
     cout << "Net           : " << (net >= 0 ? "+" : "") << "Rs." << net << "\n";
     cout << "========================================\n";
 }
+
+//==============INTEREST SUMMARY===============
+void BankAccount::showInterestSummary() const {
+
+    double totalInterest = 0;
+    vector<Transaction> interestTxns;
+
+    // Step 1 — filter for Interest type
+    for (const auto& t : transactionHistory) {
+        if (t.type == "Interest") {
+            interestTxns.push_back(t);
+            totalInterest += t.amount;
+        }
+    }
+
+    // Step 2 — handle empty
+    if(interestTxns.empty()) {
+        cout << "No interest credited yet.\n";
+        return;
+    }
+
+    // Step 3 — print header
+    cout << "\n========== INTEREST SUMMARY ==========\n";
+    cout << "Account : " << accountNumber << "\n";
+    cout << "Name    : " << name << "\n\n";
+
+    // Step 4 — print column headers
+    // S.No | TxnID | Date & Time | Amount | Balance
+    cout << left << setw(6)  << "S.No"
+                 << setw(8)  << "TxnID"
+                 << setw(25) << "Date & Time"
+                 << setw(35) << "Type"
+                 << setw(14) << "Amount"
+                 << setw(14) << "Balance" << "\n";
+    
+    cout << string(102, '-') << "\n";
+
+    // Step 5 — print each interest transaction
+    int serial = 1;
+    for(const auto& txn : interestTxns) {
+            cout << left << setw(6)  << serial++
+                         << setw(8)  << txn.transactionId
+                         << setw(25) << txn.dateTime
+                         << setw(35) << txn.type;
+            
+            cout << fixed << setprecision(2)
+                 << "Rs." << setw(11) << txn.amount
+                 << "Rs." << setw(11) << txn.balance << "\n";
+        }
+
+    // Step 6 — print total
+    cout << string(102, '-') << "\n";
+    cout << "Total Interest Earned: Rs." 
+         << fixed << setprecision(2) << totalInterest << "\n";
+    cout << "======================================\n";
+}

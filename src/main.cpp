@@ -344,7 +344,8 @@ int main() {
           cout << "14. Check for suspicious activity\n";
           cout << "15. Show Monthly Statement\n";
           cout << "16. Spending Patterns\n";
-          cout << "17. Logout\n";
+          cout << "17. Show Interest Summary\n";
+          cout << "18. Logout\n";
 
           int userChoice = InputValidator::getInt("Enter choice: ");
 
@@ -608,6 +609,10 @@ int main() {
               break;
           }
           case 17:
+            currentUser->showInterestSummary();
+            break;
+    
+          case 18:
           {
             DatabaseManager::deleteSession(sessionToken);
             DatabaseManager::logAudit(currentUserId, sessionToken, "LOGOUT", "", "SUCCESS");
