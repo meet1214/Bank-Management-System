@@ -1,4 +1,5 @@
 #include "BankAccount.h"
+#include "BankExceptions.h"
 #include "Sha256.h"
 #include "Logger.h"
 
@@ -168,9 +169,8 @@ void BankAccount::depositMoney(double amount) {
         return;
     }
     if (dailyTxnCount >= dailyTxnLimit) {
-        Logger::getInstance().warn("Deposit denied for " + 
+        throw DailyLimitExceededException("Deposit denied for " + 
             accountNumber + ": daily limit of " + to_string(dailyTxnLimit) + " reached."); 
-        return;
     }
 
     balance += amount;
@@ -245,8 +245,7 @@ bool BankAccount::withdrawMoney(double amount) {
         return false;
     }
     if (amount > balance) {
-        Logger::getInstance().warn("Insufficient balance in " + accountNumber);
-        return false;
+        throw InsufficientFundsException("Insufficient balance in " + accountNumber);
     }
 
     balance -= amount;
@@ -304,11 +303,12 @@ bool BankAccount::transferMoney(BankAccount& receiver, double amount) {
         Logger::getInstance().warn("Insufficient balance in " + accountNumber);
         return false;
     }
+
     if (receiver.getLockStatus()) {
-        Logger::getInstance().warn("Transfer denied from " + 
+        throw AccountLockedException("Transfer denied from " + 
             accountNumber + " to frozen account " + receiver.getAccountNumber());
-        return false;
     }
+
     if (dailyTxnCount >= dailyTxnLimit) {
         Logger::getInstance().warn("Transfer denied for " + accountNumber + ": daily limit of " + 
             to_string(dailyTxnLimit) + " reached."); 

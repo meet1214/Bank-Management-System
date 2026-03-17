@@ -1,5 +1,6 @@
 #include "AccountManager.h"
 #include "BankAccount.h"
+#include "BankExceptions.h"
 #include "DatabaseManager.h"
 #include "InputValidator.h"
 #include "LoanManager.h"
@@ -432,24 +433,33 @@ void userMenu(BankAccount &currentUser, const string &currentUserId,
     case 1: {
       double amount =
           InputValidator::getPositiveDouble("Enter amount to deposit: ");
-
-      currentUser.depositMoney(amount);
-      manager.save();
-      cout << "Deposit successful.\n";
-      DatabaseManager::logAudit(currentUserId, sessionToken, "DEPOSIT",
-                                "Amount: " + to_string(amount), "SUCCESS");
+      try {
+        currentUser.depositMoney(amount);
+        manager.save();
+        cout << "Deposit successful.\n";
+        DatabaseManager::logAudit(currentUserId, sessionToken, "DEPOSIT",
+                                  "Amount: " + to_string(amount), "SUCCESS");
+      } catch (const BankException &e) {
+        cout << "Transaction failed: " << e.what() << "\n";
+        DatabaseManager::logAudit(currentUserId, sessionToken, "DEPOSIT",
+                                  e.what(), "FAILED");
+      }
       break;
     }
 
     case 2: {
       double amount =
           InputValidator::getPositiveDouble("Enter amount to withdraw: ");
-
-      if (currentUser.withdrawMoney(amount)) {
+      try {
+        currentUser.withdrawMoney(amount);
         manager.save();
         cout << "Withdrawal successful.\n";
         DatabaseManager::logAudit(currentUserId, sessionToken, "WITHDRAWAL",
                                   "Amount: " + to_string(amount), "SUCCESS");
+      } catch (const BankException &e) {
+        cout << "Transaction failed: " << e.what() << "\n";
+        DatabaseManager::logAudit(currentUserId, sessionToken, "WITHDRAW",
+                                  e.what(), "FAILED");
       }
       break;
     }
@@ -472,15 +482,17 @@ void userMenu(BankAccount &currentUser, const string &currentUserId,
 
       double amount =
           InputValidator::getPositiveDouble("Enter amount to transfer: ");
-
-      if (currentUser.transferMoney(*receiver, amount)) {
-
+      try {
+        currentUser.transferMoney(*receiver, amount);
         manager.save();
         DatabaseManager::logAudit(
             currentUserId, sessionToken, "TRANSFER",
             "To: " + receiverAcc + " Amount: " + to_string(amount), "SUCCESS");
+      }catch (const BankException &e) {
+        cout << "Transaction failed: " << e.what() << "\n";
+        DatabaseManager::logAudit(currentUserId, sessionToken, "TRANSFER",
+                                  e.what(), "FAILED");
       }
-
       break;
     }
 
@@ -760,8 +772,8 @@ int main() {
 
       // ================= USER MENU =================
       else {
-        userMenu(*currentUser, currentUserId, manager, loanManager, 
-         rdManager, siManager, sessionToken);
+        userMenu(*currentUser, currentUserId, manager, loanManager, rdManager,
+                 siManager, sessionToken);
       }
 
       break;
