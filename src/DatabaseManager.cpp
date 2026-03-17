@@ -181,6 +181,24 @@ void DatabaseManager::initSchema() {
 
     sqlite3_exec(db_, sql, nullptr, nullptr, nullptr);
 
+    sql = R"(
+        CREATE TABLE IF NOT EXISTS standing_instructions (
+            siId                    TEXT    PRIMARY KEY,
+            accountNumber           TEXT    NOT NULL,
+            receiverAccountNumber   TEXT    NOT NULL,
+            amount                  REAL    NOT NULL,
+            executionDay            INTEGER NOT NULL,
+            nextExecutionDate       TEXT    NOT NULL,
+            description             TEXT,
+            status                  TEXT    NOT NULL DEFAULT 'ACTIVE',
+            FOREIGN KEY (accountNumber)
+                REFERENCES accounts(account_number)
+                ON DELETE CASCADE
+        );
+    )";
+
+    sqlite3_exec(db_, sql, nullptr, nullptr, nullptr);
+
 }
 
 //==========CLOSE FUNCTION==========
@@ -779,6 +797,98 @@ void DatabaseManager::deleteRD(const string& rdId) {
     sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
 
     sqlite3_bind_text(stmt, 1, rdId.c_str(), -1, SQLITE_TRANSIENT);
+
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+}
+
+//===========================SAVE SI==============================
+void DatabaseManager::saveSI(const StandingInstruction& si) {
+
+    const char* sql = R"(
+        INSERT OR REPLACE INTO standing_instructions
+        (siId, accountNumber, receiverAccountNumber, amount, executionDay,
+        nextExecutionDate, description, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+    )";
+
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+
+    sqlite3_bind_text   (stmt,  1,  si.siId.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text   (stmt,  2,  si.accountNumber.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text   (stmt,  3,  si.receiverAccountNumber.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_double (stmt,  4,  si.amount);
+    sqlite3_bind_int    (stmt,  5,  si.executionDay);
+    sqlite3_bind_text   (stmt,  6,  si.nextExecutionDate.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text   (stmt,  7,  si.description.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text   (stmt,  8,  si.status.c_str(), -1, SQLITE_TRANSIENT);
+
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);   
+
+}
+
+//===================LOAD SI========================
+void DatabaseManager::loadSIs(vector<StandingInstruction>& sis) {
+    sis.clear();
+
+    const char* sql = R"(
+        SELECT siId, accountNumber, receiverAccountNumber, amount, executionDay,
+        nextExecutionDate, description, status
+        FROM standing_instructions;
+    )";
+
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        // read columns
+        StandingInstruction si;
+        si.siId                  = (const char*)sqlite3_column_text  (stmt, 0);
+        si.accountNumber         = (const char*)sqlite3_column_text  (stmt, 1);
+        si.receiverAccountNumber = (const char*)sqlite3_column_text  (stmt, 2);
+        si.amount                =              sqlite3_column_double(stmt, 3);
+        si.executionDay          =              sqlite3_column_int   (stmt, 4);
+        si.nextExecutionDate     = (const char*)sqlite3_column_text  (stmt, 5);
+        si.description           = (const char*)sqlite3_column_text  (stmt, 6);
+        si.status                = (const char*)sqlite3_column_text  (stmt, 7);
+        sis.push_back(si);
+    }
+
+    sqlite3_finalize(stmt);
+}
+
+//====================UPDATE SI======================
+void DatabaseManager::updateSI(const StandingInstruction& si) {
+    const char* sql = R"(
+        UPDATE standing_instructions
+        SET nextExecutionDate = ?,
+            status = ?
+        WHERE siId = ?;
+    )";
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    
+    sqlite3_bind_text(stmt, 1, si.nextExecutionDate.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, si.status.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 3, si.siId.c_str(), -1, SQLITE_TRANSIENT);
+
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+}
+
+//====================DELETE SI==============================
+void DatabaseManager::deleteSI(const string& siId) {
+    
+    const char* sql = R"(
+        DELETE FROM standing_instructions WHERE siId = ?;
+    )";
+
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+
+    sqlite3_bind_text(stmt, 1, siId.c_str(), -1, SQLITE_TRANSIENT);
 
     sqlite3_step(stmt);
     sqlite3_finalize(stmt);

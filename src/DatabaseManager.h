@@ -9,6 +9,7 @@
 #include "BankAccount.h"
 #include "Loan.h"
 #include "RD.h"
+#include "StandingInstruction.h"
 
 using namespace std;
 
@@ -52,6 +53,12 @@ class DatabaseManager {
         static void loadRDs(std::vector<RecurringDeposit>& rds);
         static void updateRD(const RecurringDeposit& rd);
         static void deleteRD(const std::string& rdId);
+
+        // STANDING INSTRUCTION OPERATIONS
+        static void saveSI(const StandingInstruction& si);
+        static void loadSIs(vector<StandingInstruction>& sis);
+        static void updateSI(const StandingInstruction& si);
+        static void deleteSI(const string& siId);
 
 };
 #endif

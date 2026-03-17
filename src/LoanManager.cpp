@@ -388,6 +388,35 @@ bool LoanManager::closeLoanEarly(const std::string& loanId, BankAccount& account
     return true;
     
 }
+//===============PROCESS EMI AUTO DEBITS=============================
+void LoanManager::processEMIAutoDebits(BankAccount& account,
+                                        AccountManager& manager) {
+    string today = getTodayDate();
+
+    for (auto& [loanId, loan] : loans) {
+
+        if (loan.accountNumber != account.getAccountNumber()) continue;
+
+        if (loan.status != "ACTIVE") continue;
+
+        if (today < loan.nextEmiDate) continue;
+
+        while (today >= loan.nextEmiDate &&
+               loan.status == "ACTIVE") {
+
+            cout << "\n[AUTO-DEBIT] Processing EMI for loan "
+                 << loanId << "...\n";
+
+            bool success = makeEMIPayment(loanId, account);
+
+            if (!success) {
+                cout << "[AUTO-DEBIT] EMI failed for " << loanId
+                     << " — insufficient balance.\n";
+                break;  
+            }
+        }
+    }
+}
 
 //===================VIEW OPERATIONS==============================
 

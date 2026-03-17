@@ -1,6 +1,7 @@
 #ifndef LOANMANAGER_H
 #define LOANMANAGER_H
 
+#include "AccountManager.h"
 #include "Loan.h"
 #include "BankAccount.h"
 #include <unordered_map>
@@ -54,6 +55,7 @@ public:
     bool makeEMIPayment(const std::string& loanId, BankAccount& account);
     double calculateEarlyClosureAmount(const std::string& loanId) const;
     bool closeLoanEarly(const std::string& loanId, BankAccount& account);
+    void processEMIAutoDebits(BankAccount& account, AccountManager& manager);
     
     // View Operations
     void viewLoanDetails(const std::string& loanId) const;

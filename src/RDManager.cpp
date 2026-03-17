@@ -83,13 +83,12 @@ double RDManager::calculateMaturityAmount(double monthly,
 //==========OPEN RD==========
 string RDManager::openRD(BankAccount& account, double monthlyAmount,
                           int tenureMonths, double interestRate) {
-    // 1. Check balance >= monthlyAmount
+
     if (account.getBalance() < monthlyAmount) {
         cout << "Insufficient balance to open RD.\n";
         return "";
     }
 
-    // 2. Build the struct
     RecurringDeposit rd;
     rd.rdId           = generateRDNumber();
     rd.accountNumber  = account.getAccountNumber();
@@ -104,7 +103,7 @@ string RDManager::openRD(BankAccount& account, double monthlyAmount,
                                                 tenureMonths, interestRate);
     rd.status         = "ACTIVE";
 
-    // 3. Save and return
+
     rds.push_back(rd);
     DatabaseManager::saveRD(rd);
 

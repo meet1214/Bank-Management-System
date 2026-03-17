@@ -1,9 +1,10 @@
 #include "AccountManager.h"
 #include "BankAccount.h"
+#include "DatabaseManager.h"
 #include "InputValidator.h"
 #include "LoanManager.h"
 #include "RDManager.h"
-#include "DatabaseManager.h"
+#include "StandingInstructionManager.h"
 
 #include <chrono>
 #include <iomanip>
@@ -19,6 +20,7 @@ int main() {
   manager.load();
   LoanManager loanManager;
   RDManager rdManager;
+  StandingInstructionManager siManager;
 
   while (true) {
 
@@ -80,26 +82,28 @@ int main() {
 
       // ===== PIN ATTEMPT LOOP =====
       if (DatabaseManager::checkRateLimit(accNo)) {
-          cout << "Too many failed attempts. Please try again later.\n";
-          break;
+        cout << "Too many failed attempts. Please try again later.\n";
+        break;
       }
       if (!manager.getAccountByAccountNumber(accNo)) {
-          cout << "Account not found.\n";
-          break;
+        cout << "Account not found.\n";
+        break;
       }
-      
+
       while (attempts < MAX_ATTEMPTS) {
         string pinStr = InputValidator::getPin("Enter PIN: ");
         int pin = stoi(pinStr);
         currentUserId = manager.loginAccount(accNo, pin);
         if (!currentUserId.empty()) {
-            sessionToken = DatabaseManager::createSession(currentUserId);
-            DatabaseManager::logAudit(currentUserId, sessionToken, "LOGIN", "", "SUCCESS");
-            cout << "Login successful!\n";
-            break;
+          sessionToken = DatabaseManager::createSession(currentUserId);
+          DatabaseManager::logAudit(currentUserId, sessionToken, "LOGIN", "",
+                                    "SUCCESS");
+          cout << "Login successful!\n";
+          break;
         }
         DatabaseManager::recordFailedAttempt(accNo);
-        DatabaseManager::logAudit(accNo, "", "LOGIN", "Failed PIN attempt", "FAILED");
+        DatabaseManager::logAudit(accNo, "", "LOGIN", "Failed PIN attempt",
+                                  "FAILED");
         attempts++;
         cout << "Incorrect PIN. Attempts left: " << (MAX_ATTEMPTS - attempts)
              << "\n";
@@ -168,21 +172,21 @@ int main() {
 
             string sortBy;
             switch (sortChoice) {
-              case 1:
-                sortBy = "account";
-                break;
-              case 2:
-                sortBy = "name";
-                break;
-              case 3:
-                sortBy = "balance_high";
-                break;
-              case 4:
-                sortBy = "balance_low";
-                break;
-              default:
-                cout << "Invalid choice.\n";
-                break;
+            case 1:
+              sortBy = "account";
+              break;
+            case 2:
+              sortBy = "name";
+              break;
+            case 3:
+              sortBy = "balance_high";
+              break;
+            case 4:
+              sortBy = "balance_low";
+              break;
+            default:
+              cout << "Invalid choice.\n";
+              break;
             }
 
             if (sortChoice >= 1 && sortChoice <= 4) {
@@ -195,7 +199,8 @@ int main() {
             string acc =
                 InputValidator::getString("Enter account number to freeze: ");
             manager.freezeAccount(acc);
-            DatabaseManager::logAudit(currentUserId, sessionToken, "ADMIN_FREEZE", acc, "SUCCESS");
+            DatabaseManager::logAudit(currentUserId, sessionToken,
+                                      "ADMIN_FREEZE", acc, "SUCCESS");
             break;
           }
 
@@ -203,7 +208,8 @@ int main() {
             string acc =
                 InputValidator::getString("Enter account number to unfreeze: ");
             manager.unfreezeAccount(acc);
-            DatabaseManager::logAudit(currentUserId, sessionToken, "ADMIN_UNFREEZE", acc, "SUCCESS");
+            DatabaseManager::logAudit(currentUserId, sessionToken,
+                                      "ADMIN_UNFREEZE", acc, "SUCCESS");
             break;
           }
 
@@ -232,8 +238,9 @@ int main() {
             cout << "- Current Account: 0% p.a. (no interest)\n";
             cout << "- Fixed Deposit: 7% p.a.\n\n";
 
-            char confirm = InputValidator::getChar("Proceed with interest application? (y/n): ");
-            
+            char confirm = InputValidator::getChar(
+                "Proceed with interest application? (y/n): ");
+
             if (confirm == 'y' || confirm == 'Y') {
               manager.applyInterestToAll();
               cout << "Interest applied successfully!\n";
@@ -242,10 +249,9 @@ int main() {
             }
             break;
           }
-          case 9:
-          {
+          case 9: {
             bool loadMenu = true;
-            while(loadMenu){
+            while (loadMenu) {
               cout << "\n===== LOAN SECTION =====\n";
               cout << "1. View all loans\n";
               cout << "2. View Pending Loans\n";
@@ -256,54 +262,57 @@ int main() {
               int subChoice = InputValidator::getInt("Enter your choice: ");
 
               switch (subChoice) {
-                case 1:
-                  loanManager.viewAllLoans();
-                  break;
-                
-                case 2:
-                  loanManager.viewPendingLoans();
-                  break;
-                
-                case 3:
-                {
-                  string loanId = InputValidator::getString("Enter loan ID: ");
-                  loanManager.approveLoan(loanId);
-                  break;
-                }
-                case 4:
-                {
-                  string loanId = InputValidator::getString("Enter loan ID: ");
-                  string reason = InputValidator::getString("Enter rejection reason: ");
-                  loanManager.rejectLoan(loanId, reason);
-                  break;
-                }
+              case 1:
+                loanManager.viewAllLoans();
+                break;
 
-                case 5:
-                {
-                  string loanId = InputValidator::getString("Enter loan ID: ");
-                  Loan* loan = loanManager.getLoanById(loanId);
-                  if (!loan) { cout << "Loan not found.\n"; break; }
-                  BankAccount* acc = manager.getAccountByAccountNumber(loan->accountNumber);
-                  if (!acc) { cout << "Account not found.\n"; break; }
-                  loanManager.disburseLoan(loanId, *acc);
+              case 2:
+                loanManager.viewPendingLoans();
+                break;
+
+              case 3: {
+                string loanId = InputValidator::getString("Enter loan ID: ");
+                loanManager.approveLoan(loanId);
+                break;
+              }
+              case 4: {
+                string loanId = InputValidator::getString("Enter loan ID: ");
+                string reason =
+                    InputValidator::getString("Enter rejection reason: ");
+                loanManager.rejectLoan(loanId, reason);
+                break;
+              }
+
+              case 5: {
+                string loanId = InputValidator::getString("Enter loan ID: ");
+                Loan *loan = loanManager.getLoanById(loanId);
+                if (!loan) {
+                  cout << "Loan not found.\n";
                   break;
                 }
-
-                case 6:
-                  loadMenu = false;
+                BankAccount *acc =
+                    manager.getAccountByAccountNumber(loan->accountNumber);
+                if (!acc) {
+                  cout << "Account not found.\n";
                   break;
+                }
+                loanManager.disburseLoan(loanId, *acc);
+                break;
+              }
+
+              case 6:
+                loadMenu = false;
+                break;
               }
             }
-          }
-          break;
-          case 10:
-          {
-            string acc = InputValidator::getString("Enter the account number to check for fraud: ");
-            BankAccount* account = manager.getAccountByAccountNumber(acc);
-            if(account){
+          } break;
+          case 10: {
+            string acc = InputValidator::getString(
+                "Enter the account number to check for fraud: ");
+            BankAccount *account = manager.getAccountByAccountNumber(acc);
+            if (account) {
               account->checkForSuspiciousActivity();
-            }
-            else{
+            } else {
               cout << "Account not found.\n";
             }
             break;
@@ -326,6 +335,8 @@ int main() {
         currentUser->loadTransactionsFromFile();
 
         rdManager.processAutoDebits(*currentUser);
+        loanManager.processEMIAutoDebits(*currentUser, manager);
+        siManager.processAutoExecutions(*currentUser, manager);
         manager.save();
 
         bool loggedIn = true;
@@ -351,7 +362,8 @@ int main() {
           cout << "16. Spending Patterns\n";
           cout << "17. Show Interest Summary\n";
           cout << "18. RD Services\n";
-          cout << "18. Logout\n";
+          cout << "19. Standing Instructions\n";
+          cout << "20. Logout\n";
 
           int userChoice = InputValidator::getInt("Enter choice: ");
 
@@ -365,7 +377,8 @@ int main() {
             manager.save();
             cout << "Deposit successful.\n";
             DatabaseManager::logAudit(currentUserId, sessionToken, "DEPOSIT",
-            "Amount: " + to_string(amount), "SUCCESS");
+                                      "Amount: " + to_string(amount),
+                                      "SUCCESS");
             break;
           }
 
@@ -376,8 +389,9 @@ int main() {
             if (currentUser->withdrawMoney(amount)) {
               manager.save();
               cout << "Withdrawal successful.\n";
-              DatabaseManager::logAudit(currentUserId, sessionToken, "WITHDRAWAL",
-              "Amount: " + to_string(amount), "SUCCESS");
+              DatabaseManager::logAudit(
+                  currentUserId, sessionToken, "WITHDRAWAL",
+                  "Amount: " + to_string(amount), "SUCCESS");
             }
             break;
           }
@@ -406,7 +420,9 @@ int main() {
 
               manager.save();
               DatabaseManager::logAudit(currentUserId, sessionToken, "TRANSFER",
-              "To: " + receiverAcc + " Amount: " + to_string(amount), "SUCCESS");
+                                        "To: " + receiverAcc +
+                                            " Amount: " + to_string(amount),
+                                        "SUCCESS");
             }
 
             break;
@@ -503,17 +519,17 @@ int main() {
               cout << "The pin has been changed for "
                    << currentUser->getAccountNumber() << "\n";
               manager.save();
-              DatabaseManager::logAudit(currentUserId, sessionToken, "PIN_CHANGE", "", "SUCCESS");
+              DatabaseManager::logAudit(currentUserId, sessionToken,
+                                        "PIN_CHANGE", "", "SUCCESS");
             } else {
               cout << "Failed to change the pin for "
                    << currentUser->getAccountNumber();
             }
             break;
           }
-          case 13:
-          {
+          case 13: {
             bool loadMenu = true;
-            while(loadMenu){
+            while (loadMenu) {
               cout << "\n===== LOAN SERVICES =====\n";
               cout << "1. Apply for Loan\n";
               cout << "2. View My Loans\n";
@@ -524,150 +540,206 @@ int main() {
               int subChoice = InputValidator::getInt("Enter your choice: ");
 
               switch (subChoice) {
+              case 1: {
+                string loanType;
+                cout << "1. Personal\n";
+                cout << "2. Home\n";
+                cout << "3. Auto\n";
+                cout << "4. Education\n";
+                int choice = InputValidator::getInt(
+                    "Enter the type of loan required(1-4): ");
+                switch (choice) {
                 case 1:
-                {
-                  string loanType;
-                  cout << "1. Personal\n";
-                  cout << "2. Home\n";
-                  cout << "3. Auto\n";
-                  cout << "4. Education\n";
-                  int choice = InputValidator::getInt("Enter the type of loan required(1-4): ");
-                  switch(choice) {
-                      case 1: loanType = "Personal"; break;
-                      case 2: loanType = "Home";     break;
-                      case 3: loanType = "Auto";     break;
-                      case 4: loanType = "Education";break;
-                      
-                      default: cout << "Invalid choice.\n"; break;
-                  }
-                  
-                  double loanAmount = InputValidator::getPositiveDouble("Enter the loan amount required: ");
-
-                  if(loanManager.checkEligibility(*currentUser, loanType, loanAmount)) {
-                    int tenure = InputValidator::getInt("Enter tenure in months: ");
-                    string loanId = loanManager.applyForLoan(*currentUser, loanType, loanAmount, tenure);
-                    if (!loanId.empty())
-                        cout << "Loan applied successfully! Loan ID: " << loanId << "\n";
-                  }
-                  break; 
-                }
+                  loanType = "Personal";
+                  break;
                 case 2:
-                  loanManager.viewUserLoans(currentUserId);
+                  loanType = "Home";
                   break;
-                
-                case 3: 
-                {
-                  loanManager.viewUserLoans(currentUserId); 
-                  string loanId = InputValidator::getString("Enter Loan ID: ");
-                  loanManager.makeEMIPayment(loanId, *currentUser);
+                case 3:
+                  loanType = "Auto";
                   break;
-                }
                 case 4:
-                {
-                  loanManager.viewUserLoans(currentUserId);
-                  string loanId = InputValidator::getString("Enter Loan ID: ");
-                  loanManager.viewPaymentHistory(loanId);
+                  loanType = "Education";
+                  break;
+
+                default:
+                  cout << "Invalid choice.\n";
                   break;
                 }
 
-                case 5:
-                {
-                  loanManager.viewUserLoans(currentUserId);
-                  string loanId = InputValidator::getString("Enter Loan ID: ");
-                  double amount = loanManager.calculateEarlyClosureAmount(loanId);
-                  cout << "Early closure amount: Rs." << fixed << setprecision(2) << amount << "\n";
-                  string confirm = InputValidator::getString("Confirm early closure? (yes/no): ");
-                  if (confirm == "yes") {
-                      loanManager.closeLoanEarly(loanId, *currentUser);
-                  }
-                  break;
+                double loanAmount = InputValidator::getPositiveDouble(
+                    "Enter the loan amount required: ");
+
+                if (loanManager.checkEligibility(*currentUser, loanType,
+                                                 loanAmount)) {
+                  int tenure =
+                      InputValidator::getInt("Enter tenure in months: ");
+                  string loanId = loanManager.applyForLoan(
+                      *currentUser, loanType, loanAmount, tenure);
+                  if (!loanId.empty())
+                    cout << "Loan applied successfully! Loan ID: " << loanId
+                         << "\n";
                 }
-                case 6:
-                  loadMenu = false;
-                  break;
+                break;
+              }
+              case 2:
+                loanManager.viewUserLoans(currentUserId);
+                break;
+
+              case 3: {
+                loanManager.viewUserLoans(currentUserId);
+                string loanId = InputValidator::getString("Enter Loan ID: ");
+                loanManager.makeEMIPayment(loanId, *currentUser);
+                break;
+              }
+              case 4: {
+                loanManager.viewUserLoans(currentUserId);
+                string loanId = InputValidator::getString("Enter Loan ID: ");
+                loanManager.viewPaymentHistory(loanId);
+                break;
+              }
+
+              case 5: {
+                loanManager.viewUserLoans(currentUserId);
+                string loanId = InputValidator::getString("Enter Loan ID: ");
+                double amount = loanManager.calculateEarlyClosureAmount(loanId);
+                cout << "Early closure amount: Rs." << fixed << setprecision(2)
+                     << amount << "\n";
+                string confirm = InputValidator::getString(
+                    "Confirm early closure? (yes/no): ");
+                if (confirm == "yes") {
+                  loanManager.closeLoanEarly(loanId, *currentUser);
+                }
+                break;
+              }
+              case 6:
+                loadMenu = false;
+                break;
               }
             }
-          }
-          break;
+          } break;
 
           case 14:
             currentUser->checkForSuspiciousActivity();
             break;
-          
-          case 15:
-          {
+
+          case 15: {
             int month = InputValidator::getInt("Enter month (1-12): ");
-            int year  = InputValidator::getInt("Enter year (e.g. 2026): ");
-            currentUser->showMonthlyStatement(month,year);
+            int year = InputValidator::getInt("Enter year (e.g. 2026): ");
+            currentUser->showMonthlyStatement(month, year);
             break;
           }
-          case 16: 
-          {
-              cout << "1. All Time\n";
-              cout << "2. Specific Year\n";
-              int choice = InputValidator::getInt("Enter choice: ");
-              if (choice == 1) {
-                  currentUser->showSpendingPatterns();
-              } else {
-                  int year = InputValidator::getInt("Enter year (e.g. 2026): ");
-                  currentUser->showSpendingPatterns(year);
-              }
-              break;
+          case 16: {
+            cout << "1. All Time\n";
+            cout << "2. Specific Year\n";
+            int choice = InputValidator::getInt("Enter choice: ");
+            if (choice == 1) {
+              currentUser->showSpendingPatterns();
+            } else {
+              int year = InputValidator::getInt("Enter year (e.g. 2026): ");
+              currentUser->showSpendingPatterns(year);
+            }
+            break;
           }
           case 17:
             currentUser->showInterestSummary();
             break;
-          case 18: 
-          {
+          case 18: {
             bool rdMenu = true;
             while (rdMenu) {
-                cout << "\n===== RD SERVICES =====\n";
-                cout << "1. Open New RD\n";
-                cout << "2. View My RDs\n";
-                cout << "3. View RD Details\n";
-                cout << "4. Cancel RD\n";
-                cout << "5. Back\n";
-                int subChoice = InputValidator::getInt("Enter choice: ");
-                switch (subChoice) {
-                    case 1: {
-                        double amount = InputValidator::getPositiveDouble("Monthly deposit amount: Rs.");
-                        int tenure    = InputValidator::getInt("Tenure in months: ");
-                        double rate   = InputValidator::getPositiveDouble("Interest rate (%): ");
-                        rdManager.openRD(*currentUser, amount, tenure, rate);
-                        manager.save();
-                        break;
-                    }
-                    case 2:
-                        rdManager.viewUserRDs(currentUserId);
-                        break;
-                    case 3: {
-                        string rdId = InputValidator::getString("Enter RD ID: ");
-                        rdManager.viewRDDetails(rdId);
-                        break;
-                    }
-                    case 4: {
-                        rdManager.viewUserRDs(currentUserId);
-                        string rdId = InputValidator::getString("Enter RD ID to cancel: ");
-                        rdManager.cancelRD(rdId, *currentUser);
-                        manager.save();
-                        break;
-                    }
-                    case 5:
-                        rdMenu = false;
-                        break;
-                }
+              cout << "\n===== RD SERVICES =====\n";
+              cout << "1. Open New RD\n";
+              cout << "2. View My RDs\n";
+              cout << "3. View RD Details\n";
+              cout << "4. Cancel RD\n";
+              cout << "5. Back\n";
+              int subChoice = InputValidator::getInt("Enter choice: ");
+              switch (subChoice) {
+              case 1: {
+                double amount = InputValidator::getPositiveDouble(
+                    "Monthly deposit amount: Rs.");
+                int tenure = InputValidator::getInt("Tenure in months: ");
+                double rate =
+                    InputValidator::getPositiveDouble("Interest rate (%): ");
+                rdManager.openRD(*currentUser, amount, tenure, rate);
+                manager.save();
+                break;
+              }
+              case 2:
+                rdManager.viewUserRDs(currentUserId);
+                break;
+              case 3: {
+                string rdId = InputValidator::getString("Enter RD ID: ");
+                rdManager.viewRDDetails(rdId);
+                break;
+              }
+              case 4: {
+                rdManager.viewUserRDs(currentUserId);
+                string rdId =
+                    InputValidator::getString("Enter RD ID to cancel: ");
+                rdManager.cancelRD(rdId, *currentUser);
+                manager.save();
+                break;
+              }
+              case 5:
+                rdMenu = false;
+                break;
+              }
             }
             break;
-        }
-          case 19:
-          {
+          }
+          case 19: {
+            bool siMenu = true;
+            while (siMenu) {
+              cout << "\n===== STANDING INSTRUCTIONS =====\n";
+              cout << "1. Create Standing Instruction\n";
+              cout << "2. View My Standing Instructions\n";
+              cout << "3. View SI Details\n";
+              cout << "4. Cancel Standing Instruction\n";
+              cout << "5. Back\n";
+              int subChoice = InputValidator::getInt("Enter choice: ");
+              switch (subChoice) {
+              case 1: {
+                string receiverAcc =
+                    InputValidator::getString("Receiver account number: ");
+                double amount =
+                    InputValidator::getPositiveDouble("Amount: Rs.");
+                int day = InputValidator::getInt("Execution day (1-28): ");
+                string desc = InputValidator::getString("Description: ");
+                siManager.createSI(currentUserId, receiverAcc, amount, day,
+                                   desc);
+                break;
+              }
+              case 2:
+                siManager.viewUserSIs(currentUserId);
+                break;
+              case 3: {
+                string siId = InputValidator::getString("Enter SI ID: ");
+                siManager.viewSIDetails(siId);
+                break;
+              }
+              case 4: {
+                siManager.viewUserSIs(currentUserId);
+                string siId =
+                    InputValidator::getString("Enter SI ID to cancel: ");
+                siManager.cancelSI(siId, currentUserId);
+                break;
+              }
+              case 5:
+                siMenu = false;
+                break;
+              }
+            }
+            break;
+          }
+          case 20: {
             DatabaseManager::deleteSession(sessionToken);
-            DatabaseManager::logAudit(currentUserId, sessionToken, "LOGOUT", "", "SUCCESS");
+            DatabaseManager::logAudit(currentUserId, sessionToken, "LOGOUT", "",
+                                      "SUCCESS");
             cout << "Logging out...\n";
             loggedIn = false;
             break;
-
-          } 
+          }
           default:
             cout << "Invalid option.\n";
           }
@@ -682,6 +754,7 @@ int main() {
       manager.save();
       rdManager.saveRDs();
       loanManager.saveLoans();
+      siManager.saveSIs();
       DatabaseManager::close();
       cout << "Thank you for banking with us.\n";
       return 0;
