@@ -1,0 +1,5 @@
+if(EXISTS "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/bank_tests[1]_tests.cmake")
+  include("/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/bank_tests[1]_tests.cmake")
+else()
+  add_test(bank_tests_NOT_BUILT bank_tests_NOT_BUILT)
+endif()

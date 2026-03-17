@@ -15,12 +15,12 @@ private:
     static string generateRDNumber();
     static string getTodayDate();
     static string addMonthsToDate(const string& date, int months);
-    static double calculateMaturityAmount(double monthly, int tenure, double rate);
 
 public:
     RDManager();
     ~RDManager();
 
+    static double calculateMaturityAmount(double monthly, int tenure, double rate);
     // User operations
     string openRD(BankAccount& account, double monthlyAmount,
                   int tenureMonths, double interestRate);

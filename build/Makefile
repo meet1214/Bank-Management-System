@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/bui
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake cache editor..."
@@ -129,12 +139,26 @@ bank/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/build
 .PHONY : bank/fast
 
+#=============================================================================
+# Target rules for targets named bank_tests
+
+# Build rule for target.
+bank_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 bank_tests
+.PHONY : bank_tests
+
+# fast build rule for target.
+bank_tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/build
+.PHONY : bank_tests/fast
+
 src/AccountManager.o: src/AccountManager.cpp.o
 .PHONY : src/AccountManager.o
 
 # target to build an object file
 src/AccountManager.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/AccountManager.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/AccountManager.cpp.o
 .PHONY : src/AccountManager.cpp.o
 
 src/AccountManager.i: src/AccountManager.cpp.i
@@ -143,6 +167,7 @@ src/AccountManager.i: src/AccountManager.cpp.i
 # target to preprocess a source file
 src/AccountManager.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/AccountManager.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/AccountManager.cpp.i
 .PHONY : src/AccountManager.cpp.i
 
 src/AccountManager.s: src/AccountManager.cpp.s
@@ -151,6 +176,7 @@ src/AccountManager.s: src/AccountManager.cpp.s
 # target to generate assembly for a file
 src/AccountManager.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/AccountManager.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/AccountManager.cpp.s
 .PHONY : src/AccountManager.cpp.s
 
 src/BankAccount.o: src/BankAccount.cpp.o
@@ -159,6 +185,7 @@ src/BankAccount.o: src/BankAccount.cpp.o
 # target to build an object file
 src/BankAccount.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/BankAccount.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/BankAccount.cpp.o
 .PHONY : src/BankAccount.cpp.o
 
 src/BankAccount.i: src/BankAccount.cpp.i
@@ -167,6 +194,7 @@ src/BankAccount.i: src/BankAccount.cpp.i
 # target to preprocess a source file
 src/BankAccount.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/BankAccount.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/BankAccount.cpp.i
 .PHONY : src/BankAccount.cpp.i
 
 src/BankAccount.s: src/BankAccount.cpp.s
@@ -175,6 +203,7 @@ src/BankAccount.s: src/BankAccount.cpp.s
 # target to generate assembly for a file
 src/BankAccount.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/BankAccount.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/BankAccount.cpp.s
 .PHONY : src/BankAccount.cpp.s
 
 src/DatabaseManager.o: src/DatabaseManager.cpp.o
@@ -183,6 +212,7 @@ src/DatabaseManager.o: src/DatabaseManager.cpp.o
 # target to build an object file
 src/DatabaseManager.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/DatabaseManager.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/DatabaseManager.cpp.o
 .PHONY : src/DatabaseManager.cpp.o
 
 src/DatabaseManager.i: src/DatabaseManager.cpp.i
@@ -191,6 +221,7 @@ src/DatabaseManager.i: src/DatabaseManager.cpp.i
 # target to preprocess a source file
 src/DatabaseManager.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/DatabaseManager.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/DatabaseManager.cpp.i
 .PHONY : src/DatabaseManager.cpp.i
 
 src/DatabaseManager.s: src/DatabaseManager.cpp.s
@@ -199,6 +230,7 @@ src/DatabaseManager.s: src/DatabaseManager.cpp.s
 # target to generate assembly for a file
 src/DatabaseManager.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/DatabaseManager.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/DatabaseManager.cpp.s
 .PHONY : src/DatabaseManager.cpp.s
 
 src/InputValidator.o: src/InputValidator.cpp.o
@@ -207,6 +239,7 @@ src/InputValidator.o: src/InputValidator.cpp.o
 # target to build an object file
 src/InputValidator.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/InputValidator.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/InputValidator.cpp.o
 .PHONY : src/InputValidator.cpp.o
 
 src/InputValidator.i: src/InputValidator.cpp.i
@@ -215,6 +248,7 @@ src/InputValidator.i: src/InputValidator.cpp.i
 # target to preprocess a source file
 src/InputValidator.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/InputValidator.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/InputValidator.cpp.i
 .PHONY : src/InputValidator.cpp.i
 
 src/InputValidator.s: src/InputValidator.cpp.s
@@ -223,6 +257,7 @@ src/InputValidator.s: src/InputValidator.cpp.s
 # target to generate assembly for a file
 src/InputValidator.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/InputValidator.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/InputValidator.cpp.s
 .PHONY : src/InputValidator.cpp.s
 
 src/LoanManager.o: src/LoanManager.cpp.o
@@ -231,6 +266,7 @@ src/LoanManager.o: src/LoanManager.cpp.o
 # target to build an object file
 src/LoanManager.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/LoanManager.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/LoanManager.cpp.o
 .PHONY : src/LoanManager.cpp.o
 
 src/LoanManager.i: src/LoanManager.cpp.i
@@ -239,6 +275,7 @@ src/LoanManager.i: src/LoanManager.cpp.i
 # target to preprocess a source file
 src/LoanManager.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/LoanManager.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/LoanManager.cpp.i
 .PHONY : src/LoanManager.cpp.i
 
 src/LoanManager.s: src/LoanManager.cpp.s
@@ -247,6 +284,7 @@ src/LoanManager.s: src/LoanManager.cpp.s
 # target to generate assembly for a file
 src/LoanManager.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/LoanManager.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/LoanManager.cpp.s
 .PHONY : src/LoanManager.cpp.s
 
 src/Logger.o: src/Logger.cpp.o
@@ -255,6 +293,7 @@ src/Logger.o: src/Logger.cpp.o
 # target to build an object file
 src/Logger.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/Logger.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/Logger.cpp.o
 .PHONY : src/Logger.cpp.o
 
 src/Logger.i: src/Logger.cpp.i
@@ -263,6 +302,7 @@ src/Logger.i: src/Logger.cpp.i
 # target to preprocess a source file
 src/Logger.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/Logger.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/Logger.cpp.i
 .PHONY : src/Logger.cpp.i
 
 src/Logger.s: src/Logger.cpp.s
@@ -271,6 +311,7 @@ src/Logger.s: src/Logger.cpp.s
 # target to generate assembly for a file
 src/Logger.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/Logger.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/Logger.cpp.s
 .PHONY : src/Logger.cpp.s
 
 src/RDManager.o: src/RDManager.cpp.o
@@ -279,6 +320,7 @@ src/RDManager.o: src/RDManager.cpp.o
 # target to build an object file
 src/RDManager.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/RDManager.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/RDManager.cpp.o
 .PHONY : src/RDManager.cpp.o
 
 src/RDManager.i: src/RDManager.cpp.i
@@ -287,6 +329,7 @@ src/RDManager.i: src/RDManager.cpp.i
 # target to preprocess a source file
 src/RDManager.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/RDManager.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/RDManager.cpp.i
 .PHONY : src/RDManager.cpp.i
 
 src/RDManager.s: src/RDManager.cpp.s
@@ -295,6 +338,7 @@ src/RDManager.s: src/RDManager.cpp.s
 # target to generate assembly for a file
 src/RDManager.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/RDManager.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/RDManager.cpp.s
 .PHONY : src/RDManager.cpp.s
 
 src/StandingInstructionManager.o: src/StandingInstructionManager.cpp.o
@@ -303,6 +347,7 @@ src/StandingInstructionManager.o: src/StandingInstructionManager.cpp.o
 # target to build an object file
 src/StandingInstructionManager.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/StandingInstructionManager.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.o
 .PHONY : src/StandingInstructionManager.cpp.o
 
 src/StandingInstructionManager.i: src/StandingInstructionManager.cpp.i
@@ -311,6 +356,7 @@ src/StandingInstructionManager.i: src/StandingInstructionManager.cpp.i
 # target to preprocess a source file
 src/StandingInstructionManager.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/StandingInstructionManager.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.i
 .PHONY : src/StandingInstructionManager.cpp.i
 
 src/StandingInstructionManager.s: src/StandingInstructionManager.cpp.s
@@ -319,6 +365,7 @@ src/StandingInstructionManager.s: src/StandingInstructionManager.cpp.s
 # target to generate assembly for a file
 src/StandingInstructionManager.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/StandingInstructionManager.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.s
 .PHONY : src/StandingInstructionManager.cpp.s
 
 src/Utils.o: src/Utils.cpp.o
@@ -327,6 +374,7 @@ src/Utils.o: src/Utils.cpp.o
 # target to build an object file
 src/Utils.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/Utils.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/Utils.cpp.o
 .PHONY : src/Utils.cpp.o
 
 src/Utils.i: src/Utils.cpp.i
@@ -335,6 +383,7 @@ src/Utils.i: src/Utils.cpp.i
 # target to preprocess a source file
 src/Utils.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/Utils.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/Utils.cpp.i
 .PHONY : src/Utils.cpp.i
 
 src/Utils.s: src/Utils.cpp.s
@@ -343,6 +392,7 @@ src/Utils.s: src/Utils.cpp.s
 # target to generate assembly for a file
 src/Utils.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/Utils.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/Utils.cpp.s
 .PHONY : src/Utils.cpp.s
 
 src/main.o: src/main.cpp.o
@@ -369,6 +419,102 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+tests/test_loan.o: tests/test_loan.cpp.o
+.PHONY : tests/test_loan.o
+
+# target to build an object file
+tests/test_loan.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_loan.cpp.o
+.PHONY : tests/test_loan.cpp.o
+
+tests/test_loan.i: tests/test_loan.cpp.i
+.PHONY : tests/test_loan.i
+
+# target to preprocess a source file
+tests/test_loan.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_loan.cpp.i
+.PHONY : tests/test_loan.cpp.i
+
+tests/test_loan.s: tests/test_loan.cpp.s
+.PHONY : tests/test_loan.s
+
+# target to generate assembly for a file
+tests/test_loan.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_loan.cpp.s
+.PHONY : tests/test_loan.cpp.s
+
+tests/test_main.o: tests/test_main.cpp.o
+.PHONY : tests/test_main.o
+
+# target to build an object file
+tests/test_main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_main.cpp.o
+.PHONY : tests/test_main.cpp.o
+
+tests/test_main.i: tests/test_main.cpp.i
+.PHONY : tests/test_main.i
+
+# target to preprocess a source file
+tests/test_main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_main.cpp.i
+.PHONY : tests/test_main.cpp.i
+
+tests/test_main.s: tests/test_main.cpp.s
+.PHONY : tests/test_main.s
+
+# target to generate assembly for a file
+tests/test_main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_main.cpp.s
+.PHONY : tests/test_main.cpp.s
+
+tests/test_rd.o: tests/test_rd.cpp.o
+.PHONY : tests/test_rd.o
+
+# target to build an object file
+tests/test_rd.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_rd.cpp.o
+.PHONY : tests/test_rd.cpp.o
+
+tests/test_rd.i: tests/test_rd.cpp.i
+.PHONY : tests/test_rd.i
+
+# target to preprocess a source file
+tests/test_rd.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_rd.cpp.i
+.PHONY : tests/test_rd.cpp.i
+
+tests/test_rd.s: tests/test_rd.cpp.s
+.PHONY : tests/test_rd.s
+
+# target to generate assembly for a file
+tests/test_rd.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_rd.cpp.s
+.PHONY : tests/test_rd.cpp.s
+
+tests/test_security.o: tests/test_security.cpp.o
+.PHONY : tests/test_security.o
+
+# target to build an object file
+tests/test_security.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_security.cpp.o
+.PHONY : tests/test_security.cpp.o
+
+tests/test_security.i: tests/test_security.cpp.i
+.PHONY : tests/test_security.i
+
+# target to preprocess a source file
+tests/test_security.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_security.cpp.i
+.PHONY : tests/test_security.cpp.i
+
+tests/test_security.s: tests/test_security.cpp.s
+.PHONY : tests/test_security.s
+
+# target to generate assembly for a file
+tests/test_security.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_security.cpp.s
+.PHONY : tests/test_security.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -377,7 +523,9 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... test"
 	@echo "... bank"
+	@echo "... bank_tests"
 	@echo "... src/AccountManager.o"
 	@echo "... src/AccountManager.i"
 	@echo "... src/AccountManager.s"
@@ -408,6 +556,18 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... tests/test_loan.o"
+	@echo "... tests/test_loan.i"
+	@echo "... tests/test_loan.s"
+	@echo "... tests/test_main.o"
+	@echo "... tests/test_main.i"
+	@echo "... tests/test_main.s"
+	@echo "... tests/test_rd.o"
+	@echo "... tests/test_rd.i"
+	@echo "... tests/test_rd.s"
+	@echo "... tests/test_security.o"
+	@echo "... tests/test_security.i"
+	@echo "... tests/test_security.s"
 .PHONY : help
 
 
