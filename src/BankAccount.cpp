@@ -164,10 +164,10 @@ void BankAccount::depositMoney(double amount) {
 
     // Limit checks
     if (amount > depositLimit) {
-        Logger::getInstance().warn("Deposit denied for " + 
-            accountNumber + ": exceeds limit of Rs." + to_string(depositLimit)); 
-        return;
+        throw DailyLimitExceededException("Deposit denied for " +
+            accountNumber + ": exceeds limit of Rs." + to_string(depositLimit));
     }
+
     if (dailyTxnCount >= dailyTxnLimit) {
         throw DailyLimitExceededException("Deposit denied for " + 
             accountNumber + ": daily limit of " + to_string(dailyTxnLimit) + " reached."); 
@@ -293,10 +293,8 @@ bool BankAccount::transferMoney(BankAccount& receiver, double amount) {
         return false;
     }
     if (amount > withdrawLimit) {
-        Logger::getInstance().warn("Transfer denied for " + 
-            accountNumber + ": exceeds withdrawal limit of Rs." + 
-            to_string(withdrawLimit));
-        return false;
+        throw DailyLimitExceededException("Transfer denied for " +
+            accountNumber + ": exceeds withdrawal limit of Rs." + to_string(withdrawLimit));
     }
     
     if (amount > balance) {
@@ -314,12 +312,10 @@ bool BankAccount::transferMoney(BankAccount& receiver, double amount) {
             to_string(dailyTxnLimit) + " reached."); 
         return false;
     }
+
     if (dailyTransferUsed + amount > dailyTransferLimit) {
-        double remaining = dailyTransferLimit - dailyTransferUsed;
-        Logger::getInstance().warn("Transfer denied for " + 
-            accountNumber + ": exceeds limit of Rs." + to_string(dailyTransferLimit) + 
-            " would be exceeded. Remaining today: Rs." + to_string(remaining)); 
-        return false;
+        throw DailyLimitExceededException("Transfer denied for " +
+            accountNumber + ": daily transfer limit exceeded.");
     }
 
     string currentTime = getCurrentDateTime();

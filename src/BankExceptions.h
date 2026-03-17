@@ -34,4 +34,9 @@ public:
     explicit LoanException(const std::string& msg) : BankException(msg) {}
 };
 
+class DatabaseException : public BankException {
+public:
+    explicit DatabaseException(const std::string& msg) : BankException(msg) {}
+};
+
 #endif

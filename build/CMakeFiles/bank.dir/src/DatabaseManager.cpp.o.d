@@ -113,13 +113,14 @@ CMakeFiles/bank.dir/src/DatabaseManager.cpp.o: \
  /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/Loan.h \
  /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/RD.h \
  /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/StandingInstruction.h \
- /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/Logger.h \
- /usr/include/c++/15/fstream /usr/include/c++/15/istream \
- /usr/include/c++/15/ios /usr/include/c++/15/exception \
- /usr/include/c++/15/bits/exception_ptr.h \
+ /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/BankExceptions.h \
+ /usr/include/c++/15/exception /usr/include/c++/15/bits/exception_ptr.h \
  /usr/include/c++/15/bits/cxxabi_init_exception.h \
  /usr/include/c++/15/typeinfo /usr/include/c++/15/bits/nested_exception.h \
- /usr/include/c++/15/bits/ios_base.h /usr/include/c++/15/ext/atomicity.h \
+ /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/Logger.h \
+ /usr/include/c++/15/fstream /usr/include/c++/15/istream \
+ /usr/include/c++/15/ios /usr/include/c++/15/bits/ios_base.h \
+ /usr/include/c++/15/ext/atomicity.h \
  /usr/include/c++/15/x86_64-redhat-linux/bits/gthr.h \
  /usr/include/c++/15/x86_64-redhat-linux/bits/gthr-default.h \
  /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \

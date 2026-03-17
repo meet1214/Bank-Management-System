@@ -3339,6 +3339,8 @@ CMakeFiles/bank_tests.dir/tests/test_rd.cpp.o: /home/meetpatel12_/Stuff/Code/C++
   /usr/lib/gcc/x86_64-redhat-linux/15/include/stdint.h
 
 CMakeFiles/bank_tests.dir/tests/test_security.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/tests/test_security.cpp \
+  /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/BankAccount.h \
+  /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/BankExceptions.h \
   /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/Sha256.h \
   /home/meetpatel12_/miniconda3/include/gtest/gtest-death-test.h \
   /home/meetpatel12_/miniconda3/include/gtest/gtest-matchers.h \

@@ -1,5 +1,6 @@
 #include "DatabaseManager.h"
 #include "BankAccount.h"
+#include "BankExceptions.h"
 #include "Logger.h"
 #include "RD.h"
 
@@ -24,8 +25,8 @@ void DatabaseManager::open(const string& path) {
     std::filesystem::create_directories("data/");
     int rc = sqlite3_open(path.c_str(), &db_);
     if (rc != SQLITE_OK) {
-        cout << "Error opening the database file.\n";
-        return;
+        throw DatabaseException("Failed to open database: " + 
+            string(sqlite3_errmsg(db_)));
     }
     initSchema();
 

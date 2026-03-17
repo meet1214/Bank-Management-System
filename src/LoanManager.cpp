@@ -1,5 +1,6 @@
 #include "LoanManager.h"
 #include "BankAccount.h"
+#include "BankExceptions.h"
 #include "Loan.h"
 #include "DatabaseManager.h"
 
@@ -265,7 +266,9 @@ bool LoanManager::disburseLoan(const std::string& loanId, BankAccount& account) 
 
     if(it == loans.end()) return false;
 
-    if(it->second.status != "APPROVED") return false;
+    if(it->second.status != "APPROVED") {
+        throw LoanException("Loan " + loanId + " is not in APPROVED status.");
+    }
 
     if(!account.creditAmount(it->second.principalAmount,"Loan Disbursement")){
         return false;
@@ -295,7 +298,7 @@ bool LoanManager::makeEMIPayment(const std::string& loanId, BankAccount& account
     double principalPaid = it->second.emiAmount - interestPaid;
 
     if(it->second.emiAmount > account.getBalance()){
-        cout << "Insufficient Balance!\n";
+        throw LoanException("Insufficient balance for EMI payment on loan " + loanId);
         it->second.outstandingAmount += 0.05 * it->second.outstandingAmount;
         LoanPayment failed;
         failed.paymentNumber     = it->second.paymentsMade + 1;
@@ -308,7 +311,6 @@ bool LoanManager::makeEMIPayment(const std::string& loanId, BankAccount& account
         it->second.paymentHistory.push_back(failed);
         DatabaseManager::saveLoanPayment(loanId, failed);
         saveLoans();
-        return false;
     }
 
     account.debitAmount(it->second.emiAmount,"EMI Payment");
@@ -364,7 +366,9 @@ bool LoanManager::closeLoanEarly(const std::string& loanId, BankAccount& account
 
     double due = calculateEarlyClosureAmount(loanId);
 
-    if(account.getBalance() < due) return false;
+        if(account.getBalance() < due) {
+        throw LoanException("Insufficient balance for early closure of loan " + loanId);
+    }
 
     account.debitAmount(due,"Loan Early Closure");
 

@@ -131,7 +131,11 @@ void loanUserMenu(LoanManager &loanManager, BankAccount &currentUser,
     case 3: {
       loanManager.viewUserLoans(currentUserId);
       string loanId = InputValidator::getString("Enter Loan ID: ");
-      loanManager.makeEMIPayment(loanId, currentUser);
+      try {
+          loanManager.makeEMIPayment(loanId, currentUser);
+      } catch (const LoanException& e) {
+          cout << "EMI payment failed: " << e.what() << "\n";
+      }
       break;
     }
     case 4: {
@@ -150,7 +154,11 @@ void loanUserMenu(LoanManager &loanManager, BankAccount &currentUser,
       string confirm =
           InputValidator::getString("Confirm early closure? (yes/no): ");
       if (confirm == "yes") {
-        loanManager.closeLoanEarly(loanId, currentUser);
+        try {
+            loanManager.closeLoanEarly(loanId, currentUser);
+        } catch (const LoanException& e) {
+            cout << "EMI payment failed: " << e.what() << "\n";
+        }
       }
       break;
     }
@@ -648,7 +656,14 @@ void userMenu(BankAccount &currentUser, const string &currentUserId,
 int main() {
 
   AccountManager manager;
-  manager.load();
+
+  try {
+    manager.load();
+  } catch (const DatabaseException& e) {
+      cout << "Fatal error: " << e.what() << "\n";
+      return 1;
+  }
+  
   LoanManager loanManager;
   RDManager rdManager;
   StandingInstructionManager siManager;
