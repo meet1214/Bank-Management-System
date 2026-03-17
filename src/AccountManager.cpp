@@ -33,12 +33,12 @@ bool AccountManager::createAccount(const string& name, int pin, const string& ac
     );
 
     if (!result.second) {
-        Logger::getInstance()->error("Account number Collision:" + accNo);
+        Logger::getInstance().error("Account number Collision:" + accNo);
         return false;
     }
 
     save();
-    Logger::getInstance()->info("Account created: " + accNo + " for " + name);
+    Logger::getInstance().info("Account created: " + accNo + " for " + name);
     return true;
 }
 
@@ -47,23 +47,23 @@ string AccountManager::loginAccount(const string& accNo, int pin) {
     auto it = users.find(accNo);
 
     if (it == users.end()) {
-        Logger::getInstance()->warn("Account " + accNo + " not found");
+        Logger::getInstance().warn("Account " + accNo + " not found");
         return "";
     }
 
     BankAccount& user = it->second;
 
     if (user.getLockStatus()) {
-        Logger::getInstance()->warn("Account "+ accNo + " is locked.");
+        Logger::getInstance().warn("Account "+ accNo + " is locked.");
         return "";
     }
 
     if (!user.authenticatePin(pin)) {
-        Logger::getInstance()->warn("Invalid pin for " +accNo );
+        Logger::getInstance().warn("Invalid pin for " +accNo );
         return "";
     }
         
-    Logger::getInstance()->info("Login successful");
+    Logger::getInstance().info("Login successful");
     return accNo;
 }
 
@@ -109,7 +109,7 @@ BankAccount* AccountManager::getAccountByAccountNumber(const string& accNo) {
 // ================= VIEW ALL ACCOUNTS =================
 void AccountManager::viewAllAccounts() const {
     if (users.empty()) {
-        Logger::getInstance()->info("No users found.");
+        Logger::getInstance().info("No users found.");
     }
     cout << "\n----- All User Accounts -----\n";
     for (const auto& [accNo, user] : users) {
@@ -126,45 +126,45 @@ void AccountManager::viewAllAccounts() const {
 void AccountManager::freezeAccount(const string& accNo) {
     auto it = users.find(accNo);
     if (it == users.end()) { 
-        Logger::getInstance()->warn("Account " + accNo + " not found "); 
+        Logger::getInstance().warn("Account " + accNo + " not found "); 
         return; 
     }
     if (it->second.getRole() == "admin") { 
-        Logger::getInstance()->error("Cannot freeze admin account."); 
+        Logger::getInstance().error("Cannot freeze admin account."); 
         return; 
     }
     it->second.setLockStatus(true);
     save();
-    Logger::getInstance()->admin("Account " + accNo + " frozen successfully.");
+    Logger::getInstance().admin("Account " + accNo + " frozen successfully.");
 }
 
 // ================= UNFREEZE =================
 void AccountManager::unfreezeAccount(const string& accNo) {
     auto it = users.find(accNo);
     if (it == users.end()) { 
-        Logger::getInstance()->warn("Account " + accNo + " not found ");  
+        Logger::getInstance().warn("Account " + accNo + " not found ");  
         return; 
     }
     it->second.setLockStatus(false);
     save();
-    Logger::getInstance()->admin("Account " + accNo + " unfrozen successfully.");
+    Logger::getInstance().admin("Account " + accNo + " unfrozen successfully.");
 }
 
 // ================= DELETE =================
 void AccountManager::deleteAccount(const string& accNo) {
     auto it = users.find(accNo);
     if (it == users.end()) { 
-        Logger::getInstance()->warn("Account " + accNo + " not found ");
+        Logger::getInstance().warn("Account " + accNo + " not found ");
         return;
     }
     if (it->second.getRole() == "admin") { 
-        Logger::getInstance()->error("Cannot delete admin account.");  
+        Logger::getInstance().error("Cannot delete admin account.");  
         return; 
     }
     DatabaseManager::deleteTransactions(accNo);
     users.erase(it);
     save();
-    Logger::getInstance()->admin("Account " + accNo + " deleted successfully.");
+    Logger::getInstance().admin("Account " + accNo + " deleted successfully.");
 }
 
 // ================= SET ACCOUNT LIMITS =================
@@ -172,11 +172,11 @@ void AccountManager::setAccountLimits(const string& accNo) {
 
     auto it = users.find(accNo);
     if (it == users.end()) {
-        Logger::getInstance()->warn("Account " + accNo + " not found ");
+        Logger::getInstance().warn("Account " + accNo + " not found ");
         return;
     }
     if (it->second.getRole() == "admin") {
-        Logger::getInstance()->error("Cannot set limits for the admin account."); 
+        Logger::getInstance().error("Cannot set limits for the admin account."); 
         return;
     }
 
@@ -199,7 +199,7 @@ void AccountManager::setAccountLimits(const string& accNo) {
             return stod(input); 
         }
         catch (...) { 
-            Logger::getInstance()->error("Invalid, keeping current."); 
+            Logger::getInstance().error("Invalid, keeping current."); 
             return current; 
         }
     };
@@ -214,7 +214,7 @@ void AccountManager::setAccountLimits(const string& accNo) {
             return stoi(input); 
         }
         catch (...) { 
-            Logger::getInstance()->error("Invalid, keeping current."); 
+            Logger::getInstance().error("Invalid, keeping current."); 
             return current; 
         }
     };
@@ -226,7 +226,7 @@ void AccountManager::setAccountLimits(const string& accNo) {
 
     // Validate — no negative or zero limits
     if (newDep <= 0 || newWith <= 0 || newTxn <= 0 || newTransfer <= 0) {
-        Logger::getInstance()->error("Limits must be greater than 0.");
+        Logger::getInstance().error("Limits must be greater than 0.");
         return;
     }
 
@@ -236,7 +236,7 @@ void AccountManager::setAccountLimits(const string& accNo) {
     acc.setDailyTransferLimit(newTransfer);
 
     save();
-    Logger::getInstance()->admin("Limits for " + accNo + " is updated successfully.");
+    Logger::getInstance().admin("Limits for " + accNo + " is updated successfully.");
 }
 
 // ================= TOTAL BALANCE =================
@@ -262,7 +262,7 @@ void AccountManager::applyInterestToAll() {  // ← Remove the rate parameter
         
 
         if (rate <= 0) {
-            Logger::getInstance()->admin("Skipped " + accNo + " (" + 
+            Logger::getInstance().admin("Skipped " + accNo + " (" + 
                 user.getAccountType() + ") - No interest for this account type");
             continue;
         }
@@ -272,20 +272,20 @@ void AccountManager::applyInterestToAll() {  // ← Remove the rate parameter
         user.addInterest(interest);
         accountsProcessed++;
         
-        Logger::getInstance()->admin("Interest of Rs." + to_string(interest) + 
+        Logger::getInstance().admin("Interest of Rs." + to_string(interest) + 
             " (" + to_string(rate) + "%) applied to " + accNo + 
             " (" + user.getAccountType() + ")");    
     }
     
     save();
-    Logger::getInstance()->admin("Interest applied to " + to_string(accountsProcessed) + " accounts.");
+    Logger::getInstance().admin("Interest applied to " + to_string(accountsProcessed) + " accounts.");
 }
 
 //=============VIEW ALL ACCOUNTS SORTED====================
 void AccountManager::viewAllAccountsSorted(const string& sortBy) const {
     
     if (users.empty()) {
-        Logger::getInstance()->info("No users found.");
+        Logger::getInstance().info("No users found.");
         return;
     }
     

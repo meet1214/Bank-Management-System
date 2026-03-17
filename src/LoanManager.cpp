@@ -144,20 +144,19 @@ bool LoanManager::checkEligibility(const BankAccount& account, const std::string
     
     // ESTIMATE MONTHLY INCOME
     double totalDeposited = 0.0;
-    int    depositCount   = 0;
 
-    for (const auto& entry : account.getTransactionHistory()) {
-        if (entry.type == "Deposit") {
-            totalDeposited += entry.amount;
-            ++depositCount;
-        }
-    }
+    vector<Transaction> history = account.getTransactionHistory();
 
-    if (depositCount == 0) {
-        return false;  // No deposit history — cannot verify income
-    }
+    if (history.empty()) return false;
 
-    double monthlyIncome = totalDeposited;
+    string firstDate = history.front().dateTime.substr(0, 10);
+    string lastDate  = history.back().dateTime.substr(0, 10);
+
+    int months = getDaysBetweenDates(firstDate, lastDate)/30;
+
+    if (months < 1) months = 1;
+
+    double monthlyIncome = totalDeposited / months;
 
     // ELIGIBILITY MULTIPLIER PER LOAN TYPE
     double maxEligible = 0;

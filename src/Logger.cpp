@@ -7,9 +7,6 @@
 
 using namespace std;
 
-// Initialize static instance
-Logger* Logger::instance = nullptr;
-
 // Constructor
 Logger::Logger() {
     filesystem::create_directories("data");

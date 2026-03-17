@@ -34,14 +34,14 @@ void DatabaseManager::open(const string& path) {
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         string result = (const char*)sqlite3_column_text(stmt, 0);
         if (result == "ok") {
-            Logger::getInstance()->info("Database integrity check passed.");
+            Logger::getInstance().info("Database integrity check passed.");
         } else {
-            Logger::getInstance()->error("Database integrity check FAILED: " + result);
+            Logger::getInstance().error("Database integrity check FAILED: " + result);
         }
     }
     sqlite3_finalize(stmt);
 
-    Logger::getInstance()->info("The file is opened successfully");
+    Logger::getInstance().info("The file is opened successfully");
 }
 
 void DatabaseManager::initSchema() {
@@ -215,10 +215,22 @@ void DatabaseManager::saveAccounts(const unordered_map<string, BankAccount> &use
     if (!db_) return;
     sqlite3_exec(db_, "BEGIN;", nullptr, nullptr, nullptr);
     const char* sql = R"(
-        INSERT OR REPLACE INTO accounts
+        INSERT INTO accounts
         (account_number, name, pin_hash, salt, balance, role, is_locked, acc_type,
         deposit_limit, withdraw_limit, daily_txn_limit, daily_transfer_lim)
-        VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(account_number) DO UPDATE SET
+        name = excluded.name,
+        pin_hash = excluded.pin_hash,
+        salt = excluded.salt,
+        balance = excluded.balance,
+        role = excluded.role,
+        is_locked = excluded.is_locked,
+        acc_type = excluded.acc_type,
+        deposit_limit = excluded.deposit_limit,
+        withdraw_limit = excluded.withdraw_limit,
+        daily_txn_limit = excluded.daily_txn_limit,
+        daily_transfer_lim = excluded.daily_transfer_lim;
     )";
 
     sqlite3_stmt* stmt = nullptr;
@@ -238,7 +250,6 @@ void DatabaseManager::saveAccounts(const unordered_map<string, BankAccount> &use
         sqlite3_bind_double (stmt, 10, user.getWithdrawLimit());
         sqlite3_bind_int    (stmt, 11, user.getDailyTxnLimit());
         sqlite3_bind_double (stmt, 12, user.getDailyTransferLimit());
-
 
         sqlite3_step(stmt);
         sqlite3_reset(stmt);
@@ -285,13 +296,14 @@ void DatabaseManager::loadAccounts(unordered_map<string, BankAccount> &users, lo
                 depLim, withLim, txnLim, transLim));
 
         if (accNo.length() > branchCode.length()) {
-                string seqPart = accNo.substr(branchCode.length());
-                if (!seqPart.empty() &&
-                    all_of(seqPart.begin(), seqPart.end(), ::isdigit)) {
-                    long long seq = stoll(seqPart);
-                    if (seq > lastSeq)
-                        lastSeq = seq;
-                }
+            if (accNo.substr(0, branchCode.length()) != branchCode) continue;
+            string seqPart = accNo.substr(branchCode.length());
+            if (!seqPart.empty() &&
+                all_of(seqPart.begin(), seqPart.end(), ::isdigit)) {
+                long long seq = stoll(seqPart);
+                if (seq > lastSeq)
+                    lastSeq = seq;
+            }
         }
     }
     sqlite3_finalize(stmt);

@@ -80,15 +80,7 @@ void BankAccount::setPinHash(const std::string& hash,
 
 // ===========HELPER: EXTRACT DATE FROM DATETIME STRING ===============
 static string extractDateFromDateTime(const string& dateTime) {
-    struct tm timeStruct = {};
-    strptime(dateTime.c_str(), "%a %b %d %H:%M:%S %Y", &timeStruct);
-    
-    ostringstream oss;
-    oss << (1900 + timeStruct.tm_year) << "-"
-        << setw(2) << setfill('0') << (timeStruct.tm_mon + 1) << "-"
-        << setw(2) << setfill('0') << timeStruct.tm_mday;
-    
-    return oss.str();
+    return dateTime.substr(0,10);
 }
 // ================= HELPER: CASE-INSENSITIVE PARTIAL MATCH =================
 static bool containsIgnoreCase(const string& text, const string& search) {
@@ -110,11 +102,21 @@ bool BankAccount::authenticatePin(int enteredPin) const {
 
 // ================= HELPER: GET CURRENT TIME =================
 string BankAccount::getCurrentDateTime() const {
-    auto now     = chrono::system_clock::now();
-    time_t nowTime = chrono::system_clock::to_time_t(now);
-    string timeStr = ctime(&nowTime);
-    timeStr.pop_back(); // remove trailing newline
-    return timeStr;
+    auto now   = chrono::system_clock::now();
+    time_t t   = chrono::system_clock::to_time_t(now);
+    tm* lt     = localtime(&t);
+    
+    ostringstream timestamp;
+    timestamp << (lt->tm_year + 1900);
+    timestamp << "-";
+    timestamp << setw(2) << setfill('0') << (lt->tm_mon + 1);
+    timestamp << "-";
+    timestamp << setw(2) << setfill('0') << (lt->tm_mday) << " ";
+    timestamp << setw(2) << setfill('0') << (lt->tm_hour) << ":";
+    timestamp << setw(2) << setfill('0') << (lt->tm_min) << ":";
+    timestamp << setw(2) << setfill('0') << (lt->tm_sec);
+
+    return timestamp.str();
 }
 
 // ================= HELPER: GET TODAY'S DATE (YYYY-MM-DD) =================
@@ -141,9 +143,17 @@ void BankAccount::resetDailyCountersIfNeeded() {
 
 // ================= HELPER: PARSE TIME TO TIMESTAMP =================
 static time_t parseDateTime(const string& dateTime) {
-    struct tm timeStruct = {};
-    strptime(dateTime.c_str(), "%a %b %d %H:%M:%S %Y", &timeStruct);
-    return mktime(&timeStruct);
+    struct tm t = {};
+    
+    t.tm_year  = stoi(dateTime.substr(0, 4)) - 1900;
+    t.tm_mon   = stoi(dateTime.substr(5,2)) - 1;
+    t.tm_mday  = stoi(dateTime.substr(8, 2));
+    t.tm_hour  = stoi(dateTime.substr(11, 2));
+    t.tm_min   = stoi(dateTime.substr(14, 2));
+    t.tm_sec   = stoi(dateTime.substr(17, 2));
+    t.tm_isdst = -1;
+    
+    return mktime(&t);
 }
 
 // ================= DEPOSIT =================
@@ -153,12 +163,12 @@ void BankAccount::depositMoney(double amount) {
 
     // Limit checks
     if (amount > depositLimit) {
-        Logger::getInstance()->warn("Deposit denied for " + 
+        Logger::getInstance().warn("Deposit denied for " + 
             accountNumber + ": exceeds limit of Rs." + to_string(depositLimit)); 
         return;
     }
     if (dailyTxnCount >= dailyTxnLimit) {
-        Logger::getInstance()->warn("Deposit denied for " + 
+        Logger::getInstance().warn("Deposit denied for " + 
             accountNumber + ": daily limit of " + to_string(dailyTxnLimit) + " reached."); 
         return;
     }
@@ -176,7 +186,7 @@ void BankAccount::depositMoney(double amount) {
 
     transactionHistory.push_back(t);
     saveTransactionToFile(t);
-    Logger::getInstance()->info("Deposit of Rs." + to_string(amount) + " on account " + accountNumber);
+    Logger::getInstance().info("Deposit of Rs." + to_string(amount) + " on account " + accountNumber);
 }
 
 //=================CREDIT LOAN AMOUNT============
@@ -185,7 +195,6 @@ bool BankAccount::creditAmount(double amount, const std::string& type){
 
     balance += amount;
     ++lastTransactionId;
-    ++dailyTxnCount;
 
     Transaction t;
     t.transactionId = lastTransactionId;
@@ -196,27 +205,27 @@ bool BankAccount::creditAmount(double amount, const std::string& type){
 
     transactionHistory.push_back(t);
     saveTransactionToFile(t);
-    Logger::getInstance()->info("Loan amount of Rs." + to_string(amount) + " is credited on account " + accountNumber);
+    Logger::getInstance().info("Loan amount of Rs." + to_string(amount) + " is credited on account " + accountNumber);
     return true;
 }
 
+//===============DEBIT LOAN AMOUNT==========================
 bool BankAccount::debitAmount(double amount, const std::string& type){
     resetDailyCountersIfNeeded();
 
     balance -=amount;
     ++lastTransactionId;
-    ++dailyTxnCount;
 
     Transaction t;
     t.transactionId = lastTransactionId;
     t.dateTime      = getCurrentDateTime();
     t.type          = type;
-    t.amount        = amount;
+    t.amount        = -amount;
     t.balance       = balance;
 
     transactionHistory.push_back(t);
     saveTransactionToFile(t);
-    Logger::getInstance()->info("An EMI of Rs." + to_string(amount) + " is debited from account " + accountNumber);
+    Logger::getInstance().info("An EMI of Rs." + to_string(amount) + " is debited from account " + accountNumber);
     return true;    
 }
 
@@ -226,17 +235,17 @@ bool BankAccount::withdrawMoney(double amount) {
     resetDailyCountersIfNeeded();
 
     if (amount > withdrawLimit) {
-        Logger::getInstance()->warn("Withdrawal denied for " + accountNumber + 
+        Logger::getInstance().warn("Withdrawal denied for " + accountNumber + 
             ": exceeds limit of Rs." + to_string(withdrawLimit)); 
         return false;
     }
     if (dailyTxnCount >= dailyTxnLimit) {
-        Logger::getInstance()->warn("Withdrawal denied for " + accountNumber + 
+        Logger::getInstance().warn("Withdrawal denied for " + accountNumber + 
             ": daily limit of " + to_string(dailyTxnLimit) + " reached."); 
         return false;
     }
     if (amount > balance) {
-        Logger::getInstance()->warn("Insufficient balance in " + accountNumber);
+        Logger::getInstance().warn("Insufficient balance in " + accountNumber);
         return false;
     }
 
@@ -253,7 +262,7 @@ bool BankAccount::withdrawMoney(double amount) {
 
     transactionHistory.push_back(t);
     saveTransactionToFile(t);
-    Logger::getInstance()->info("Withdrawal of Rs." + to_string(amount) + " on account " + accountNumber);
+    Logger::getInstance().info("Withdrawal of Rs." + to_string(amount) + " on account " + accountNumber);
     return true;
 }
 
@@ -281,26 +290,33 @@ bool BankAccount::transferMoney(BankAccount& receiver, double amount) {
     resetDailyCountersIfNeeded();
 
     if (amount <= 0) {
-        Logger::getInstance()->warn("Invalid transfer amount." + accountNumber);
+        Logger::getInstance().warn("Invalid transfer amount." + accountNumber);
         return false;
     }
+    if (amount > withdrawLimit) {
+        Logger::getInstance().warn("Transfer denied for " + 
+            accountNumber + ": exceeds withdrawal limit of Rs." + 
+            to_string(withdrawLimit));
+        return false;
+    }
+    
     if (amount > balance) {
-        Logger::getInstance()->warn("Insufficient balance in " + accountNumber);
+        Logger::getInstance().warn("Insufficient balance in " + accountNumber);
         return false;
     }
     if (receiver.getLockStatus()) {
-        Logger::getInstance()->warn("Transfer denied from " + 
+        Logger::getInstance().warn("Transfer denied from " + 
             accountNumber + " to frozen account " + receiver.getAccountNumber());
         return false;
     }
     if (dailyTxnCount >= dailyTxnLimit) {
-        Logger::getInstance()->warn("Transfer denied for " + accountNumber + ": daily limit of " + 
+        Logger::getInstance().warn("Transfer denied for " + accountNumber + ": daily limit of " + 
             to_string(dailyTxnLimit) + " reached."); 
         return false;
     }
     if (dailyTransferUsed + amount > dailyTransferLimit) {
         double remaining = dailyTransferLimit - dailyTransferUsed;
-        Logger::getInstance()->warn("Transfer denied for " + 
+        Logger::getInstance().warn("Transfer denied for " + 
             accountNumber + ": exceeds limit of Rs." + to_string(dailyTransferLimit) + 
             " would be exceeded. Remaining today: Rs." + to_string(remaining)); 
         return false;
@@ -340,7 +356,7 @@ bool BankAccount::transferMoney(BankAccount& receiver, double amount) {
     receiver.transactionHistory.push_back(receiverTxn);
     receiver.saveTransactionToFile(receiverTxn);
 
-    Logger::getInstance()->info("Transfer Successful to " + receiver.accountNumber);
+    Logger::getInstance().info("Transfer Successful to " + receiver.accountNumber);
     return true;
 }
 
@@ -408,7 +424,7 @@ void BankAccount::addInterest(double amount){
 
     transactionHistory.push_back(t);
     saveTransactionToFile(t);
-    Logger::getInstance()->info("Interest of Rs." + 
+    Logger::getInstance().info("Interest of Rs." + 
         to_string(amount) + " added in the account " + accountNumber);
 
 }
@@ -416,14 +432,14 @@ void BankAccount::addInterest(double amount){
 //=================CHANGE PIN==========================
 bool BankAccount::changePin(int currentPin, int newPin) {
     if (!authenticatePin(currentPin)) {
-        Logger::getInstance()->warn("Invalid pin for " + accountNumber);
+        Logger::getInstance().warn("Invalid pin for " + accountNumber);
         return false;
     }
 
     string newSalt = generateSalt();
     string hash = hashPin(to_string(newPin), newSalt);
     setPinHash(hash,newSalt);
-    Logger::getInstance()->info("Pin changed successfully for " + accountNumber);
+    Logger::getInstance().info("Pin changed successfully for " + accountNumber);
     return true;
 }
 
@@ -977,7 +993,7 @@ void BankAccount::showSpendingPatterns(int year) const {
         }
         
         else if ((t.type == "EMI Payment" || t.type == "Loan Early Closure")) {
-            totalEMI += (t.amount);
+            totalEMI += -(t.amount);
         }
        
         else if (t.type == "Interest") {
@@ -1030,7 +1046,6 @@ void BankAccount::showInterestSummary() const {
     double totalInterest = 0;
     vector<Transaction> interestTxns;
 
-    // Step 1 — filter for Interest type
     for (const auto& t : transactionHistory) {
         if (t.type == "Interest") {
             interestTxns.push_back(t);
@@ -1038,18 +1053,16 @@ void BankAccount::showInterestSummary() const {
         }
     }
 
-    // Step 2 — handle empty
     if(interestTxns.empty()) {
         cout << "No interest credited yet.\n";
         return;
     }
 
-    // Step 3 — print header
+
     cout << "\n========== INTEREST SUMMARY ==========\n";
     cout << "Account : " << accountNumber << "\n";
     cout << "Name    : " << name << "\n\n";
 
-    // Step 4 — print column headers
     // S.No | TxnID | Date & Time | Amount | Balance
     cout << left << setw(6)  << "S.No"
                  << setw(8)  << "TxnID"
@@ -1060,7 +1073,6 @@ void BankAccount::showInterestSummary() const {
     
     cout << string(102, '-') << "\n";
 
-    // Step 5 — print each interest transaction
     int serial = 1;
     for(const auto& txn : interestTxns) {
             cout << left << setw(6)  << serial++

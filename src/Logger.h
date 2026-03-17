@@ -11,10 +11,9 @@ class Logger{
         std::ofstream logFile;
     
     public:
-        static Logger* getInstance() {
-        if (instance == nullptr)
-            instance = new Logger();
-        return instance;
+        static Logger& getInstance() {
+            static Logger instance;
+            return instance;
         }
         
         void log(const std::string& level, const std::string& message);
