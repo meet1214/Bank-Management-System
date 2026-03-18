@@ -8,6 +8,7 @@
 #include <chrono>
 #include <ctime>
 #include "DatabaseManager.h"
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -1087,4 +1088,29 @@ void BankAccount::showInterestSummary() const {
     cout << "Total Interest Earned: Rs." 
          << fixed << setprecision(2) << totalInterest << "\n";
     cout << "======================================\n";
+}
+
+//=====================EXPORT TO CSV(TRANSACTION_HISTORY)=====================
+void BankAccount::exportToCSV() const {
+    filesystem::create_directories("data/exports");
+    
+    string filename = "data/exports/" + accountNumber + "_transactions.csv";
+    ofstream file(filename);
+    
+    if (!file) {
+        throw DatabaseException("Failed to create export file: " + filename);
+    }
+    
+    file << "TxnID,Date & Time,Type,Amount,Balance\n";    
+
+    for (const auto& t : transactionHistory) {
+        file << t.transactionId  << ","
+             << t.dateTime  << ","
+             << t.type  << ","
+             << fixed << setprecision(2) << t.amount << ","
+             << fixed << setprecision(2) << t.balance << "\n";
+    }
+    
+    cout << "Exported " << transactionHistory.size() 
+         << " transactions to " << filename << "\n";
 }

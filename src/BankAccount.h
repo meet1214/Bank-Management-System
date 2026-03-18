@@ -1,7 +1,6 @@
 #ifndef BANKACCOUNT_H
 #define BANKACCOUNT_H
 
-#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -131,6 +130,7 @@ public:
     void showMonthlyStatement(int month, int year) const;
     void showSpendingPatterns(int year = 0) const;
     void showInterestSummary() const;
+    void exportToCSV() const;
     
     // Transaction Handling
     void showTransactionHistory() const;

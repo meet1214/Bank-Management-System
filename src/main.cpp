@@ -433,7 +433,8 @@ void userMenu(BankAccount &currentUser, const string &currentUserId,
     cout << "17. Show Interest Summary\n";
     cout << "18. RD Services\n";
     cout << "19. Standing Instructions\n";
-    cout << "20. Logout\n";
+    cout << "20. Export Transactions in CSV\n";
+    cout << "21. Logout\n";
 
     int userChoice = InputValidator::getInt("Enter choice: ");
 
@@ -641,6 +642,14 @@ void userMenu(BankAccount &currentUser, const string &currentUserId,
     } break;
 
     case 20: {
+        try {
+            currentUser.exportToCSV();
+        } catch (const DatabaseException& e) {
+            cout << "Export failed: " << e.what() << "\n";
+        }
+        break;
+    }
+    case 21: {
       DatabaseManager::deleteSession(sessionToken);
       DatabaseManager::logAudit(currentUserId, sessionToken, "LOGOUT", "",
                                 "SUCCESS");
