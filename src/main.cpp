@@ -5,6 +5,7 @@
 #include "DatabaseManager.h"
 #include "InputValidator.h"
 #include "LoanManager.h"
+#include "NotificationService.h"
 #include "RDManager.h"
 #include "StandingInstructionManager.h"
 
@@ -133,9 +134,9 @@ void loanUserMenu(LoanManager &loanManager, BankAccount &currentUser,
       loanManager.viewUserLoans(currentUserId);
       string loanId = InputValidator::getString("Enter Loan ID: ");
       try {
-          loanManager.makeEMIPayment(loanId, currentUser);
-      } catch (const LoanException& e) {
-          cout << "EMI payment failed: " << e.what() << "\n";
+        loanManager.makeEMIPayment(loanId, currentUser);
+      } catch (const LoanException &e) {
+        cout << "EMI payment failed: " << e.what() << "\n";
       }
       break;
     }
@@ -156,9 +157,9 @@ void loanUserMenu(LoanManager &loanManager, BankAccount &currentUser,
           InputValidator::getString("Confirm early closure? (yes/no): ");
       if (confirm == "yes") {
         try {
-            loanManager.closeLoanEarly(loanId, currentUser);
-        } catch (const LoanException& e) {
-            cout << "EMI payment failed: " << e.what() << "\n";
+          loanManager.closeLoanEarly(loanId, currentUser);
+        } catch (const LoanException &e) {
+          cout << "EMI payment failed: " << e.what() << "\n";
         }
       }
       break;
@@ -408,6 +409,17 @@ void userMenu(BankAccount &currentUser, const string &currentUserId,
   loanManager.processEMIAutoDebits(currentUser, manager);
   siManager.processAutoExecutions(currentUser, manager);
   manager.save();
+  // Show notifications
+  vector<string> notifications = NotificationService::getNotifications(
+      currentUser, loanManager, rdManager);
+
+  if (!notifications.empty()) {
+    cout << "\n===== NOTIFICATIONS =====\n";
+    for (const auto &n : notifications) {
+      cout << n << "\n";
+    }
+    cout << "=========================\n";
+  }
 
   bool loggedIn = true;
 
@@ -498,7 +510,7 @@ void userMenu(BankAccount &currentUser, const string &currentUserId,
         DatabaseManager::logAudit(
             currentUserId, sessionToken, "TRANSFER",
             "To: " + receiverAcc + " Amount: " + to_string(amount), "SUCCESS");
-      }catch (const BankException &e) {
+      } catch (const BankException &e) {
         cout << "Transaction failed: " << e.what() << "\n";
         DatabaseManager::logAudit(currentUserId, sessionToken, "TRANSFER",
                                   e.what(), "FAILED");
@@ -642,12 +654,12 @@ void userMenu(BankAccount &currentUser, const string &currentUserId,
     } break;
 
     case 20: {
-        try {
-            currentUser.exportToCSV();
-        } catch (const DatabaseException& e) {
-            cout << "Export failed: " << e.what() << "\n";
-        }
-        break;
+      try {
+        currentUser.exportToCSV();
+      } catch (const DatabaseException &e) {
+        cout << "Export failed: " << e.what() << "\n";
+      }
+      break;
     }
     case 21: {
       DatabaseManager::deleteSession(sessionToken);
@@ -671,11 +683,11 @@ int main() {
 
   try {
     manager.load();
-  } catch (const DatabaseException& e) {
-      cout << "Fatal error: " << e.what() << "\n";
-      return 1;
+  } catch (const DatabaseException &e) {
+    cout << "Fatal error: " << e.what() << "\n";
+    return 1;
   }
-  
+
   LoanManager loanManager;
   RDManager rdManager;
   StandingInstructionManager siManager;
@@ -733,8 +745,10 @@ int main() {
       string currentUserId = "";
       string sessionToken = "";
 
-      const int MAX_ATTEMPTS = Config::getInstance().getInt("max_login_attempts", 3);
-      const int COOLDOWN_SECONDS = Config::getInstance().getInt("cooldown_seconds", 10);
+      const int MAX_ATTEMPTS =
+          Config::getInstance().getInt("max_login_attempts", 3);
+      const int COOLDOWN_SECONDS =
+          Config::getInstance().getInt("cooldown_seconds", 10);
 
       int attempts = 0;
 

@@ -24,10 +24,13 @@ public:
     // User operations
     string openRD(BankAccount& account, double monthlyAmount,
                   int tenureMonths, double interestRate);
-    void processAutoDebits(BankAccount& account);  // call on every login
+    void processAutoDebits(BankAccount& account); 
     void viewUserRDs(const string& accountNumber) const;
     void viewRDDetails(const string& rdId) const;
     bool cancelRD(const string& rdId, BankAccount& account);
+
+    //Getters
+    const std::vector<RecurringDeposit>& getRDs() const { return rds; }
 
     // File operations
     void saveRDs() const;

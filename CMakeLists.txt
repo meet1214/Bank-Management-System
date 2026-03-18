@@ -14,6 +14,7 @@ set(SOURCES
     src/RDManager.cpp
     src/StandingInstructionManager.cpp
     src/Utils.cpp
+    src/NotificationService.cpp
 )
 
 add_executable(bank ${SOURCES})

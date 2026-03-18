@@ -12,6 +12,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/bank.dir/src/LoanManager.cpp.o.d"
   "CMakeFiles/bank.dir/src/Logger.cpp.o"
   "CMakeFiles/bank.dir/src/Logger.cpp.o.d"
+  "CMakeFiles/bank.dir/src/NotificationService.cpp.o"
+  "CMakeFiles/bank.dir/src/NotificationService.cpp.o.d"
   "CMakeFiles/bank.dir/src/RDManager.cpp.o"
   "CMakeFiles/bank.dir/src/RDManager.cpp.o.d"
   "CMakeFiles/bank.dir/src/StandingInstructionManager.cpp.o"

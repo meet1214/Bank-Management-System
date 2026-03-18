@@ -61,6 +61,12 @@
 },
 {
   "directory": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build",
+  "command": "/usr/bin/c++  -I\"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src\" -std=gnu++17 -o CMakeFiles/bank.dir/src/NotificationService.cpp.o -c \"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/NotificationService.cpp\"",
+  "file": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/NotificationService.cpp",
+  "output": "CMakeFiles/bank.dir/src/NotificationService.cpp.o"
+},
+{
+  "directory": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build",
   "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -I\"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src\" -isystem /home/meetpatel12_/miniconda3/include -std=gnu++17 -o CMakeFiles/bank_tests.dir/tests/test_main.cpp.o -c \"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/tests/test_main.cpp\"",
   "file": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/tests/test_main.cpp",
   "output": "CMakeFiles/bank_tests.dir/tests/test_main.cpp.o"

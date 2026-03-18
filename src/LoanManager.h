@@ -7,8 +7,6 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
-#include <cmath>
-#include <ctime>
 
 class LoanManager {
 private:    
@@ -66,6 +64,7 @@ public:
     
     // Getter
     Loan* getLoanById(const std::string& loanId);
+    const std::unordered_map<std::string, Loan>& getLoans() const { return loans; }
     
     // File Operations
     void saveLoans() const;

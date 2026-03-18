@@ -314,6 +314,30 @@ src/Logger.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/Logger.cpp.s
 .PHONY : src/Logger.cpp.s
 
+src/NotificationService.o: src/NotificationService.cpp.o
+.PHONY : src/NotificationService.o
+
+# target to build an object file
+src/NotificationService.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/NotificationService.cpp.o
+.PHONY : src/NotificationService.cpp.o
+
+src/NotificationService.i: src/NotificationService.cpp.i
+.PHONY : src/NotificationService.i
+
+# target to preprocess a source file
+src/NotificationService.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/NotificationService.cpp.i
+.PHONY : src/NotificationService.cpp.i
+
+src/NotificationService.s: src/NotificationService.cpp.s
+.PHONY : src/NotificationService.s
+
+# target to generate assembly for a file
+src/NotificationService.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/NotificationService.cpp.s
+.PHONY : src/NotificationService.cpp.s
+
 src/RDManager.o: src/RDManager.cpp.o
 .PHONY : src/RDManager.o
 
@@ -544,6 +568,9 @@ help:
 	@echo "... src/Logger.o"
 	@echo "... src/Logger.i"
 	@echo "... src/Logger.s"
+	@echo "... src/NotificationService.o"
+	@echo "... src/NotificationService.i"
+	@echo "... src/NotificationService.s"
 	@echo "... src/RDManager.o"
 	@echo "... src/RDManager.i"
 	@echo "... src/RDManager.s"
