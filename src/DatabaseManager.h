@@ -60,5 +60,10 @@ class DatabaseManager {
         static void updateSI(const StandingInstruction& si);
         static void deleteSI(const string& siId);
 
+        //TRANSACTION ROLLBACK OPERATIONS
+        static void beginTransaction();
+        static void commitTransaction();
+        static void rollbackTransaction();
+
 };
 #endif

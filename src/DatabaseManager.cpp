@@ -906,3 +906,20 @@ void DatabaseManager::deleteSI(const string& siId) {
     sqlite3_step(stmt);
     sqlite3_finalize(stmt);
 }
+
+//===================TRANSACTION ROLLBACK OPERATIONS==========================
+
+//========BEGIN TRANSACTION=========
+void DatabaseManager::beginTransaction() {
+    sqlite3_exec(db_, "BEGIN;", nullptr, nullptr, nullptr);
+}
+
+//========COMMIT TRANSACTION========
+void DatabaseManager::commitTransaction() {
+    sqlite3_exec(db_, "COMMIT;", nullptr, nullptr, nullptr);
+}
+
+//========ROLLBACK TRANSACTION=======
+void DatabaseManager::rollbackTransaction() {
+    sqlite3_exec(db_, "ROLLBACK;", nullptr, nullptr, nullptr);
+}

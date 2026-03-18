@@ -332,12 +332,9 @@ bool BankAccount::transferMoney(BankAccount& receiver, double amount) {
     senderTxn.transactionId = lastTransactionId;
     senderTxn.dateTime      = currentTime;
     senderTxn.type          = "Transfer To " + receiver.getName() +
-                               " (" + receiver.getAccountNumber() + ")";
+                            " (" + receiver.getAccountNumber() + ")";
     senderTxn.amount  = -amount;
     senderTxn.balance = balance;
-
-    transactionHistory.push_back(senderTxn);
-    saveTransactionToFile(senderTxn);
 
     // Credit receiver
     receiver.balance += amount;
@@ -347,12 +344,32 @@ bool BankAccount::transferMoney(BankAccount& receiver, double amount) {
     receiverTxn.transactionId = receiver.lastTransactionId;
     receiverTxn.dateTime      = currentTime;
     receiverTxn.type          = "Received From " + name +
-                                 " (" + accountNumber + ")";
+                                " (" + accountNumber + ")";
     receiverTxn.amount  = amount;
     receiverTxn.balance = receiver.balance;
 
-    receiver.transactionHistory.push_back(receiverTxn);
-    receiver.saveTransactionToFile(receiverTxn);
+    // Save both atomically
+    try {
+        DatabaseManager::beginTransaction();
+
+        transactionHistory.push_back(senderTxn);
+        saveTransactionToFile(senderTxn);
+
+        receiver.transactionHistory.push_back(receiverTxn);
+        receiver.saveTransactionToFile(receiverTxn);
+
+        DatabaseManager::commitTransaction();
+    } catch (...) {
+        DatabaseManager::rollbackTransaction();
+        // undo in-memory changes
+        transactionHistory.pop_back();
+        balance += amount;
+        receiver.balance -= amount;
+        --dailyTxnCount;
+        dailyTransferUsed -= amount;
+        Logger::getInstance().error("Transfer rolled back for " + accountNumber);
+        throw;
+    }
 
     Logger::getInstance().info("Transfer Successful to " + receiver.accountNumber);
     return true;
