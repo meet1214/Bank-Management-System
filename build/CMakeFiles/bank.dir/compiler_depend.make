@@ -581,6 +581,7 @@ CMakeFiles/bank.dir/src/BankAccount.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Ban
 
 CMakeFiles/bank.dir/src/DatabaseManager.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/DatabaseManager.cpp \
   /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/BankAccount.h \
+  /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/BankExceptions.h \
   /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/DatabaseManager.h \
   /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/Loan.h \
   /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/Logger.h \
@@ -1093,6 +1094,7 @@ CMakeFiles/bank.dir/src/InputValidator.cpp.o: /home/meetpatel12_/Stuff/Code/C++/
 CMakeFiles/bank.dir/src/LoanManager.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/LoanManager.cpp \
   /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/AccountManager.h \
   /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/BankAccount.h \
+  /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/BankExceptions.h \
   /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/DatabaseManager.h \
   /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/Loan.h \
   /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/LoanManager.h \

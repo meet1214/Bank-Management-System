@@ -2,6 +2,7 @@
 #include "BankExceptions.h"
 #include "Sha256.h"
 #include "Logger.h"
+#include "Config.h"
 
 #include <algorithm>
 #include <chrono>
@@ -48,17 +49,17 @@ BankAccount::BankAccount(const std::string& accNo,
       lastTxnDate("")
 {
     if (accountType == "Savings") {
-        interestRate = 4.0;
+        interestRate = Config::getInstance().getDouble("savings_rate",4.0);
     }
     else if (accountType == "Current") {
-        interestRate = 0.0;
+        interestRate = Config::getInstance().getDouble("current_rate",0.0);
     }
     else if (accountType == "Fixed Deposit") {
-        interestRate = 7.0;
+        interestRate = Config::getInstance().getDouble("fd_rate",7.0);
     }
     else {
         accountType = "Savings";
-        interestRate = 4.0;
+        interestRate = Config::getInstance().getDouble("savings_rate",4.0);
     }
 }
 

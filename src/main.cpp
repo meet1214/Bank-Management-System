@@ -1,6 +1,7 @@
 #include "AccountManager.h"
 #include "BankAccount.h"
 #include "BankExceptions.h"
+#include "Config.h"
 #include "DatabaseManager.h"
 #include "InputValidator.h"
 #include "LoanManager.h"
@@ -655,6 +656,8 @@ void userMenu(BankAccount &currentUser, const string &currentUserId,
 
 int main() {
 
+  Config::getInstance().load("config.ini");
+
   AccountManager manager;
 
   try {
@@ -721,8 +724,8 @@ int main() {
       string currentUserId = "";
       string sessionToken = "";
 
-      const int MAX_ATTEMPTS = 3;
-      const int COOLDOWN_SECONDS = 10;
+      const int MAX_ATTEMPTS = Config::getInstance().getInt("max_login_attempts", 3);
+      const int COOLDOWN_SECONDS = Config::getInstance().getInt("cooldown_seconds", 10);
 
       int attempts = 0;
 

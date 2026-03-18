@@ -3,6 +3,7 @@
 #include "BankExceptions.h"
 #include "Loan.h"
 #include "DatabaseManager.h"
+#include "Config.h"
 
 #include <cmath>
 #include <iomanip>
@@ -33,14 +34,14 @@ int LoanManager::lastLoanSequenceNumber = 0;
 //==========CONSTRUCTOR=================
 //interest rates
 LoanManager::LoanManager(){
-    interestRates["Personal"]            = 12.0;
-    interestRates["Home"]                = 8.5;
-    interestRates["Auto"]                = 10.0;
-    interestRates["Education"]           = 9.0;
-    foreclosurePenaltyRates["Personal"]  = 4.0;
-    foreclosurePenaltyRates["Home"]      = 2.0;
-    foreclosurePenaltyRates["Auto"]      = 3.0;
-    foreclosurePenaltyRates["Education"] = 1.0;
+    interestRates["Personal"]  = Config::getInstance().getDouble("personal_rate", 12.0);
+    interestRates["Home"]      = Config::getInstance().getDouble("home_rate", 8.5);
+    interestRates["Auto"]      = Config::getInstance().getDouble("auto_rate", 10.0);
+    interestRates["Education"] = Config::getInstance().getDouble("education_rate", 9.0);
+    foreclosurePenaltyRates["Personal"]  = Config::getInstance().getDouble("personal_penalty", 4.0);
+    foreclosurePenaltyRates["Home"]      = Config::getInstance().getDouble("home_penalty", 3.0);
+    foreclosurePenaltyRates["Auto"]      = Config::getInstance().getDouble("auto_penalty", 2.0);
+    foreclosurePenaltyRates["Education"] = Config::getInstance().getDouble("education_penalty", 1.0);
     loadLoans();
 }
 
