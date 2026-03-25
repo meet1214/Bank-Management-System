@@ -303,4 +303,4 @@ A 500-line `main()` is untestable and unreadable. Breaking it into `userMenu()`,
 
 **Meet Brijeshkumar Patel**
 
-[GitHub](https://github.com/meet1214) · [Repository](https://github.com/meet1214/Bank-Management-System) · [LinkedIn](https://linkedin.com/in/meet-patel) · meepatel086@gmail.com
+[GitHub](https://github.com/meet1214) · [Repository](https://github.com/meet1214/Bank-Management-System) · [LinkedIn](www.linkedin.com/in/meet-patel-58a9a03b9) · meepatel086@gmail.com
