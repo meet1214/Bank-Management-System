@@ -159,6 +159,13 @@ static time_t parseDateTime(const string& dateTime) {
     return mktime(&t);
 }
 
+// ================= HELPER: FORMAT DOUBLE TO 2 DECIMAL PLACES =================
+static string formatAmount(double amount) {
+    ostringstream oss;
+    oss << fixed << setprecision(2) << amount;
+    return oss.str();
+}
+
 // ================= DEPOSIT =================
 void BankAccount::depositMoney(double amount) {
 
@@ -167,12 +174,12 @@ void BankAccount::depositMoney(double amount) {
     // Limit checks
     if (amount > depositLimit) {
         throw DailyLimitExceededException("Deposit denied for " +
-            accountNumber + ": exceeds limit of Rs." + to_string(depositLimit));
+            accountNumber + ": exceeds limit of Rs." + formatAmount(depositLimit));
     }
 
     if (dailyTxnCount >= dailyTxnLimit) {
         throw DailyLimitExceededException("Deposit denied for " + 
-            accountNumber + ": daily limit of " + to_string(dailyTxnLimit) + " reached."); 
+            accountNumber + ": daily limit of " + formatAmount(dailyTxnLimit) + " reached."); 
     }
 
     balance += amount;
@@ -188,7 +195,7 @@ void BankAccount::depositMoney(double amount) {
 
     transactionHistory.push_back(t);
     saveTransactionToFile(t);
-    Logger::getInstance().info("Deposit of Rs." + to_string(amount) + " on account " + accountNumber);
+    Logger::getInstance().info("Deposit of Rs." + formatAmount(amount) + " on account " + accountNumber);
 }
 
 //=================CREDIT LOAN AMOUNT============
@@ -207,7 +214,7 @@ bool BankAccount::creditAmount(double amount, const std::string& type){
 
     transactionHistory.push_back(t);
     saveTransactionToFile(t);
-    Logger::getInstance().info("Loan amount of Rs." + to_string(amount) + " is credited on account " + accountNumber);
+    Logger::getInstance().info("Loan amount of Rs." + formatAmount(amount) + " is credited on account " + accountNumber);
     return true;
 }
 
@@ -227,7 +234,7 @@ bool BankAccount::debitAmount(double amount, const std::string& type){
 
     transactionHistory.push_back(t);
     saveTransactionToFile(t);
-    Logger::getInstance().info("An EMI of Rs." + to_string(amount) + " is debited from account " + accountNumber);
+    Logger::getInstance().info("An EMI of Rs." + formatAmount(amount) + " is debited from account " + accountNumber);
     return true;    
 }
 
@@ -238,7 +245,7 @@ bool BankAccount::withdrawMoney(double amount) {
 
     if (amount > withdrawLimit) {
         Logger::getInstance().warn("Withdrawal denied for " + accountNumber + 
-            ": exceeds limit of Rs." + to_string(withdrawLimit)); 
+            ": exceeds limit of Rs." + formatAmount(withdrawLimit)); 
         return false;
     }
     if (dailyTxnCount >= dailyTxnLimit) {
@@ -263,7 +270,7 @@ bool BankAccount::withdrawMoney(double amount) {
 
     transactionHistory.push_back(t);
     saveTransactionToFile(t);
-    Logger::getInstance().info("Withdrawal of Rs." + to_string(amount) + " on account " + accountNumber);
+    Logger::getInstance().info("Withdrawal of Rs." + formatAmount(amount) + " on account " + accountNumber);
     return true;
 }
 
@@ -296,7 +303,7 @@ bool BankAccount::transferMoney(BankAccount& receiver, double amount) {
     }
     if (amount > withdrawLimit) {
         throw DailyLimitExceededException("Transfer denied for " +
-            accountNumber + ": exceeds withdrawal limit of Rs." + to_string(withdrawLimit));
+            accountNumber + ": exceeds withdrawal limit of Rs." + formatAmount(withdrawLimit));
     }
     
     if (amount > balance) {
@@ -440,7 +447,7 @@ void BankAccount::addInterest(double amount){
     transactionHistory.push_back(t);
     saveTransactionToFile(t);
     Logger::getInstance().info("Interest of Rs." + 
-        to_string(amount) + " added in the account " + accountNumber);
+        formatAmount(amount) + " added in the account " + accountNumber);
 
 }
 
