@@ -13,7 +13,7 @@ Most student banking projects store data in flat files, use global variables, an
 | Flat-file `.txt` storage | 9-table SQLite3 schema with FK constraints |
 | Plaintext passwords | Salted SHA-256 hashing (custom, no external lib) |
 | No session concept | 32-char hex session tokens with expiry + audit log |
-| Single-threaded | Background `std::thread` for session cleanup |
+| Single-threaded | Dedicated `BackgroundWorker` class on its own thread |
 | `return false` error handling | Full typed exception hierarchy |
 | Hardcoded config | INI-style config parser (header-only singleton) |
 | One big `main()` | 17 modular source files, each independently testable |
@@ -284,7 +284,7 @@ Trusting the account number string as identity is a classic IDOR vulnerability. 
 Interest rates are operational decisions, not code. Embedding them forces a recompile-and-redeploy for every rate adjustment. The `Config` singleton parses `config.ini` at startup — change a value, restart, done.
 
 **Why refactor `main()` into 7 menu functions?**
-A 500-line `main()` is untestable and unreadable. Breaking it into `userMenu()`, `adminMenu()`, `loanMenu()`, `rdMenu()`, `historyMenu()`, `transferMenu()`, and `settingsMenu()` lets each path be tested in isolation and makes the call graph immediately clear.
+A 500-line `main()` is untestable and unreadable. Breaking it into focused menu functions lets each path be tested in isolation and makes the call graph immediately clear.
 
 ---
 
@@ -303,4 +303,4 @@ A 500-line `main()` is untestable and unreadable. Breaking it into `userMenu()`,
 
 **Meet Brijeshkumar Patel**
 
-[GitHub](https://github.com/meet1214) · [Repository](https://github.com/meet1214/Bank-Management-System) · [LinkedIn](https://www.linkedin.com/in/meet-patel-58a9a03b9) · meepatel086@gmail.com
+[GitHub](https://github.com/meet1214) · [Repository](https://github.com/meet1214/Bank-Management-System) · [LinkedIn](https://www.linkedin.com/in/meet-brijeshkumar-patel-bb95a2249) · meepatel086@gmail.com
