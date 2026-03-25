@@ -1,90 +1,217 @@
-# Bank Management System
+# 🏦 Bank Management System
 
-A feature-rich, terminal-based banking application built in C++17, backed by SQLite3. Designed with real-world financial concepts including loans, recurring deposits, standing instructions, session management, fraud detection, and a full exception hierarchy.
+> A production-grade, terminal-based banking application written in **C++17**, backed by **SQLite3** — built from scratch with real-world financial engineering: multithreading, ACID transactions, cryptographic security, fraud detection, and 16 passing unit tests.
+
+---
+
+## Why This Project Stands Out
+
+Most student banking projects store data in flat files, use global variables, and have a single monolithic `main()`. This one doesn't.
+
+| What most projects do | What this project does |
+|-----------------------|------------------------|
+| Flat-file `.txt` storage | 9-table SQLite3 schema with FK constraints |
+| Plaintext passwords | Salted SHA-256 hashing (custom, no external lib) |
+| No session concept | 32-char hex session tokens with expiry + audit log |
+| Single-threaded | Background `std::thread` for session cleanup |
+| `return false` error handling | Full typed exception hierarchy |
+| Hardcoded config | INI-style config parser (header-only singleton) |
+| One big `main()` | 17 modular source files, each independently testable |
 
 ---
 
 ## Features
 
-### User Features
-- **Account Management** — Create Savings, Current, or Fixed Deposit accounts with salted SHA-256 PIN hashing
-- **Transactions** — Deposit, withdraw, and transfer funds with per-transaction and daily limits
+### 👤 User Features
+- **Account Management** — Create Savings, Current, or Fixed Deposit accounts
+- **Transactions** — Deposit, withdraw, and transfer with per-transaction and daily limits
 - **Transaction History** — Full history, mini statement, monthly statement, and interest summary
-- **Search & Analytics** — Search by date range, transaction type, or amount (binary search); spending pattern analysis
-- **CSV Export** — Export full transaction history to a `.csv` file openable in Excel or Google Sheets
-- **Loan Services** — Apply for Personal, Home, Auto, or Education loans; make EMI payments; early closure with penalty
-- **Recurring Deposits (RD)** — Open RDs with configurable tenure and interest rate; auto-debit on login
+- **Search & Analytics** — Search by date range, type, or amount (binary search); spending pattern analysis
+- **CSV Export** — Export transaction history to `.csv`, openable in Excel or Google Sheets
+- **Loan Services** — Apply for Personal, Home, Auto, or Education loans; EMI payments; early closure with penalty
+- **Recurring Deposits (RD)** — Open RDs with configurable tenure and rate; auto-debit triggered on login
 - **Standing Instructions (SI)** — Schedule recurring monthly transfers to any account
-- **Fraud Detection** — Rule-based suspicious activity detection (large transactions, rapid succession, near-limit activity)
-- **PIN Management** — Change PIN securely with current PIN verification and masked input
+- **Fraud Detection** — Rule-based suspicious activity detection: large transactions, rapid succession, near-limit activity
+- **Notifications** — In-app notification service for account events and alerts
+- **PIN Management** — Change PIN with current PIN verification and masked terminal input
 
-### Admin Features
+### 🔧 Admin Features
 - **Account Operations** — View, freeze, unfreeze, and delete accounts
-- **Sorted Account View** — Sort by account number, name, or balance
-- **Interest Application** — Apply type-based interest to all accounts (rates configured in `config.ini`)
+- **Sorted Views** — Sort accounts by number, name, or balance
+- **Interest Application** — Apply type-based interest to all accounts (rates from `config.ini`)
 - **Loan Administration** — Approve, reject, and disburse loans
 - **Fraud Review** — Run suspicious activity reports on any account
-- **Transaction Limits** — Set per-account deposit, withdrawal, and daily limits
+- **Limit Controls** — Set per-account deposit, withdrawal, and daily limits
 
-### Security Features
-- Salted SHA-256 PIN hashing (custom implementation, no external crypto library)
-- Session tokens with configurable expiry stored in SQLite
-- Rate limiting — blocks login after 5 failed attempts within 60 seconds
-- Full audit log for every sensitive action (login, logout, deposit, transfer, PIN change, freeze)
-- Masked PIN input using POSIX `termios`
-- Custom exception hierarchy for safe, predictable error handling
+### 🔒 Security Features
+- Salted SHA-256 PIN hashing — custom implementation in `Sha256.h`, zero external crypto dependencies
+- Session tokens — 32-character random hex tokens issued on login, invalidated on logout
+- Rate limiting — blocks login after 3 failed attempts within 10 seconds (configurable)
+- Immutable audit log — every sensitive action (login, deposit, transfer, PIN change, freeze) recorded with token traceability
+- Masked PIN input — via POSIX `termios`, PIN never echoes to terminal
+- Typed exception hierarchy — all failures are explicit, logged, and handled at menu level
+
+---
+
+## Architecture
+
+### Module Map
+
+```
+Bank-Management-System/
+├── CMakeLists.txt                          # CMake 3.16+ build system
+├── config.ini                              # Externalized rates, limits, security params
+├── tests/
+│   ├── test_main.cpp                       # Google Test entry point
+│   ├── test_loan.cpp                       # EMI calculation tests
+│   ├── test_rd.cpp                         # RD maturity tests
+│   ├── test_security.cpp                   # PIN hashing + exception tests
+│   └── test_background.cpp                 # Background worker thread lifecycle tests
+└── src/
+    ├── main.cpp                            # Entry point — 7 focused menu functions
+    ├── BankAccount.cpp/h                   # Core account logic, transactions, analytics
+    ├── AccountManager.cpp/h                # User & admin operations
+    ├── DatabaseManager.cpp/h               # All SQLite3 queries and schema management
+    ├── LoanManager.cpp/h                   # Full loan lifecycle (apply → EMI → closure)
+    ├── RDManager.cpp/h                     # Recurring deposit management + auto-debit
+    ├── StandingInstructionManager.cpp/h    # Scheduled monthly transfer management
+    ├── BackgroundWorker.cpp/h              # std::thread session cleanup worker
+    ├── NotificationService.cpp/h           # In-app account event notifications
+    ├── Logger.cpp/h                        # Singleton file logger → data/bank.log
+    ├── InputValidator.cpp/h                # Safe input parsing + boundary checking
+    ├── Config.h                            # Header-only INI parser (singleton)
+    ├── Sha256.h                            # Self-contained SHA-256 + salt (header-only)
+    ├── Utils.cpp/h                         # Masked PIN input via POSIX termios
+    ├── BankExceptions.h                    # Typed exception hierarchy
+    ├── Loan.h                              # Loan + LoanPayment structs
+    ├── RD.h                                # RecurringDeposit struct
+    └── StandingInstruction.h               # StandingInstruction struct
+```
+
+### Concurrency Design
+
+A dedicated `BackgroundWorker` thread runs independently of the main application thread:
+
+```
+Main Thread                        BackgroundWorker Thread
+────────────────────               ──────────────────────────────
+User logs in                       Sleeps on condition_variable
+Session token issued          ←→   Wakes every 30 seconds
+User performs operations           Queries sessions table
+User logs out                      Deletes expired tokens
+Stop flag set (atomic)             Receives stop signal, exits cleanly
+                                   Thread joins — no leaks
+```
+
+Synchronization: `std::mutex` + `std::condition_variable` for sleep/wake, `std::atomic<bool>` stop flag for clean shutdown — no busy-waiting, no data races.
+
+### Exception Hierarchy
+
+```
+std::exception
+└── BankException
+    ├── InsufficientFundsException
+    ├── AccountLockedException
+    ├── DailyLimitExceededException
+    ├── LoanException
+    └── DatabaseException
+```
+
+Every transaction operation throws typed exceptions. Caught at the menu level and logged to the audit trail with the active session token. No silent `return false` — every failure mode is explicit and traceable.
+
+### Database Schema (9 Tables)
+
+```
+accounts ──────────────────────────────┐
+    │                                   │
+    ├── transactions                    │
+    ├── loans ──── loan_payments        │
+    ├── recurring_deposits              │
+    ├── standing_instructions           │
+    ├── sessions ───────────────────────┘ (token → account FK)
+    ├── audit_log                         (immutable, append-only)
+    └── login_attempts                    (rate limiting)
+```
+
+| Table | Key Design |
+|-------|-----------|
+| `accounts` | Salted hash stored, never raw PIN; type enum (SAVINGS / CURRENT / FD) |
+| `transactions` | Indexed by account + date; binary search on amount |
+| `loans` | Full lifecycle state: PENDING → APPROVED → DISBURSED → CLOSED |
+| `loan_payments` | Per-EMI payment history with penalty tracking |
+| `recurring_deposits` | Auto-debit flag + last-debit date for idempotency |
+| `standing_instructions` | Monthly schedule with next-execution date |
+| `sessions` | Token + expiry; cleaned by BackgroundWorker every 30s |
+| `audit_log` | Append-only; no UPDATE/DELETE permitted on this table |
+| `login_attempts` | Timestamp-windowed rate limiting |
 
 ---
 
 ## Tech Stack
 
 | Component | Technology |
-|-----------|-----------|
+|-----------|------------|
 | Language | C++17 |
 | Database | SQLite3 |
 | Build System | CMake 3.16+ |
 | Testing | Google Test |
-| Hashing | Custom SHA-256 with per-account salt |
-| Platform | Linux / macOS |
+| Concurrency | std::thread · std::mutex · std::condition_variable · std::atomic |
+| Hashing | Custom SHA-256 + per-account salt (header-only, zero dependencies) |
+| Platform | Linux · macOS |
 
 ---
 
-## Project Structure
+## Build & Run
+
+**Ubuntu/Debian:**
+```bash
+sudo apt install cmake libsqlite3-dev g++ libgtest-dev
+```
+
+**Fedora/RHEL:**
+```bash
+sudo dnf install cmake sqlite-devel gcc-c++ gtest-devel
+```
+
+**macOS:**
+```bash
+brew install cmake sqlite3 googletest
+```
+
+```bash
+git clone https://github.com/meet1214/Bank-Management-System.git
+cd Bank-Management-System
+cmake -B build
+cmake --build build
+./build/bank
+```
+
+---
+
+## Running Tests
+
+```bash
+cmake -B build && cmake --build build
+./build/bank_tests
+```
 
 ```
-Bank-Management-System/
-├── CMakeLists.txt                          # CMake build system
-├── config.ini                              # Externalized configuration
-├── README.md
-├── tests/
-│   ├── test_main.cpp                       # Google Test entry point
-│   ├── test_loan.cpp                       # EMI calculation tests
-│   ├── test_rd.cpp                         # RD maturity tests
-│   └── test_security.cpp                   # PIN hashing and exception tests
-└── src/
-    ├── main.cpp                            # Entry point + menu functions
-    ├── AccountManager.cpp/h                # User & admin account operations
-    ├── BankAccount.cpp/h                   # Core account logic, transactions, analytics
-    ├── BankExceptions.h                    # Custom exception hierarchy
-    ├── Config.h                            # INI-style config file parser (singleton)
-    ├── DatabaseManager.cpp/h               # All SQLite operations
-    ├── LoanManager.cpp/h                   # Loan lifecycle management
-    ├── RDManager.cpp/h                     # Recurring deposit management
-    ├── StandingInstructionManager.cpp/h    # Scheduled monthly transfer management
-    ├── InputValidator.cpp/h                # Safe input parsing
-    ├── Logger.cpp/h                        # Singleton logger → data/bank.log
-    ├── Sha256.h                            # Self-contained SHA-256 + salt implementation
-    ├── Utils.cpp/h                         # Masked PIN input (termios)
-    ├── Loan.h                              # Loan and LoanPayment structs
-    ├── RD.h                                # RecurringDeposit struct
-    └── StandingInstruction.h               # StandingInstruction struct
+[==========] Running 16 tests from 4 test suites.
+[  PASSED  ] 16 tests.
 ```
+
+| Test Suite | What It Covers |
+|------------|---------------|
+| `LoanManagerTest` | EMI calculation — personal, home, zero-interest edge cases |
+| `RDManagerTest` | RD maturity amounts across multiple tenures and rates |
+| `SecurityTest` | SHA-256 correctness, salt uniqueness, exception type verification |
+| `BackgroundWorkerTest` | Thread start/stop lifecycle, clean shutdown via atomic flag |
 
 ---
 
 ## Configuration
 
-All key parameters are externalized in `config.ini` — no recompilation needed to change rates or limits:
+All business parameters externalized in `config.ini` — change a rate, restart, done. No recompilation needed.
 
 ```ini
 [bank]
@@ -113,98 +240,51 @@ education_penalty=1.0
 
 ---
 
-## Exception Hierarchy
+## Financial Products
 
-The project uses a custom exception hierarchy for safe, predictable error handling:
+### Account Types
 
-```
-std::exception
-└── BankException
-    ├── InsufficientFundsException
-    ├── AccountLockedException
-    ├── DailyLimitExceededException
-    ├── LoanException
-    └── DatabaseException
-```
+| Type | Interest | Use Case |
+|------|---------|---------|
+| Savings | 4.0% p.a. | General purpose |
+| Current | 0.0% p.a. | Business transactions |
+| Fixed Deposit | 7.0% p.a. | Long-term savings |
 
-All transaction operations throw typed exceptions that are caught at the menu level and logged to the audit trail.
+### Loan Products
 
----
+| Type | Rate | Max Amount | Foreclosure Penalty |
+|------|------|-----------|-------------------|
+| Personal | 12.0% p.a. | ₹10,00,000 | 4% |
+| Home | 8.5% p.a. | ₹1,00,00,000 | 2% |
+| Auto | 10.0% p.a. | ₹20,00,000 | 3% |
+| Education | 9.0% p.a. | ₹50,00,000 | 1% |
 
-## Database Schema
-
-The application uses a single SQLite database (`data/bank.db`) with 9 tables:
-
-| Table | Purpose |
-|-------|---------|
-| `accounts` | Account credentials, balance, limits, type |
-| `transactions` | Full transaction history per account |
-| `loans` | Loan records with full lifecycle state |
-| `loan_payments` | EMI payment history per loan |
-| `recurring_deposits` | RD records with auto-debit tracking |
-| `standing_instructions` | Scheduled monthly transfer records |
-| `sessions` | Active session tokens with expiry |
-| `audit_log` | Immutable audit trail for all sensitive actions |
-| `login_attempts` | Failed login attempts for rate limiting |
+EMI uses the **reducing balance formula**. Failed payments trigger a 5% penalty on outstanding principal. All rates configurable via `config.ini`.
 
 ---
 
-## Prerequisites
+## Key Engineering Decisions
 
-**Linux (Fedora/RHEL):**
-```bash
-sudo dnf install cmake sqlite-devel gcc-c++ gtest-devel
-```
+**Why SQLite over flat files?**
+The original implementation used pipe-delimited `.txt` files. An `INSERT OR REPLACE` bug silently triggered `ON DELETE CASCADE`, wiping the entire transaction history on every save. Migrating to SQLite gave ACID transactions, proper foreign key enforcement, and indexed queries — essential for a system where data integrity is non-negotiable. The bug was fixed with a safe upsert pattern.
 
-**Linux (Ubuntu/Debian):**
-```bash
-sudo apt install cmake libsqlite3-dev g++ libgtest-dev
-```
+**Why a dedicated `BackgroundWorker` class?**
+Session cleanup cannot block the main thread. `BackgroundWorker` encapsulates a `std::thread` that sleeps on a `std::condition_variable` and wakes every 30 seconds to purge expired tokens. It shuts down cleanly via a `std::atomic<bool>` flag — no busy-waiting, no forced termination, no thread leaks.
 
-**macOS:**
-```bash
-brew install cmake sqlite3 googletest
-```
+**Why custom SHA-256 instead of OpenSSL?**
+`Sha256.h` is a self-contained, header-only implementation with zero external dependencies. Each account gets a unique random salt at creation time — identical PINs produce different hashes. This keeps the CMake build simple (no crypto library linkage) while providing real cryptographic security.
 
----
+**Why session tokens instead of account numbers?**
+Trusting the account number string as identity is a classic IDOR vulnerability. A random 32-char hex token issued at login and deleted at logout means every audit log entry is tied to a specific authenticated session — tamper-evident and fully traceable.
 
-## Build & Run
+**Why a typed exception hierarchy?**
+`return false` forces the caller to remember to check. Typed exceptions make failure modes impossible to ignore, carry structured context for audit logging, and let the menu layer catch exactly what it needs without swallowing unrelated errors.
 
-```bash
-# Clone the repository
-git clone https://github.com/meet1214/Bank-Management-System.git
-cd Bank-Management-System
+**Why externalize config?**
+Interest rates are operational decisions, not code. Embedding them forces a recompile-and-redeploy for every rate adjustment. The `Config` singleton parses `config.ini` at startup — change a value, restart, done.
 
-# Configure
-cmake -B build
-
-# Build
-cmake --build build
-
-# Run
-./build/bank
-```
-
----
-
-## Running Tests
-
-```bash
-cmake -B build
-cmake --build build
-./build/bank_tests
-```
-
-Expected output:
-```
-[==========] Running 13 tests from 3 test suites.
-[  PASSED  ] 13 tests.
-```
-
-Test coverage:
-- `LoanManagerTest` — EMI calculation for personal, home, and zero-interest loans
-- `RDManagerTest` — RD maturity amount calculation
-- `SecurityTest` — PIN hashing, verification, and exception throwing
+**Why refactor `main()` into 7 menu functions?**
+A 500-line `main()` is untestable and unreadable. Breaking it into `userMenu()`, `adminMenu()`, `loanMenu()`, `rdMenu()`, `historyMenu()`, `transferMenu()`, and `settingsMenu()` lets each path be tested in isolation and makes the call graph immediately clear.
 
 ---
 
@@ -215,55 +295,12 @@ Test coverage:
 | Account Number | `ADMIN00000001` |
 | PIN | `1234` |
 
-> Change the admin PIN immediately after first login.
-
----
-
-## Key Design Decisions
-
-**Why SQLite over flat files?**
-The previous version used pipe-delimited `.txt` files. SQLite provides ACID transactions, foreign key constraints with cascade deletes, and indexed queries — essential for a system where transaction history integrity is critical.
-
-**Why custom SHA-256 over a library?**
-The SHA-256 implementation in `Sha256.h` is self-contained with no external dependencies. Each account gets a unique random salt, so identical PINs produce different hashes. This keeps the build simple while maintaining real security.
-
-**Why a config file?**
-Interest rates, loan rates, and security parameters are business decisions that change over time. Hardcoding them forces recompilation for every change. `config.ini` externalizes these so they can be updated without touching source code.
-
-**Why a custom exception hierarchy?**
-`return false` silently swallows errors — the caller has to remember to check the return value. Typed exceptions make failure modes explicit, force the caller to handle them, and carry enough context to log meaningful audit entries.
-
-**Why session tokens?**
-Rather than trusting the account number string as identity throughout a session, a random 32-character hex token is issued on login and deleted on logout. Every sensitive operation logs the token to the audit table, creating a tamper-evident trail.
-
----
-
-## Account Types & Interest Rates
-
-| Account Type | Default Rate | Use Case |
-|-------------|-------------|---------|
-| Savings | 4.0% p.a. | General purpose |
-| Current | 0.0% p.a. | Business transactions |
-| Fixed Deposit | 7.0% p.a. | Long-term savings |
-
-Rates are configurable in `config.ini`.
-
----
-
-## Loan Products
-
-| Loan Type | Default Rate | Max Amount | Foreclosure Penalty |
-|-----------|------------|-----------|-------------------|
-| Personal | 12.0% p.a. | Rs. 10,00,000 | 4% |
-| Home | 8.5% p.a. | Rs. 1,00,00,000 | 2% |
-| Auto | 10.0% p.a. | Rs. 20,00,000 | 3% |
-| Education | 9.0% p.a. | Rs. 50,00,000 | 1% |
-
-EMI is calculated using the standard reducing balance formula. Failed EMI payments incur a 5% penalty on the outstanding amount. All rates configurable in `config.ini`.
+> **Note:** This is a demonstration project. Change the admin PIN immediately after first login. Do not use real financial data.
 
 ---
 
 ## Author
 
 **Meet Brijeshkumar Patel**
-[GitHub](https://github.com/meet1214) · [Repository](https://github.com/meet1214/Bank-Management-System)
+
+[GitHub](https://github.com/meet1214) · [Repository](https://github.com/meet1214/Bank-Management-System) · [LinkedIn](https://linkedin.com/in/meet-patel) · meepatel086@gmail.com
