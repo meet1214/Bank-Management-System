@@ -1,0 +1,6 @@
+build/
+data/
+.cache/
+.vscode/
+*.db
+*.log

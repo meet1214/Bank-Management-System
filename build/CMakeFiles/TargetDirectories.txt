@@ -1,5 +1,0 @@
-/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles/bank.dir
-/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles/bank_tests.dir
-/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles/test.dir
-/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles/edit_cache.dir
-/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles/rebuild_cache.dir
