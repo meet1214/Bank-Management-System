@@ -67,6 +67,12 @@
 },
 {
   "directory": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build",
+  "command": "/usr/bin/c++  -I\"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src\" -std=gnu++17 -o CMakeFiles/bank.dir/src/BackgroundWorker.cpp.o -c \"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/BackgroundWorker.cpp\"",
+  "file": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/BackgroundWorker.cpp",
+  "output": "CMakeFiles/bank.dir/src/BackgroundWorker.cpp.o"
+},
+{
+  "directory": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build",
   "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -I\"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src\" -isystem /home/meetpatel12_/miniconda3/include -std=gnu++17 -o CMakeFiles/bank_tests.dir/tests/test_main.cpp.o -c \"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/tests/test_main.cpp\"",
   "file": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/tests/test_main.cpp",
   "output": "CMakeFiles/bank_tests.dir/tests/test_main.cpp.o"
@@ -88,6 +94,12 @@
   "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -I\"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src\" -isystem /home/meetpatel12_/miniconda3/include -std=gnu++17 -o CMakeFiles/bank_tests.dir/tests/test_security.cpp.o -c \"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/tests/test_security.cpp\"",
   "file": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/tests/test_security.cpp",
   "output": "CMakeFiles/bank_tests.dir/tests/test_security.cpp.o"
+},
+{
+  "directory": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -I\"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src\" -isystem /home/meetpatel12_/miniconda3/include -std=gnu++17 -o CMakeFiles/bank_tests.dir/tests/test_background.cpp.o -c \"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/tests/test_background.cpp\"",
+  "file": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/tests/test_background.cpp",
+  "output": "CMakeFiles/bank_tests.dir/tests/test_background.cpp.o"
 },
 {
   "directory": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build",
@@ -142,5 +154,11 @@
   "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -I\"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src\" -isystem /home/meetpatel12_/miniconda3/include -std=gnu++17 -o CMakeFiles/bank_tests.dir/src/Utils.cpp.o -c \"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/Utils.cpp\"",
   "file": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/Utils.cpp",
   "output": "CMakeFiles/bank_tests.dir/src/Utils.cpp.o"
+},
+{
+  "directory": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -I\"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src\" -isystem /home/meetpatel12_/miniconda3/include -std=gnu++17 -o CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.o -c \"/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/BackgroundWorker.cpp\"",
+  "file": "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/BackgroundWorker.cpp",
+  "output": "CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.o"
 }
 ]

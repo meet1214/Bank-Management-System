@@ -15,6 +15,7 @@ set(SOURCES
     src/StandingInstructionManager.cpp
     src/Utils.cpp
     src/NotificationService.cpp
+    src/BackgroundWorker.cpp
 )
 
 add_executable(bank ${SOURCES})
@@ -32,6 +33,7 @@ add_executable(bank_tests
     tests/test_loan.cpp
     tests/test_rd.cpp
     tests/test_security.cpp
+    tests/test_background.cpp
     src/LoanManager.cpp
     src/RDManager.cpp
     src/BankAccount.cpp
@@ -41,6 +43,7 @@ add_executable(bank_tests
     src/InputValidator.cpp
     src/StandingInstructionManager.cpp
     src/Utils.cpp
+    src/BackgroundWorker.cpp
 )
 
 target_include_directories(bank_tests PRIVATE src)

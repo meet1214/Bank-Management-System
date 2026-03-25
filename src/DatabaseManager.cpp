@@ -923,3 +923,15 @@ void DatabaseManager::commitTransaction() {
 void DatabaseManager::rollbackTransaction() {
     sqlite3_exec(db_, "ROLLBACK;", nullptr, nullptr, nullptr);
 }
+
+//=================CLEANUP OPERATION====================
+void DatabaseManager::cleanExpiredSessions() {
+    const char* sql = R"(
+        DELETE FROM sessions WHERE expires_at < ?;
+    )";
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    sqlite3_bind_int64(stmt, 1, time(0));
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+}

@@ -128,10 +128,24 @@ CMakeFiles/bank_tests.dir/tests/test_security.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/bank_tests.dir/tests/test_security.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/tests/test_security.cpp" -o CMakeFiles/bank_tests.dir/tests/test_security.cpp.s
 
+CMakeFiles/bank_tests.dir/tests/test_background.cpp.o: CMakeFiles/bank_tests.dir/flags.make
+CMakeFiles/bank_tests.dir/tests/test_background.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/tests/test_background.cpp
+CMakeFiles/bank_tests.dir/tests/test_background.cpp.o: CMakeFiles/bank_tests.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/bank_tests.dir/tests/test_background.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/bank_tests.dir/tests/test_background.cpp.o -MF CMakeFiles/bank_tests.dir/tests/test_background.cpp.o.d -o CMakeFiles/bank_tests.dir/tests/test_background.cpp.o -c "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/tests/test_background.cpp"
+
+CMakeFiles/bank_tests.dir/tests/test_background.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/bank_tests.dir/tests/test_background.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/tests/test_background.cpp" > CMakeFiles/bank_tests.dir/tests/test_background.cpp.i
+
+CMakeFiles/bank_tests.dir/tests/test_background.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/bank_tests.dir/tests/test_background.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/tests/test_background.cpp" -o CMakeFiles/bank_tests.dir/tests/test_background.cpp.s
+
 CMakeFiles/bank_tests.dir/src/LoanManager.cpp.o: CMakeFiles/bank_tests.dir/flags.make
 CMakeFiles/bank_tests.dir/src/LoanManager.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/LoanManager.cpp
 CMakeFiles/bank_tests.dir/src/LoanManager.cpp.o: CMakeFiles/bank_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/bank_tests.dir/src/LoanManager.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/bank_tests.dir/src/LoanManager.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/bank_tests.dir/src/LoanManager.cpp.o -MF CMakeFiles/bank_tests.dir/src/LoanManager.cpp.o.d -o CMakeFiles/bank_tests.dir/src/LoanManager.cpp.o -c "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/LoanManager.cpp"
 
 CMakeFiles/bank_tests.dir/src/LoanManager.cpp.i: cmake_force
@@ -145,7 +159,7 @@ CMakeFiles/bank_tests.dir/src/LoanManager.cpp.s: cmake_force
 CMakeFiles/bank_tests.dir/src/RDManager.cpp.o: CMakeFiles/bank_tests.dir/flags.make
 CMakeFiles/bank_tests.dir/src/RDManager.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/RDManager.cpp
 CMakeFiles/bank_tests.dir/src/RDManager.cpp.o: CMakeFiles/bank_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/bank_tests.dir/src/RDManager.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/bank_tests.dir/src/RDManager.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/bank_tests.dir/src/RDManager.cpp.o -MF CMakeFiles/bank_tests.dir/src/RDManager.cpp.o.d -o CMakeFiles/bank_tests.dir/src/RDManager.cpp.o -c "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/RDManager.cpp"
 
 CMakeFiles/bank_tests.dir/src/RDManager.cpp.i: cmake_force
@@ -159,7 +173,7 @@ CMakeFiles/bank_tests.dir/src/RDManager.cpp.s: cmake_force
 CMakeFiles/bank_tests.dir/src/BankAccount.cpp.o: CMakeFiles/bank_tests.dir/flags.make
 CMakeFiles/bank_tests.dir/src/BankAccount.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/BankAccount.cpp
 CMakeFiles/bank_tests.dir/src/BankAccount.cpp.o: CMakeFiles/bank_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/bank_tests.dir/src/BankAccount.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/bank_tests.dir/src/BankAccount.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/bank_tests.dir/src/BankAccount.cpp.o -MF CMakeFiles/bank_tests.dir/src/BankAccount.cpp.o.d -o CMakeFiles/bank_tests.dir/src/BankAccount.cpp.o -c "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/BankAccount.cpp"
 
 CMakeFiles/bank_tests.dir/src/BankAccount.cpp.i: cmake_force
@@ -173,7 +187,7 @@ CMakeFiles/bank_tests.dir/src/BankAccount.cpp.s: cmake_force
 CMakeFiles/bank_tests.dir/src/DatabaseManager.cpp.o: CMakeFiles/bank_tests.dir/flags.make
 CMakeFiles/bank_tests.dir/src/DatabaseManager.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/DatabaseManager.cpp
 CMakeFiles/bank_tests.dir/src/DatabaseManager.cpp.o: CMakeFiles/bank_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/bank_tests.dir/src/DatabaseManager.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/bank_tests.dir/src/DatabaseManager.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/bank_tests.dir/src/DatabaseManager.cpp.o -MF CMakeFiles/bank_tests.dir/src/DatabaseManager.cpp.o.d -o CMakeFiles/bank_tests.dir/src/DatabaseManager.cpp.o -c "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/DatabaseManager.cpp"
 
 CMakeFiles/bank_tests.dir/src/DatabaseManager.cpp.i: cmake_force
@@ -187,7 +201,7 @@ CMakeFiles/bank_tests.dir/src/DatabaseManager.cpp.s: cmake_force
 CMakeFiles/bank_tests.dir/src/AccountManager.cpp.o: CMakeFiles/bank_tests.dir/flags.make
 CMakeFiles/bank_tests.dir/src/AccountManager.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/AccountManager.cpp
 CMakeFiles/bank_tests.dir/src/AccountManager.cpp.o: CMakeFiles/bank_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/bank_tests.dir/src/AccountManager.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/bank_tests.dir/src/AccountManager.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/bank_tests.dir/src/AccountManager.cpp.o -MF CMakeFiles/bank_tests.dir/src/AccountManager.cpp.o.d -o CMakeFiles/bank_tests.dir/src/AccountManager.cpp.o -c "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/AccountManager.cpp"
 
 CMakeFiles/bank_tests.dir/src/AccountManager.cpp.i: cmake_force
@@ -201,7 +215,7 @@ CMakeFiles/bank_tests.dir/src/AccountManager.cpp.s: cmake_force
 CMakeFiles/bank_tests.dir/src/Logger.cpp.o: CMakeFiles/bank_tests.dir/flags.make
 CMakeFiles/bank_tests.dir/src/Logger.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/Logger.cpp
 CMakeFiles/bank_tests.dir/src/Logger.cpp.o: CMakeFiles/bank_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/bank_tests.dir/src/Logger.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/bank_tests.dir/src/Logger.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/bank_tests.dir/src/Logger.cpp.o -MF CMakeFiles/bank_tests.dir/src/Logger.cpp.o.d -o CMakeFiles/bank_tests.dir/src/Logger.cpp.o -c "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/Logger.cpp"
 
 CMakeFiles/bank_tests.dir/src/Logger.cpp.i: cmake_force
@@ -215,7 +229,7 @@ CMakeFiles/bank_tests.dir/src/Logger.cpp.s: cmake_force
 CMakeFiles/bank_tests.dir/src/InputValidator.cpp.o: CMakeFiles/bank_tests.dir/flags.make
 CMakeFiles/bank_tests.dir/src/InputValidator.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/InputValidator.cpp
 CMakeFiles/bank_tests.dir/src/InputValidator.cpp.o: CMakeFiles/bank_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/bank_tests.dir/src/InputValidator.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/bank_tests.dir/src/InputValidator.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/bank_tests.dir/src/InputValidator.cpp.o -MF CMakeFiles/bank_tests.dir/src/InputValidator.cpp.o.d -o CMakeFiles/bank_tests.dir/src/InputValidator.cpp.o -c "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/InputValidator.cpp"
 
 CMakeFiles/bank_tests.dir/src/InputValidator.cpp.i: cmake_force
@@ -229,7 +243,7 @@ CMakeFiles/bank_tests.dir/src/InputValidator.cpp.s: cmake_force
 CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.o: CMakeFiles/bank_tests.dir/flags.make
 CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/StandingInstructionManager.cpp
 CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.o: CMakeFiles/bank_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.o -MF CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.o.d -o CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.o -c "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/StandingInstructionManager.cpp"
 
 CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.i: cmake_force
@@ -243,7 +257,7 @@ CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.s: cmake_force
 CMakeFiles/bank_tests.dir/src/Utils.cpp.o: CMakeFiles/bank_tests.dir/flags.make
 CMakeFiles/bank_tests.dir/src/Utils.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/Utils.cpp
 CMakeFiles/bank_tests.dir/src/Utils.cpp.o: CMakeFiles/bank_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/bank_tests.dir/src/Utils.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/bank_tests.dir/src/Utils.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/bank_tests.dir/src/Utils.cpp.o -MF CMakeFiles/bank_tests.dir/src/Utils.cpp.o.d -o CMakeFiles/bank_tests.dir/src/Utils.cpp.o -c "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/Utils.cpp"
 
 CMakeFiles/bank_tests.dir/src/Utils.cpp.i: cmake_force
@@ -254,12 +268,27 @@ CMakeFiles/bank_tests.dir/src/Utils.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/bank_tests.dir/src/Utils.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/Utils.cpp" -o CMakeFiles/bank_tests.dir/src/Utils.cpp.s
 
+CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.o: CMakeFiles/bank_tests.dir/flags.make
+CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.o: /home/meetpatel12_/Stuff/Code/C++/Bank\ Management\ system/src/BackgroundWorker.cpp
+CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.o: CMakeFiles/bank_tests.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.o -MF CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.o.d -o CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.o -c "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/BackgroundWorker.cpp"
+
+CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/BackgroundWorker.cpp" > CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.i
+
+CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/meetpatel12_/Stuff/Code/C++/Bank Management system/src/BackgroundWorker.cpp" -o CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.s
+
 # Object files for target bank_tests
 bank_tests_OBJECTS = \
 "CMakeFiles/bank_tests.dir/tests/test_main.cpp.o" \
 "CMakeFiles/bank_tests.dir/tests/test_loan.cpp.o" \
 "CMakeFiles/bank_tests.dir/tests/test_rd.cpp.o" \
 "CMakeFiles/bank_tests.dir/tests/test_security.cpp.o" \
+"CMakeFiles/bank_tests.dir/tests/test_background.cpp.o" \
 "CMakeFiles/bank_tests.dir/src/LoanManager.cpp.o" \
 "CMakeFiles/bank_tests.dir/src/RDManager.cpp.o" \
 "CMakeFiles/bank_tests.dir/src/BankAccount.cpp.o" \
@@ -268,7 +297,8 @@ bank_tests_OBJECTS = \
 "CMakeFiles/bank_tests.dir/src/Logger.cpp.o" \
 "CMakeFiles/bank_tests.dir/src/InputValidator.cpp.o" \
 "CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.o" \
-"CMakeFiles/bank_tests.dir/src/Utils.cpp.o"
+"CMakeFiles/bank_tests.dir/src/Utils.cpp.o" \
+"CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.o"
 
 # External object files for target bank_tests
 bank_tests_EXTERNAL_OBJECTS =
@@ -277,6 +307,7 @@ bank_tests: CMakeFiles/bank_tests.dir/tests/test_main.cpp.o
 bank_tests: CMakeFiles/bank_tests.dir/tests/test_loan.cpp.o
 bank_tests: CMakeFiles/bank_tests.dir/tests/test_rd.cpp.o
 bank_tests: CMakeFiles/bank_tests.dir/tests/test_security.cpp.o
+bank_tests: CMakeFiles/bank_tests.dir/tests/test_background.cpp.o
 bank_tests: CMakeFiles/bank_tests.dir/src/LoanManager.cpp.o
 bank_tests: CMakeFiles/bank_tests.dir/src/RDManager.cpp.o
 bank_tests: CMakeFiles/bank_tests.dir/src/BankAccount.cpp.o
@@ -286,13 +317,14 @@ bank_tests: CMakeFiles/bank_tests.dir/src/Logger.cpp.o
 bank_tests: CMakeFiles/bank_tests.dir/src/InputValidator.cpp.o
 bank_tests: CMakeFiles/bank_tests.dir/src/StandingInstructionManager.cpp.o
 bank_tests: CMakeFiles/bank_tests.dir/src/Utils.cpp.o
+bank_tests: CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.o
 bank_tests: CMakeFiles/bank_tests.dir/build.make
 bank_tests: CMakeFiles/bank_tests.dir/compiler_depend.ts
 bank_tests: /usr/lib64/libsqlite3.so
 bank_tests: /home/meetpatel12_/miniconda3/lib/libgtest_main.so.1.11.0
 bank_tests: /home/meetpatel12_/miniconda3/lib/libgtest.so.1.11.0
 bank_tests: CMakeFiles/bank_tests.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_14) "Linking CXX executable bank_tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_16) "Linking CXX executable bank_tests"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/bank_tests.dir/link.txt --verbose=$(VERBOSE)
 	/usr/bin/cmake -D TEST_TARGET=bank_tests -D "TEST_EXECUTABLE=/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/bank_tests" -D TEST_EXECUTOR= -D "TEST_WORKING_DIR=/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build" -D TEST_EXTRA_ARGS= -D TEST_PROPERTIES= -D TEST_PREFIX= -D TEST_SUFFIX= -D TEST_FILTER= -D NO_PRETTY_TYPES=FALSE -D NO_PRETTY_VALUES=FALSE -D TEST_LIST=bank_tests_TESTS -D "CTEST_FILE=/home/meetpatel12_/Stuff/Code/C++/Bank Management system/build/bank_tests[1]_tests.cmake" -D TEST_DISCOVERY_TIMEOUT=5 -D TEST_DISCOVERY_EXTRA_ARGS= -D TEST_XML_OUTPUT_DIR= -P /usr/share/cmake/Modules/GoogleTestAddTests.cmake
 

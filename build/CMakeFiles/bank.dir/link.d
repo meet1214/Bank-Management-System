@@ -13,6 +13,7 @@ bank: \
   CMakeFiles/bank.dir/src/StandingInstructionManager.cpp.o \
   CMakeFiles/bank.dir/src/Utils.cpp.o \
   CMakeFiles/bank.dir/src/NotificationService.cpp.o \
+  CMakeFiles/bank.dir/src/BackgroundWorker.cpp.o \
   /usr/lib64/libsqlite3.so \
   /usr/lib/gcc/x86_64-redhat-linux/15/libstdc++.so \
   /usr/lib/gcc/x86_64-redhat-linux/15/../../../../lib64/libm.so \
@@ -69,6 +70,8 @@ CMakeFiles/bank.dir/src/StandingInstructionManager.cpp.o:
 CMakeFiles/bank.dir/src/Utils.cpp.o:
 
 CMakeFiles/bank.dir/src/NotificationService.cpp.o:
+
+CMakeFiles/bank.dir/src/BackgroundWorker.cpp.o:
 
 /usr/lib64/libsqlite3.so:
 

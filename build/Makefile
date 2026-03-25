@@ -179,6 +179,33 @@ src/AccountManager.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/AccountManager.cpp.s
 .PHONY : src/AccountManager.cpp.s
 
+src/BackgroundWorker.o: src/BackgroundWorker.cpp.o
+.PHONY : src/BackgroundWorker.o
+
+# target to build an object file
+src/BackgroundWorker.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/BackgroundWorker.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.o
+.PHONY : src/BackgroundWorker.cpp.o
+
+src/BackgroundWorker.i: src/BackgroundWorker.cpp.i
+.PHONY : src/BackgroundWorker.i
+
+# target to preprocess a source file
+src/BackgroundWorker.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/BackgroundWorker.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.i
+.PHONY : src/BackgroundWorker.cpp.i
+
+src/BackgroundWorker.s: src/BackgroundWorker.cpp.s
+.PHONY : src/BackgroundWorker.s
+
+# target to generate assembly for a file
+src/BackgroundWorker.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/BackgroundWorker.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/src/BackgroundWorker.cpp.s
+.PHONY : src/BackgroundWorker.cpp.s
+
 src/BankAccount.o: src/BankAccount.cpp.o
 .PHONY : src/BankAccount.o
 
@@ -443,6 +470,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank.dir/build.make CMakeFiles/bank.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+tests/test_background.o: tests/test_background.cpp.o
+.PHONY : tests/test_background.o
+
+# target to build an object file
+tests/test_background.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_background.cpp.o
+.PHONY : tests/test_background.cpp.o
+
+tests/test_background.i: tests/test_background.cpp.i
+.PHONY : tests/test_background.i
+
+# target to preprocess a source file
+tests/test_background.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_background.cpp.i
+.PHONY : tests/test_background.cpp.i
+
+tests/test_background.s: tests/test_background.cpp.s
+.PHONY : tests/test_background.s
+
+# target to generate assembly for a file
+tests/test_background.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bank_tests.dir/build.make CMakeFiles/bank_tests.dir/tests/test_background.cpp.s
+.PHONY : tests/test_background.cpp.s
+
 tests/test_loan.o: tests/test_loan.cpp.o
 .PHONY : tests/test_loan.o
 
@@ -553,6 +604,9 @@ help:
 	@echo "... src/AccountManager.o"
 	@echo "... src/AccountManager.i"
 	@echo "... src/AccountManager.s"
+	@echo "... src/BackgroundWorker.o"
+	@echo "... src/BackgroundWorker.i"
+	@echo "... src/BackgroundWorker.s"
 	@echo "... src/BankAccount.o"
 	@echo "... src/BankAccount.i"
 	@echo "... src/BankAccount.s"
@@ -583,6 +637,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... tests/test_background.o"
+	@echo "... tests/test_background.i"
+	@echo "... tests/test_background.s"
 	@echo "... tests/test_loan.o"
 	@echo "... tests/test_loan.i"
 	@echo "... tests/test_loan.s"

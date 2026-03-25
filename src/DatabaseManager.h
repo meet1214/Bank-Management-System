@@ -65,5 +65,8 @@ class DatabaseManager {
         static void commitTransaction();
         static void rollbackTransaction();
 
+        //CLEANUP OPERATIONS
+        static void cleanExpiredSessions();
+
 };
 #endif

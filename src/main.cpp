@@ -9,6 +9,7 @@
 #include "RDManager.h"
 #include "ReportGenerator.h"
 #include "StandingInstructionManager.h"
+#include "BackgroundWorker.h"
 
 #include <chrono>
 #include <iomanip>
@@ -613,6 +614,7 @@ int main() {
   LoanManager loanManager;
   RDManager rdManager;
   StandingInstructionManager siManager;
+  BackgroundWorker bgWorker;
 
   while (true) {
     cout << "\n===== MAIN MENU =====\n";
@@ -696,6 +698,7 @@ int main() {
         break;
       }
 
+      bgWorker.start();
       if (currentUser->getRole() == "admin") {
         cout << "Welcome Admin.\n";
         adminMenu(manager, loanManager, currentUserId, sessionToken);
@@ -703,6 +706,7 @@ int main() {
         userMenu(*currentUser, currentUserId, manager, loanManager,
                  rdManager, siManager, sessionToken);
       }
+      bgWorker.stop();
       break;
     }
 

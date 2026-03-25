@@ -2,6 +2,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/bank.dir/link.d"
   "CMakeFiles/bank.dir/src/AccountManager.cpp.o"
   "CMakeFiles/bank.dir/src/AccountManager.cpp.o.d"
+  "CMakeFiles/bank.dir/src/BackgroundWorker.cpp.o"
+  "CMakeFiles/bank.dir/src/BackgroundWorker.cpp.o.d"
   "CMakeFiles/bank.dir/src/BankAccount.cpp.o"
   "CMakeFiles/bank.dir/src/BankAccount.cpp.o.d"
   "CMakeFiles/bank.dir/src/DatabaseManager.cpp.o"
