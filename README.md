@@ -2,6 +2,8 @@
 
 > A production-grade, terminal-based banking application written in **C++17**, backed by **SQLite3** — built from scratch with real-world financial engineering: multithreading, ACID transactions, cryptographic security, fraud detection, and 16 passing unit tests.
 
+![Build](https://img.shields.io/badge/build-passing-brightgreen) ![C++17](https://img.shields.io/badge/C%2B%2B-17-blue) ![Tests](https://img.shields.io/badge/tests-16%20passing-brightgreen) ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS-lightgrey) ![License](https://img.shields.io/badge/license-MIT-blue)
+
 ---
 
 ## Why This Project Stands Out
@@ -50,6 +52,83 @@ Most student banking projects store data in flat files, use global variables, an
 - Immutable audit log — every sensitive action (login, deposit, transfer, PIN change, freeze) recorded with token traceability
 - Masked PIN input — via POSIX `termios`, PIN never echoes to terminal
 - Typed exception hierarchy — all failures are explicit, logged, and handled at menu level
+
+---
+
+## Build & Run
+
+**Ubuntu/Debian:**
+```bash
+sudo apt install cmake libsqlite3-dev g++ libgtest-dev
+```
+
+**Fedora/RHEL:**
+```bash
+sudo dnf install cmake sqlite-devel gcc-c++ gtest-devel
+```
+
+**macOS:**
+```bash
+brew install cmake sqlite3 googletest
+```
+
+```bash
+git clone https://github.com/meet1214/Bank-Management-System.git
+cd Bank-Management-System
+cmake -B build
+cmake --build build
+./build/bank
+```
+
+### Default Admin Credentials
+
+| Field | Value |
+|-------|-------|
+| Account Number | `ADMIN00000001` |
+| PIN | `1234` |
+
+> **Note:** This is a demonstration project. Change the admin PIN immediately after first login. Do not use real financial data.
+
+---
+
+## Running Tests
+
+```bash
+cmake -B build && cmake --build build
+./build/bank_tests
+```
+
+```
+[==========] Running 16 tests from 4 test suites.
+[----------] 4 tests from LoanManagerTest
+[ RUN      ] LoanManagerTest.PersonalLoanEMICalculation
+[ RUN      ] LoanManagerTest.HomeLoanEMICalculation
+[ RUN      ] LoanManagerTest.ZeroInterestEdgeCase
+[ RUN      ] LoanManagerTest.EarlyClosurePenaltyCalculation
+[----------] 4 tests from RDManagerTest
+[ RUN      ] RDManagerTest.MaturityAmountSingleTenure
+[ RUN      ] RDManagerTest.MaturityAmountMultipleTenures
+[ RUN      ] RDManagerTest.MaturityAmountMultipleRates
+[ RUN      ] RDManagerTest.AutoDebitIdempotency
+[----------] 4 tests from SecurityTest
+[ RUN      ] SecurityTest.SHA256CorrectnessKnownVector
+[ RUN      ] SecurityTest.SaltUniquenessAcrossAccounts
+[ RUN      ] SecurityTest.IdenticalPINsDifferentHashes
+[ RUN      ] SecurityTest.ExceptionTypeVerification
+[----------] 4 tests from BackgroundWorkerTest
+[ RUN      ] BackgroundWorkerTest.ThreadStartsCleanly
+[ RUN      ] BackgroundWorkerTest.CleanShutdownViaAtomicFlag
+[ RUN      ] BackgroundWorkerTest.NoThreadLeaksOnExit
+[ RUN      ] BackgroundWorkerTest.NoBusyWaitingOnIdle
+[==========] 16 tests passed.
+```
+
+| Test Suite | What It Covers |
+|------------|----------------|
+| `LoanManagerTest` | EMI calculation — personal, home, zero-interest edge cases |
+| `RDManagerTest` | RD maturity amounts across multiple tenures and rates |
+| `SecurityTest` | SHA-256 correctness, salt uniqueness, exception type verification |
+| `BackgroundWorkerTest` | Thread start/stop lifecycle, clean shutdown via atomic flag |
 
 ---
 
@@ -134,7 +213,7 @@ accounts ───────────────────────�
 ```
 
 | Table | Key Design |
-|-------|-----------|
+|-------|------------|
 | `accounts` | Salted hash stored, never raw PIN; type enum (SAVINGS / CURRENT / FD) |
 | `transactions` | Indexed by account + date; binary search on amount |
 | `loans` | Full lifecycle state: PENDING → APPROVED → DISBURSED → CLOSED |
@@ -158,54 +237,6 @@ accounts ───────────────────────�
 | Concurrency | std::thread · std::mutex · std::condition_variable · std::atomic |
 | Hashing | Custom SHA-256 + per-account salt (header-only, zero dependencies) |
 | Platform | Linux · macOS |
-
----
-
-## Build & Run
-
-**Ubuntu/Debian:**
-```bash
-sudo apt install cmake libsqlite3-dev g++ libgtest-dev
-```
-
-**Fedora/RHEL:**
-```bash
-sudo dnf install cmake sqlite-devel gcc-c++ gtest-devel
-```
-
-**macOS:**
-```bash
-brew install cmake sqlite3 googletest
-```
-
-```bash
-git clone https://github.com/meet1214/Bank-Management-System.git
-cd Bank-Management-System
-cmake -B build
-cmake --build build
-./build/bank
-```
-
----
-
-## Running Tests
-
-```bash
-cmake -B build && cmake --build build
-./build/bank_tests
-```
-
-```
-[==========] Running 16 tests from 4 test suites.
-[  PASSED  ] 16 tests.
-```
-
-| Test Suite | What It Covers |
-|------------|---------------|
-| `LoanManagerTest` | EMI calculation — personal, home, zero-interest edge cases |
-| `RDManagerTest` | RD maturity amounts across multiple tenures and rates |
-| `SecurityTest` | SHA-256 correctness, salt uniqueness, exception type verification |
-| `BackgroundWorkerTest` | Thread start/stop lifecycle, clean shutdown via atomic flag |
 
 ---
 
@@ -245,7 +276,7 @@ education_penalty=1.0
 ### Account Types
 
 | Type | Interest | Use Case |
-|------|---------|---------|
+|------|----------|----------|
 | Savings | 4.0% p.a. | General purpose |
 | Current | 0.0% p.a. | Business transactions |
 | Fixed Deposit | 7.0% p.a. | Long-term savings |
@@ -253,7 +284,7 @@ education_penalty=1.0
 ### Loan Products
 
 | Type | Rate | Max Amount | Foreclosure Penalty |
-|------|------|-----------|-------------------|
+|------|------|------------|---------------------|
 | Personal | 12.0% p.a. | ₹10,00,000 | 4% |
 | Home | 8.5% p.a. | ₹1,00,00,000 | 2% |
 | Auto | 10.0% p.a. | ₹20,00,000 | 3% |
@@ -288,14 +319,12 @@ A 500-line `main()` is untestable and unreadable. Breaking it into focused menu 
 
 ---
 
-## Default Admin Credentials
+## Limitations
 
-| Field | Value |
-|-------|-------|
-| Account Number | `ADMIN00000001` |
-| PIN | `1234` |
-
-> **Note:** This is a demonstration project. Change the admin PIN immediately after first login. Do not use real financial data.
+- **CLI only** — no REST API or web interface; all interaction is terminal-based
+- **Single active session** — no concurrent multi-user support; designed for single-user operation
+- **Linux / macOS only** — masked PIN input uses POSIX `termios`, which is not available on Windows
+- **No task cancellation or background job control** — the `BackgroundWorker` runs on a fixed 30-second interval with no manual trigger
 
 ---
 
@@ -303,4 +332,4 @@ A 500-line `main()` is untestable and unreadable. Breaking it into focused menu 
 
 **Meet Brijeshkumar Patel**
 
-[GitHub](https://github.com/meet1214) · [Repository](https://github.com/meet1214/Bank-Management-System) · [LinkedIn](https://www.linkedin.com/in/meet-brijeshkumar-patel-bb95a2249) · meepatel086@gmail.com
+[GitHub](https://github.com/meet1214) · [Repository](https://github.com/meet1214/Bank-Management-System) · [LinkedIn](https://www.linkedin.com/in/meet-brijeshkumar-patel-bb95a2249) · [meepatel086@gmail.com](mailto:meepatel086@gmail.com)
