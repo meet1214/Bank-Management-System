@@ -398,11 +398,18 @@ void DatabaseManager::saveLoans(const unordered_map<string, Loan> &loans) {
     sqlite3_exec(db_, "BEGIN;", nullptr, nullptr, nullptr);
 
     const char* sql = R"(
-        INSERT OR REPLACE INTO loans
+        INSERT INTO loans
         (loan_id, account_number, loan_type, principal_amount, interest_rate,
         tenure_months, emi_amount, outstanding_amount, status, rejection_reason,
         application_date, disbursement_date, next_emi_date, payments_made)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(loan_id) DO UPDATE SET
+        outstanding_amount  = excluded.outstanding_amount,
+        status              = excluded.status,
+        rejection_reason    = excluded.rejection_reason,
+        disbursement_date   = excluded.disbursement_date,
+        next_emi_date       = excluded.next_emi_date,
+        payments_made       = excluded.payments_made;
     )";
 
     sqlite3_stmt* stmt = nullptr;
@@ -718,10 +725,16 @@ void DatabaseManager::recordFailedAttempt(const string& accountNumber){
 void DatabaseManager::saveRD(const RecurringDeposit &rd) {
 
     const char* sql = R"(
-        INSERT OR REPLACE INTO recurring_deposits
+        INSERT INTO recurring_deposits
         (rd_id, account_number, monthly_amount, tenure_months, interest_rate,
         start_date, next_debit_date, total_deposited, months_paid, maturity_amount, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(rd_id) DO UPDATE SET
+        next_debit_date  = excluded.next_debit_date,
+        total_deposited  = excluded.total_deposited,
+        months_paid      = excluded.months_paid,
+        maturity_amount  = excluded.maturity_amount,
+        status           = excluded.status;
     )";
 
     sqlite3_stmt* stmt = nullptr;
@@ -740,8 +753,7 @@ void DatabaseManager::saveRD(const RecurringDeposit &rd) {
     sqlite3_bind_text   (stmt, 11,  rd.status.c_str(), -1, SQLITE_TRANSIENT);
 
     sqlite3_step(stmt);
-    sqlite3_finalize(stmt);   
-
+    sqlite3_finalize(stmt);
 }
 
 //===================LOAD RD========================
@@ -819,10 +831,15 @@ void DatabaseManager::deleteRD(const string& rdId) {
 void DatabaseManager::saveSI(const StandingInstruction& si) {
 
     const char* sql = R"(
-        INSERT OR REPLACE INTO standing_instructions
+        INSERT INTO standing_instructions
         (siId, accountNumber, receiverAccountNumber, amount, executionDay,
         nextExecutionDate, description, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(siId) DO UPDATE SET
+        nextExecutionDate       = excluded.nextExecutionDate,
+        status                  = excluded.status,
+        amount                  = excluded.amount,
+        description             = excluded.description;
     )";
 
     sqlite3_stmt* stmt = nullptr;
@@ -838,8 +855,7 @@ void DatabaseManager::saveSI(const StandingInstruction& si) {
     sqlite3_bind_text   (stmt,  8,  si.status.c_str(), -1, SQLITE_TRANSIENT);
 
     sqlite3_step(stmt);
-    sqlite3_finalize(stmt);   
-
+    sqlite3_finalize(stmt);
 }
 
 //===================LOAD SI========================
