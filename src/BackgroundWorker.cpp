@@ -13,6 +13,7 @@ BackgroundWorker::~BackgroundWorker() {
 }
 
 void BackgroundWorker::start() {
+    if (worker.joinable()) return;
     stopFlag = false;
     worker = std::thread(&BackgroundWorker::run, this);
 }
